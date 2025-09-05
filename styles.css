@@ -7,12 +7,20 @@
     --light-bg: #f5f8f5;          /* Very light green tint */
     --dark-bg: #1a2e1a;           /* Very dark green */
     --transition-speed: 0.5s;
+    
+    /* Font weights for consistency */
+    --font-weight-normal: 400;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
 }
 
 html {
@@ -21,15 +29,20 @@ html {
 
 body {
     font-family: 'Courier Prime', 'Source Code Pro', 'Courier New', monospace;
+    font-weight: var(--font-weight-normal);
+    font-size: 16px;
     line-height: 1.6;
     color: var(--text-color);
     background-color: var(--light-bg);
     overflow-x: hidden;
+    letter-spacing: 0;
+    font-kerning: normal;
+    font-feature-settings: "kern", "liga", "clig", "calt";
 }
 
 h1, h2, h3, h4 {
     font-family: 'Courier Prime', 'Source Code Pro', 'Courier New', monospace;
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
     line-height: 1.2;
 }
 
@@ -41,6 +54,24 @@ a {
 
 a:hover {
     color: var(--accent-color);
+}
+
+/* Font weight utility classes */
+.fw-normal {
+    font-weight: var(--font-weight-normal) !important;
+}
+
+.fw-semibold {
+    font-weight: var(--font-weight-semibold) !important;
+}
+
+.fw-bold {
+    font-weight: var(--font-weight-bold) !important;
+}
+
+/* Text rendering fix */
+p, span, div, li {
+    text-rendering: geometricPrecision;
 }
 
 /* Header & Logo */
@@ -68,7 +99,7 @@ header {
 }
 
 .hero-logo {
-    height: 120px;
+    height: 180px;
     max-width: 90%;
     margin-bottom: 2rem;
     animation: fadeInUp 1s ease forwards;
@@ -272,6 +303,8 @@ header {
     text-align: center;
     margin-bottom: 2rem;
     position: relative;
+    font-weight: var(--font-weight-bold);
+    color: var(--primary-color);
 }
 
 .character h3:after {
@@ -283,6 +316,17 @@ header {
     width: 50px;
     height: 3px;
     background-color: var(--secondary-color);
+}
+
+.character-details {
+    margin-top: 1rem;
+}
+
+.character-details p {
+    margin-bottom: 1rem;
+    font-weight: var(--font-weight-normal);
+    font-size: 1rem;
+    letter-spacing: -0.01em;
 }
 
 .question {
@@ -604,7 +648,7 @@ code, .code-text {
     }
     
     .hero-logo {
-        height: 100px;
+        height: 150px;
     }
 
     .hero-content h2 {
@@ -658,7 +702,7 @@ code, .code-text {
     }
     
     .hero-logo {
-        height: 80px;
+        height: 120px;
     }
 
     .hero-content h2 {
@@ -714,7 +758,7 @@ code, .code-text {
     }
     
     .hero-logo {
-        height: 65px;
+        height: 100px;
     }
     
     .hero-content h2 {

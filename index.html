@@ -17,7 +17,24 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Source+Code+Pro:wght@300;400;600;700&display=swap&text=CimbolgyYurExpets" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Source+Code+Pro:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Critical fonts for faster loading */
+        @font-face {
+            font-family: 'Courier Prime';
+            font-style: normal;
+            font-weight: 400;
+            font-display: swap;
+            src: local('Courier Prime Regular'), local('CourierPrime-Regular');
+        }
+        @font-face {
+            font-family: 'Courier Prime';
+            font-style: normal;
+            font-weight: 700;
+            font-display: swap;
+            src: local('Courier Prime Bold'), local('CourierPrime-Bold');
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -53,24 +70,24 @@
 
         <div class="story-section" id="jack">
             <div class="character">
-                <h3>Jack</h3>
+                <h3 class="fw-bold">Jack</h3>
                 <div class="character-details">
-                    <p>A master substation physical designer with over 30 years of experience.</p>
-                    <p>Jack creates the physical layouts and ensures that substations are properly designed for construction and maintenance.</p>
-                    <p>With exceptional skills in AutoCAD and Autodesk Inventor, he's the go-to expert that colleagues rely on daily.</p>
-                    <p>His meticulous approach to design has made him an invaluable asset to the Physical Design group.</p>
+                    <p class="fw-normal">A master substation physical designer with over 30 years of experience.</p>
+                    <p class="fw-normal">Jack creates the physical layouts and ensures that substations are properly designed for construction and maintenance.</p>
+                    <p class="fw-normal">With exceptional skills in AutoCAD and Autodesk Inventor, he's the go-to expert that colleagues rely on daily.</p>
+                    <p class="fw-normal">His meticulous approach to design has made him an invaluable asset to the Physical Design group.</p>
                 </div>
             </div>
         </div>
 
         <div class="story-section" id="susan">
             <div class="character">
-                <h3>Susan</h3>
+                <h3 class="fw-bold">Susan</h3>
                 <div class="character-details">
-                    <p>An electrical engineer with 30+ years designing protection and control schemes for the substations her company designs and builds.</p>
-                    <p>Susan knows AutoCAD Electrical like the back of her hand.</p>
-                    <p>She always knows exactly where to find the right standards, specifications, and information needed for any project.</p>
-                    <p>Her expertise and attention to detail has made her an indispensable resource to the entire team.</p>
+                    <p class="fw-normal">An electrical engineer with 30+ years designing protection and control schemes for the substations her company designs and builds.</p>
+                    <p class="fw-normal">Susan knows AutoCAD Electrical like the back of her hand.</p>
+                    <p class="fw-normal">She always knows exactly where to find the right standards, specifications, and information needed for any project.</p>
+                    <p class="fw-normal">Her expertise and attention to detail has made her an indispensable resource to the entire team.</p>
                 </div>
             </div>
         </div>
