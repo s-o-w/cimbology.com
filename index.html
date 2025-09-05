@@ -2,31 +2,42 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#2c5f2d">
     <title>Cimbology - Coming Soon</title>
+    <meta name="description" content="Cimbology - Codify Your Expertise. A new way to manage and access institutional knowledge using AI and Knowledge Graphs.">
+    <meta name="keywords" content="institutional knowledge, engineering knowledge, AI, knowledge graphs, machine learning, utility industry, electrical engineering, knowledge management, expert systems, digital twins">
+    <meta property="og:title" content="Cimbology - Coming Soon">
+    <meta property="og:description" content="A new way to manage and access institutional knowledge using AI and Knowledge Graphs.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://cimbology.com">
+    <meta property="og:image" content="CIMbologyLogo.png">
+    <meta name="twitter:card" content="summary_large_image">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Source+Code+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Source+Code+Pro:wght@300;400;600;700&display=swap&text=CimbolgyYurExpets" rel="stylesheet">
 </head>
 <body>
     <header>
         <div class="logo-container">
-            <h1>Cimbology</h1>
+            <img src="CIMbologyLogo.png" alt="Cimbology Logo" class="main-logo">
             <p class="tagline">Codify Your Expertise</p>
         </div>
     </header>
 
     <section class="hero">
         <div class="hero-content">
+            <img src="CIMbologyLogo.png" alt="Cimbology Logo" class="hero-logo">
             <h2>Coming Soon</h2>
             <p class="subtitle">A new way to manage and access institutional knowledge</p>
             <p class="tech-hint">Powered by YOUR data, AI and Knowledge Graphs</p>
         </div>
         <div class="scroll-down-container">
-            <a href="#intro" class="scroll-down-arrow">
-                <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <a href="#intro" class="scroll-down-arrow" aria-label="Scroll down to learn more">
+                <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="scrollArrowTitle">
+                    <title id="scrollArrowTitle">Down Arrow</title>
                     <path d="M7 10L12 15L17 10" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
                 <span class="scroll-text">Scroll to learn more</span>
@@ -82,7 +93,7 @@
 
         <div class="story-section" id="solution">
             <h3>That's where Cimbology comes in...</h3>
-            <div class="terminal">
+            <div class="terminal" role="region" aria-label="Command line interface demonstration">
                 <div class="command-line">
                     <span class="prompt">cimbology@engine:~$</span> ./knowledge-index --organize --source=institutional-data
                 </div>
@@ -133,13 +144,43 @@
         </div>
     </section>
 
+    <section id="contact" class="contact-section">
+        <div class="container">
+            <h2>Get in Touch</h2>
+            <p>Interested in Cimbology? Send us a message and we'll keep you updated.</p>
+            
+            <form id="contact-form" class="contact-form">
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="message">Message</label>
+                    <textarea id="message" name="message" rows="4" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <button type="submit" class="submit-btn">Send Message</button>
+                </div>
+                
+                <div id="status-message" class="status-message"></div>
+            </form>
+        </div>
+    </section>
+
     <footer>
         <p>&copy; <span id="year"></span> Cimbology. All rights reserved.</p>
-        <div class="contact">
-            <p>For inquiries: <a href="mailto:info@cimbology.com">info@cimbology.com</a></p>
-        </div>
     </footer>
 
+    <!-- EmailJS Script -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    
     <script src="script.js"></script>
     <!-- Partially Generated by Copilot -->
 </body>

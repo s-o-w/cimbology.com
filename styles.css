@@ -61,10 +61,17 @@ header {
     align-items: center;
 }
 
-.logo-container h1 {
-    font-size: 2.5rem;
-    color: var(--primary-color);
+.main-logo {
+    height: 70px;
+    max-width: 100%;
     margin-bottom: 0.5rem;
+}
+
+.hero-logo {
+    height: 120px;
+    max-width: 90%;
+    margin-bottom: 2rem;
+    animation: fadeInUp 1s ease forwards;
 }
 
 .tagline {
@@ -490,10 +497,114 @@ code, .code-text {
     font-weight: bold;
 }
 
+/* Contact Form Styles */
+.contact-section {
+    background-color: var(--light-bg);
+    padding: 4rem 5%;
+    text-align: center;
+}
+
+.contact-section h2 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    font-size: 2.5rem;
+}
+
+.contact-section p {
+    max-width: 600px;
+    margin: 0 auto 2rem;
+    color: var(--text-color);
+}
+
+.contact-form {
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 2rem;
+    border-radius: 5px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    text-align: left;
+    border-left: 5px solid var(--primary-color);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 1rem;
+    background-color: rgba(44, 95, 45, 0.02);
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(44, 95, 45, 0.1);
+}
+
+.submit-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Courier Prime', monospace;
+    font-weight: bold;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.submit-btn:hover {
+    background-color: #1d4d1e;
+    transform: translateY(-2px);
+}
+
+.status-message {
+    margin-top: 1rem;
+    padding: 0.8rem;
+    border-radius: 4px;
+    font-weight: bold;
+    display: none;
+}
+
+.status-message.success {
+    background-color: rgba(76, 175, 80, 0.1);
+    color: #2e7d32;
+    border: 1px solid #2e7d32;
+    display: block;
+}
+
+.status-message.error {
+    background-color: rgba(244, 67, 54, 0.1);
+    color: #c62828;
+    border: 1px solid #c62828;
+    display: block;
+}
+
 /* Media Queries */
 @media (max-width: 768px) {
-    .logo-container h1 {
-        font-size: 2rem;
+    .main-logo {
+        height: 60px;
+    }
+    
+    .hero-logo {
+        height: 100px;
     }
 
     .hero-content h2 {
@@ -527,11 +638,27 @@ code, .code-text {
     .coming-soon h2:before, .coming-soon h2:after {
         display: none;
     }
+    
+    .terminal {
+        font-size: 0.85rem;
+    }
+    
+    .tech-section {
+        padding: 1.8rem;
+    }
+    
+    .contact-form {
+        padding: 1.5rem;
+    }
 }
 
 @media (max-width: 480px) {
-    .logo-container h1 {
-        font-size: 1.8rem;
+    .main-logo {
+        height: 50px;
+    }
+    
+    .hero-logo {
+        height: 80px;
     }
 
     .hero-content h2 {
@@ -544,5 +671,69 @@ code, .code-text {
 
     .character {
         padding: 1.5rem;
+    }
+    
+    .terminal {
+        font-size: 0.8rem;
+        padding: 1rem;
+    }
+    
+    .tech-section {
+        padding: 1.5rem;
+    }
+    
+    .coming-soon h2 {
+        font-size: 1.8rem;
+    }
+    
+    .scroll-text {
+        display: none;
+    }
+    
+    .contact-section h2 {
+        font-size: 2rem;
+    }
+    
+    .contact-form {
+        padding: 1.2rem;
+    }
+    
+    .form-group input,
+    .form-group textarea {
+        padding: 0.6rem;
+    }
+    
+    .submit-btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 375px) {
+    .main-logo {
+        height: 40px;
+    }
+    
+    .hero-logo {
+        height: 65px;
+    }
+    
+    .hero-content h2 {
+        font-size: 1.7rem;
+    }
+    
+    .subtitle {
+        font-size: 1rem;
+    }
+    
+    .terminal {
+        font-size: 0.75rem;
+    }
+    
+    .tech-section li {
+        margin-bottom: 0.8rem;
+    }
+    
+    header {
+        padding: 0.8rem 1rem;
     }
 }

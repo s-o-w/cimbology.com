@@ -3,6 +3,56 @@ document.addEventListener('DOMContentLoaded', function() {
     // Set current year for copyright
     document.getElementById('year').textContent = new Date().getFullYear();
 
+    // Initialize EmailJS
+    // NOTE: Replace 'YOUR_PUBLIC_KEY' with your actual EmailJS public key
+    emailjs.init('3f98hn0AzkGmuFP8a');
+
+    // Handle contact form submission
+    const contactForm = document.getElementById('contact-form');
+    const statusMessage = document.getElementById('status-message');
+    
+    if (contactForm) {
+        contactForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form data
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                message: document.getElementById('message').value
+            };
+            
+            // Show loading message
+            statusMessage.textContent = 'Sending message...';
+            statusMessage.className = 'status-message';
+            statusMessage.style.display = 'block';
+            
+            // Send email via EmailJS
+            // NOTE: Replace 'YOUR_SERVICE_ID' and 'YOUR_TEMPLATE_ID' with your actual EmailJS service and template IDs
+            emailjs.send('cimbology-contact', 'template_ve5e93n', formData)
+                .then(function(response) {
+                    // Success message
+                    statusMessage.textContent = 'Message sent successfully! We\'ll get back to you soon.';
+                    statusMessage.className = 'status-message success';
+                    
+                    // Reset form
+                    contactForm.reset();
+                    
+                    // Hide message after 5 seconds
+                    setTimeout(function() {
+                        statusMessage.style.display = 'none';
+                    }, 5000);
+                })
+                .catch(function(error) {
+                    // Error message
+                    statusMessage.textContent = 'There was an error sending your message. Please try again later.';
+                    statusMessage.className = 'status-message error';
+                    
+                    console.error('EmailJS error:', error);
+                });
+        });
+    }
+
     // Header scroll effect
     const header = document.querySelector('header');
     window.addEventListener('scroll', function() {
