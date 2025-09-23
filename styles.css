@@ -93,13 +93,13 @@ header {
 }
 
 .main-logo {
-    height: 70px;
+    height: 100px;
     max-width: 100%;
     margin-bottom: 0.5rem;
 }
 
 .hero-logo {
-    height: 180px;
+    height: 250px;
     max-width: 90%;
     margin-bottom: 2rem;
     animation: fadeInUp 1s ease forwards;
