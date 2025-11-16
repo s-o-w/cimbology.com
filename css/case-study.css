@@ -378,6 +378,36 @@ section {
     margin-bottom: 50px;
 }
 
+.architecture-diagram {
+    margin: 2rem 0;
+    padding: 2rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.architecture-diagram h3 {
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.mermaid {
+    display: flex;
+    justify-content: center;
+    margin: 2rem 0;
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.diagram-caption {
+    text-align: center;
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 1rem;
+    font-style: italic;
+}
+
 .architecture-components h3 {
     text-align: center;
     font-size: 2em;
