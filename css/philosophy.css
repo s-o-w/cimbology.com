@@ -8,7 +8,7 @@ html {
 
 /* Prevent sections from hiding behind fixed header */
 section {
-    scroll-margin-top: 450px; /* Account for fixed nav + philosophy header + quick nav */
+    scroll-margin-top: 400px; /* Account for fixed nav + philosophy header + quick nav */
 }
 
 /* Container */
@@ -16,6 +16,29 @@ section {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
+}
+
+/* Mobile menu toggle button - hidden by default */
+.mobile-menu-toggle {
+    display: none;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+    z-index: 1001;
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.mobile-menu-toggle span {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background-color: white;
+    margin: 5px 0;
+    transition: all 0.3s ease;
 }
 
 /* Quick Navigation */
@@ -27,6 +50,28 @@ section {
     margin-top: 30px;
     padding-top: 25px;
     border-top: 2px solid rgba(226, 92, 4, 0.3);
+}
+
+/* Quick Navigation Toggle Button - hidden on desktop */
+.quick-nav-toggle {
+    display: none !important;
+}
+
+.quick-nav-toggle svg {
+    transition: transform 0.3s ease;
+}
+
+.quick-nav-toggle.active svg {
+    transform: rotate(180deg);
+}
+
+/* Quick nav items container */
+.quick-nav-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    padding: 10px 0;
 }
 
 .quick-nav-btn {
@@ -53,31 +98,141 @@ section {
     transform: translateY(0);
 }
 
+/* Mobile Navigation Styles */
 @media (max-width: 768px) {
+    /* Show the hamburger menu button */
+    .mobile-menu-toggle {
+        display: block;
+    }
+    
+    /* Make header relative so dropdown menu positions correctly */
+    header {
+        position: relative;
+    }
+    
+    /* Position the logo container */
+    .logo-container {
+        position: relative;
+        padding: 15px 60px 15px 20px; /* Add right padding for hamburger button */
+    }
+    
+    /* Dropdown navigation menu */
+    .main-nav {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background-color: var(--primary-color);
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Show menu when active */
+    .main-nav.active {
+        max-height: 300px;
+    }
+    
+    /* Stack navigation items vertically */
+    .main-nav ul {
+        flex-direction: column;
+        gap: 0;
+        padding: 0;
+        margin: 0;
+    }
+    
+    /* Full width nav items with borders */
+    .main-nav ul li {
+        width: 100%;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .main-nav ul li:last-child {
+        border-bottom: none;
+    }
+    
+    /* Make links full width and add padding */
+    .main-nav ul li a {
+        display: block;
+        padding: 15px 20px;
+        width: 100%;
+    }
+    
+    /* Hamburger animation when menu is active */
+    .mobile-menu-toggle.active span:nth-child(1) {
+        transform: rotate(-45deg) translate(-5px, 6px);
+    }
+    
+    .mobile-menu-toggle.active span:nth-child(2) {
+        opacity: 0;
+    }
+    
+    .mobile-menu-toggle.active span:nth-child(3) {
+        transform: rotate(45deg) translate(-5px, -6px);
+    }
+    
+    /* Quick nav toggle */
+    .quick-nav-toggle {
+        display: flex !important;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 12px 16px;
+        cursor: pointer;
+        border-radius: 4px;
+        font-size: 1rem;
+        margin-bottom: 0;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
     .quick-nav {
-        gap: 8px;
-        justify-content: flex-start;
-        overflow-x: auto;
-        flex-wrap: nowrap;
-        margin-top: 20px;
-        padding-top: 20px;
-        scrollbar-width: thin;
-        scrollbar-color: var(--secondary-color) rgba(255, 255, 255, 0.3);
+        margin-top: 15px;
+    }
+    
+    .quick-nav-toggle:hover {
+        background: rgba(255, 255, 255, 0.15);
+    }
+    
+    .quick-nav-items {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+        flex-direction: column;
+        gap: 5px;
+        margin-top: 10px;
+    }
+    
+    .quick-nav-items.active {
+        max-height: 600px;
     }
     
     .quick-nav-btn {
-        padding: 8px 14px;
-        font-size: 0.85em;
+        width: 100%;
+        text-align: center;
+        padding: 12px 16px;
+        margin: 0;
     }
 }
 
-/* Keep main header fixed but add padding to body to prevent overlap */
-body {
-    padding-top: 80px; /* Adjust based on header height */
+/* Make header sticky */
+header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
+/* Ensure content starts below sticky header */
+.scrollable-content {
+    position: relative;
+}
+
+/* First section needs extra padding to account for header */
 #skeptic {
-    padding-top: 400px;
+    padding-top: 80px;
 }
 
 /* Philosophy Sections */

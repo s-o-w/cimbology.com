@@ -1190,3 +1190,113 @@ code {
         max-width: 300px;
     }
 }
+
+/* Quick nav spacing improvements */
+
+/* Make header sticky */
+header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Ensure content starts below sticky header */
+.scrollable-content {
+    position: relative;
+}
+
+/* Quick Navigation Toggle Button - hidden on desktop */
+.quick-nav-toggle {
+    display: none !important;
+}
+
+.quick-nav-toggle svg {
+    transition: transform 0.3s ease;
+}
+
+.quick-nav-toggle.active svg {
+    transform: rotate(180deg);
+}
+
+.quick-nav {
+    margin-top: 20px;
+}
+
+.quick-nav-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    padding: 10px 0;
+}
+
+.quick-nav-btn {
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    color: white;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.quick-nav-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Mobile quick nav improvements */
+@media (max-width: 768px) {
+
+    /* Keep header sticky on mobile too */
+    header {
+        position: sticky;
+        top: 0;
+    }
+
+    .quick-nav {
+        margin-top: 15px;
+    }
+
+    .quick-nav-toggle {
+        display: flex !important;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 12px 16px;
+        cursor: pointer;
+        border-radius: 4px;
+        font-size: 1rem;
+        margin-bottom: 0;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .quick-nav-toggle:hover {
+        background: rgba(255, 255, 255, 0.15);
+    }
+
+    .quick-nav-items {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+        flex-direction: column;
+        gap: 5px;
+        margin-top: 10px;
+    }
+
+    .quick-nav-items.active {
+        max-height: 600px;
+    }
+
+    .quick-nav-btn {
+        width: 100%;
+        text-align: center;
+        padding: 12px 16px;
+        margin: 0;
+    }
+}
