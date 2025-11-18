@@ -724,32 +724,95 @@ header h2 {
     padding: 30px;
     border-radius: 8px;
     margin: 30px 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .sparql-example h4 {
     color: white;
     margin-bottom: 15px;
+    font-size: 1.3rem;
 }
 
 .sparql-example pre {
-    background-color: rgba(0, 0, 0, 0.3);
-    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.4);
+    padding: 25px;
     border-radius: 5px;
     overflow-x: auto;
     margin: 15px 0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .sparql-example code {
     font-family: 'Source Code Pro', monospace;
-    font-size: 0.9rem;
-    line-height: 1.6;
-    color: #b8e994;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: #e8f5e9;
+    font-weight: 500;
+}
+
+/* SPARQL Syntax Highlighting */
+.sparql-keyword {
+    color: #81c784;
+    font-weight: 700;
+    background: none;
+    background-color: transparent;
+}
+
+.sparql-variable {
+    color: #ffeb3b;
+    font-weight: 600;
+    background: none;
+    background-color: transparent;
+}
+
+.sparql-property {
+    color: #64b5f6;
+    background: none;
+    background-color: transparent;
+}
+
+.sparql-class {
+    color: #ff8a65;
+    font-weight: 600;
+    background: none;
+    background-color: transparent;
+}
+
+.sparql-function {
+    color: #ba68c8;
+    font-weight: 600;
+    background: none;
+    background-color: transparent;
+}
+
+.sparql-string {
+    color: #a5d6a7;
+    background: none;
+    background-color: transparent;
+}
+
+.sparql-number {
+    color: #ffab91;
+    background: none;
+    background-color: transparent;
+}
+
+.sparql-operator {
+    color: #ffffff;
+    font-weight: 700;
+    background: none;
+    background-color: transparent;
 }
 
 .query-explanation {
     font-style: italic;
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, 0.9);
     margin-top: 15px;
+    font-size: 1.05rem;
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    border-radius: 5px;
+    border-left: 4px solid var(--secondary-color);
 }
 
 .power-statement {
@@ -877,7 +940,6 @@ footer {
 
 /* Code Elements */
 code {
-    background-color: var(--light-bg);
     padding: 2px 6px;
     border-radius: 3px;
     font-family: 'Source Code Pro', monospace;

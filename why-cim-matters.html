@@ -65,13 +65,14 @@
                 <p class="lead">
                     The Common Information Model (CIM) is an international standard 
                     (<a href="https://en.wikipedia.org/wiki/IEC_61970" target="_blank">IEC 61970</a> / 
-                    <a href="https://en.wikipedia.org/wiki/IEC_61968" target="_blank">IEC 61968</a>) that provides 
+                    <a href="https://en.wikipedia.org/wiki/IEC_61968" target="_blank">IEC 61968</a> / 
+                    <a href="https://msites.epri.com/rd/research/062333/common-information-model-primer" target="_blank">Primer</a>) that provides 
                     a <strong>universal language for describing every aspect of electrical utility operations</strong>.
                 </p>
                 
                 <div class="highlight-box">
                     <p>
-                        Think of CIM as the "Rosetta Stone" for utility data—a standardized vocabulary and structure 
+                        Think of CIM as the "Rosetta Stone" for utility data. It defines a standardized vocabulary and structure 
                         that allows different systems, vendors, and organizations to speak the same language when 
                         exchanging information about power systems.
                     </p>
@@ -89,11 +90,12 @@
                             <p>
                                 CIM is first and foremost a <strong>Unified Modeling Language (UML)</strong> specification. 
                                 This provides software developers with clear class diagrams, inheritance hierarchies, and 
-                                relationships—making it straightforward to implement in any object-oriented programming language.
+                                relationships that make it straightforward to implement in any object-oriented programming language.
                             </p>
                             <p class="benefit">
                                 <strong>Benefit:</strong> Developers can generate code directly from the UML models, 
-                                ensuring consistency and reducing implementation errors.
+                                ensuring consistency and reducing implementation errors. And, they can use my <a href="dotTC57.html">dotTC57 library</a> 
+                                to do it.
                             </p>
                         </div>
                         
@@ -581,16 +583,16 @@
                     
                     <div class="sparql-example">
                         <h4>Example Query:</h4>
-                        <pre><code>SELECT ?transformer ?rating ?location
-WHERE {
-  ?transformer rdf:type cim:PowerTransformer .
-  ?transformer cim:ratedS ?rating .
-  ?transformer cim:Location ?location .
-  ?location cim:CoordinateSystem ?coords .
-  FILTER (?rating > 1000)
-  FILTER (geof:nearby(?coords, "33.5186,-86.8104", 5, "mi"))
+                        <pre><code><span class="sparql-keyword">SELECT</span> <span class="sparql-variable">?transformer</span> <span class="sparql-variable">?rating</span> <span class="sparql-variable">?location</span>
+<span class="sparql-keyword">WHERE</span> {
+  <span class="sparql-variable">?transformer</span> <span class="sparql-property">rdf:type</span> <span class="sparql-class">cim:PowerTransformer</span> .
+  <span class="sparql-variable">?transformer</span> <span class="sparql-property">cim:ratedS</span> <span class="sparql-variable">?rating</span> .
+  <span class="sparql-variable">?transformer</span> <span class="sparql-property">cim:Location</span> <span class="sparql-variable">?location</span> .
+  <span class="sparql-variable">?location</span> <span class="sparql-property">cim:CoordinateSystem</span> <span class="sparql-variable">?coords</span> .
+  <span class="sparql-keyword">FILTER</span> (<span class="sparql-variable">?rating</span> <span class="sparql-operator">></span> <span class="sparql-number">1000</span>)
+  <span class="sparql-keyword">FILTER</span> (<span class="sparql-function">geof:nearby</span>(<span class="sparql-variable">?coords</span>, <span class="sparql-string">"33.5186,-86.8104"</span>, <span class="sparql-number">5</span>, <span class="sparql-string">"mi"</span>))
 }
-ORDER BY DESC(?rating)</code></pre>
+<span class="sparql-keyword">ORDER BY</span> <span class="sparql-keyword">DESC</span>(<span class="sparql-variable">?rating</span>)</code></pre>
                         <p class="query-explanation">
                             Translation: "Find all transformers rated above 1000 kVA within 5 miles of these coordinates, 
                             sorted by rating."
