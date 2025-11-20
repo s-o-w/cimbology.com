@@ -457,83 +457,32 @@
     <!-- Section 6: Proof of Work -->
     <section id="proof-of-work" class="proof-of-work">
         <div class="container">
-            <h2>Proof of Work: The Code</h2>
+            <h2>Proof of Work: See It In Action</h2>
             
             <div class="pow-intro">
                 <p>
                     Unlike many "research projects" that remain theoretical, Cimbology is fully 
                     implemented, tested, and deployed. Every component described above exists as 
-                    working code.
-                </p>
-                <p>
-                    <strong>Full source code:</strong> 
-                    <a href="https://github.com/s-o-w/CIMbology.ai" target="_blank">github.com/s-o-w/CIMbology.ai</a>
+                    working software.
                 </p>
             </div>
             
-            <div class="code-showcase">
-                <h3>Key Components</h3>
-                
-                <div class="code-card">
-                    <h4>Query Service (GraphRAG Orchestration)</h4>
-                    <p class="file-link">
-                        <a href="https://github.com/s-o-w/CIMbology.ai/blob/main/API/Services/QueryService.cs" target="_blank">
-                            API/Services/QueryService.cs
-                        </a>
-                    </p>
-                    <p>
-                        The core service that orchestrates queries across both the Knowledge Graph 
-                        (SPARQL) and Vector Database (RAG), then synthesizes results using Semantic Kernel.
-                    </p>
-                    <details>
-                        <summary>View Code Snippet</summary>
-                        <pre><code class="language-csharp">
-                        public async Task&lt;QueryResponse&gt; ExecuteGraphRAGQueryAsync(string userQuery)
-                        {
-                            // 1. Query Knowledge Graph for structured data
-                            var graphResults = await _sparqlService.ExecuteQueryAsync(userQuery);
-                            
-                            // 2. Query Vector DB for relevant document chunks
-                            var vectorResults = await _vectorService.SearchAsync(userQuery, topK: 5);
-                            
-                            // 3. Combine contexts and generate response via LLM
-                            var context = CombineContexts(graphResults, vectorResults);
-                            var response = await _semanticKernel.InvokeAsync(userQuery, context);
-                            
-                            return new QueryResponse
-                            {
-                                Answer = response.Result,
-                                GraphCitations = graphResults.Sources,
-                                DocumentCitations = vectorResults.Sources
-                            };
-                        }</code></pre>
-                    </details>
-                </div>
-                
-                <div class="code-card">
-                    <h4>Vector Store Service (Advanced RAG)</h4>
-                    <p class="file-link">
-                        <a href="https://github.com/s-o-w/CIMbology.ai/blob/main/API/Services/VectorStoreService.cs" target="_blank">
-                            API/Services/VectorStoreService.cs
-                        </a>
-                    </p>
-                    <p>
-                        Manages vector embeddings and implements advanced chunking strategies 
-                        (layout-aware, table extraction, multimodal processing).
-                    </p>
-                </div>
-                
-                <div class="code-card">
-                    <h4>Data Model (EF Core)</h4>
-                    <p class="file-link">
-                        <a href="https://github.com/s-o-w/CIMbology.ai/blob/main/API/Data/CimbologyDbContext.cs" target="_blank">
-                            API/Data/CimbologyDbContext.cs
-                        </a>
-                    </p>
-                    <p>
-                        The Entity Framework Core data model for chat sessions, message history, 
-                        and user/organization persistence.
-                    </p>
+            <div class="video-demo">
+                <h3>System Demonstration</h3>
+                <p>
+                    Watch this video demonstration showing Cimbology in action, including the 
+                    GraphRAG query process, citation tracking, and real-time knowledge retrieval:
+                </p>
+                <div class="video-container">
+                    <iframe 
+                        width="560" 
+                        height="315" 
+                        src="https://www.youtube.com/embed/c83Repi2ni8" 
+                        title="Cimbology Demo - GraphRAG Knowledge Assistant" 
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                        allowfullscreen>
+                    </iframe>
                 </div>
             </div>
             
@@ -546,7 +495,7 @@
                     <li>
                         <a href="pe_exam_analysis.html" target="_blank">
                             Interactive Results Explorer
-                        </a>
+                        </a> - Question-by-question breakdown of accuracy across all four approaches
                     </li>
                 </ul>
             </div>
