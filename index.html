@@ -38,27 +38,11 @@
             display: none;
         }
     </style>
+    <script src="js/analytics-loader.js"></script>
 </head>
 <body>
         <header style="background-color: var(--primary-color);">
             <div class="logo-container">
-                        <button class="mobile-menu-toggle" aria-label="Toggle menu">
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                        </button>
-                <nav class="main-nav">
-                    <ul>
-                        <li><a href="index.html">Home</a></li>
-                        <li><a href="technical-expertise.html">Technical Expertise</a></li>
-                        <li><a href="ai-philosophy.html">My AI Philosophy</a></li>
-                        <li><a href="dotTC57.html">dotTC57 Library</a></li>
-                        <li><a href="cimbology-case-study.html">Case Study: Cimbology</a></li>
-                        <li><a href="why-cim-matters.html">Why CIM Matters</a></li>
-                        <li><a href="ideal-role.html">My Ideal Role</a></li>
-                        <li><a href="#contact">Contact</a></li>
-                    </ul>
-                </nav>
             </div>
         </header>
 
@@ -479,36 +463,7 @@
         <script>
             // Set the current year in the footer
             document.getElementById('year').textContent = new Date().getFullYear();
-
-            // Mobile menu toggle functionality
-            const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
-            const mainNav = document.querySelector('.main-nav');
-
-            if (mobileMenuToggle && mainNav) {
-                // Toggle menu when hamburger is clicked
-                mobileMenuToggle.addEventListener('click', function (e) {
-                    e.stopPropagation();
-                    mobileMenuToggle.classList.toggle('active');
-                    mainNav.classList.toggle('active');
-                });
-
-                // Close menu when a navigation link is clicked
-                const navLinks = document.querySelectorAll('.main-nav a');
-                navLinks.forEach(link => {
-                    link.addEventListener('click', function () {
-                        mobileMenuToggle.classList.remove('active');
-                        mainNav.classList.remove('active');
-                    });
-                });
-
-                // Close menu when clicking outside
-                document.addEventListener('click', function (e) {
-                    if (!mainNav.contains(e.target) && !mobileMenuToggle.contains(e.target)) {
-                        mobileMenuToggle.classList.remove('active');
-                        mainNav.classList.remove('active');
-                    }
-                });
-            }
         </script>
+        <script src="js/nav-loader.js"></script>
 </body>
 </html>
