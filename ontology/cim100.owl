@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:xsd="http://www.w3.org/2001/XMLSchema#" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:cimdoc="https://cimbology.com/ontology/cimdoc#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <owl:Ontology rdf:about="https://cimbology.com/ontology/cim100.ttl">
+    <dcterms:description xml:lang="en">Umbrella ontology importing both IEC 61970 and IEC 61968 CIM100 modules generated from dotTC57.</dcterms:description>
+    <dcterms:license rdf:resource="https://opensource.org/licenses/MIT" />
+    <dcterms:source rdf:resource="https://github.com/s-o-w/dotTC57" />
+    <rdfs:label xml:lang="en">IEC TC57 CIM100 Full Ontology (dotTC57)</rdfs:label>
+    <owl:imports rdf:resource="https://cimbology.com/ontology/iec61968.ttl" />
+    <owl:imports rdf:resource="https://cimbology.com/ontology/iec61970.ttl" />
+    <owl:versionInfo rdf:datatype="http://www.w3.org/2001/XMLSchema#string">1.0.0+git.b72346e</owl:versionInfo>
+  </owl:Ontology>
+</rdf:RDF>

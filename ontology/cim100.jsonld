@@ -1,0 +1,43 @@
+[
+  {
+    "@id": "https://cimbology.com/ontology/cim100.ttl",
+    "@type": [
+      "http://www.w3.org/2002/07/owl#Ontology"
+    ],
+    "http://purl.org/dc/terms/description": [
+      {
+        "@value": "Umbrella ontology importing both IEC 61970 and IEC 61968 CIM100 modules generated from dotTC57.",
+        "@language": "en"
+      }
+    ],
+    "http://purl.org/dc/terms/license": [
+      {
+        "@id": "https://opensource.org/licenses/MIT"
+      }
+    ],
+    "http://purl.org/dc/terms/source": [
+      {
+        "@id": "https://github.com/s-o-w/dotTC57"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@value": "IEC TC57 CIM100 Full Ontology (dotTC57)",
+        "@language": "en"
+      }
+    ],
+    "http://www.w3.org/2002/07/owl#imports": [
+      {
+        "@id": "https://cimbology.com/ontology/iec61968.ttl"
+      },
+      {
+        "@id": "https://cimbology.com/ontology/iec61970.ttl"
+      }
+    ],
+    "http://www.w3.org/2002/07/owl#versionInfo": [
+      {
+        "@value": "1.0.0\u002Bgit.b72346e"
+      }
+    ]
+  }
+]

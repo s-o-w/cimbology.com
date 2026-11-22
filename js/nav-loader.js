@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <li><a href="technical-expertise.html">Technical Expertise</a></li>
                 <li><a href="ai-philosophy.html">My AI Philosophy</a></li>
                 <li><a href="dotTC57.html">dotTC57 Library</a></li>
+                <li><a href="cim/">CIM Explorer</a></li>
                 <li><a href="cimbology-case-study.html">Case Study: Cimbology</a></li>
                 <li><a href="why-cim-matters.html">Why CIM Matters</a></li>
                 <li><a href="ideal-role.html">My Ideal Role</a></li>

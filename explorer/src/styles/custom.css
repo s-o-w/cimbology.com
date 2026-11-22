@@ -1,0 +1,85 @@
+:root {
+  --sl-color-accent-low: #173418;
+  --sl-color-accent: #2c5f2d;
+  --sl-color-accent-high: #b7ddb8;
+}
+
+:root[data-theme='light'] {
+  --sl-color-accent-low: #e4f2e5;
+  --sl-color-accent: #2c5f2d;
+  --sl-color-accent-high: #193b1a;
+}
+
+.cim-meta-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.cim-badge {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border: 1px solid transparent;
+}
+
+.cim-badge-normative {
+  background: rgba(44, 95, 45, 0.15);
+  color: var(--sl-color-accent-high);
+  border-color: rgba(44, 95, 45, 0.4);
+}
+
+.cim-badge-informative {
+  background: rgba(196, 132, 24, 0.18);
+  color: #f0b951;
+  border-color: rgba(196, 132, 24, 0.45);
+}
+
+:root[data-theme='light'] .cim-badge-informative {
+  color: #8a5400;
+}
+
+.cim-badge-ext {
+  background: rgba(56, 118, 189, 0.16);
+  color: #7eb8f7;
+  border-color: rgba(56, 118, 189, 0.4);
+}
+
+:root[data-theme='light'] .cim-badge-ext {
+  color: #1c4e80;
+}
+
+.cim-badge-kind {
+  background: var(--sl-color-gray-6);
+  color: var(--sl-color-gray-2);
+  border-color: var(--sl-color-gray-5);
+}
+
+.cim-iri-box {
+  font-family: var(--sl-font-mono);
+  font-size: 0.85rem;
+  padding: 0.55rem 0.8rem;
+  border-radius: 6px;
+  background: var(--sl-color-gray-6);
+  border: 1px solid var(--sl-color-gray-5);
+  overflow-x: auto;
+  margin: 0.5rem 0 1rem;
+}
+
+pre.mermaid {
+  background: var(--sl-color-gray-6);
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+  text-align: center;
+}
+
+.sl-markdown-content table {
+  font-size: 0.9rem;
+}
