@@ -65,6 +65,10 @@ export default defineConfig({
     starlight({
       title: 'CIMBOLOGY CIM Explorer',
       description: 'Browsable IEC 61970, IEC 61968 (CIM100), and CIMBOLOGY-KG OWL 2 ontology reference hosted on cimbology.com.',
+      logo: {
+        src: './src/assets/CIMbologyLogo.png',
+        alt: 'CIMBOLOGY',
+      },
       pagefind: true,
       customCss: ['./src/styles/custom.css'],
       head: [

@@ -1,15 +1,114 @@
+/* ============================================================================
+ * CIMBOLOGY CIM Explorer — Brand Theme
+ * Palette aligned with cimbology.com:
+ *   Forest Green (#2c5f2d), Hunter Orange (#e25c04), Soft Sage (#f5f8f5),
+ *   Deep Green-Slate Dark Mode (#111c12)
+ * ========================================================================== */
+
 :root {
-  --sl-color-accent-low: #173418;
-  --sl-color-accent: #2c5f2d;
-  --sl-color-accent-high: #b7ddb8;
+  /* Brand tokens */
+  --cimbology-green: #2c5f2d;
+  --cimbology-green-bright: #4ca950;
+  --cimbology-orange: #e25c04;
+  --cimbology-orange-soft: #f58b42;
+
+  /* Starlight Dark Mode (default): Deep green-slate surfaces + bright sage/green accents */
+  --sl-color-accent-low: #172e19;
+  --sl-color-accent: #3f8f42;
+  --sl-color-accent-high: #b8e3ba;
+
+  --sl-color-white: #eef5ee;
+  --sl-color-gray-1: #d9e6da;
+  --sl-color-gray-2: #b4c7b6;
+  --sl-color-gray-3: #839a86;
+  --sl-color-gray-4: #4b614e;
+  --sl-color-gray-5: #243627;
+  --sl-color-gray-6: #162418;
+  --sl-color-black: #111c12;
+
+  --sl-color-bg: #111c12;
+  --sl-color-bg-nav: #152317;
+  --sl-color-bg-sidebar: #142116;
+  --sl-color-bg-inline-code: #1c2f1f;
+  --sl-color-hairline-light: #243827;
+  --sl-color-hairline: #213424;
+  --sl-color-hairline-shade: #0d160e;
 }
 
 :root[data-theme='light'] {
-  --sl-color-accent-low: #e4f2e5;
+  /* Starlight Light Mode: Soft #f5f8f5 canvas + crisp white cards + forest green accents */
+  --sl-color-accent-low: #dfeedf;
   --sl-color-accent: #2c5f2d;
   --sl-color-accent-high: #193b1a;
+
+  --sl-color-white: #19261a;
+  --sl-color-gray-1: #243525;
+  --sl-color-gray-2: #3d523f;
+  --sl-color-gray-3: #5c725e;
+  --sl-color-gray-4: #8fa591;
+  --sl-color-gray-5: #cfdcd0;
+  --sl-color-gray-6: #eaf2ea;
+  --sl-color-gray-7: #f5f8f5;
+  --sl-color-black: #ffffff;
+
+  --sl-color-bg: #f5f8f5;
+  --sl-color-bg-nav: #ffffff;
+  --sl-color-bg-sidebar: #eef4ee;
+  --sl-color-bg-inline-code: #e4efe4;
+  --sl-color-hairline-light: #d3e1d4;
+  --sl-color-hairline: #c7d8c8;
 }
 
+/* Header & Brand Logo */
+header.header {
+  border-bottom: 2px solid var(--cimbology-orange);
+}
+
+.site-title {
+  gap: 0.65rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.site-title img {
+  height: 2.35rem;
+  width: auto;
+  border-radius: 50%;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.35));
+}
+
+/* Sidebar active item & hover accents */
+nav.sidebar a[aria-current='page'],
+nav.sidebar a[aria-current='page']:hover {
+  background-color: var(--cimbology-green);
+  color: #ffffff;
+  border-left: 3px solid var(--cimbology-orange);
+}
+
+nav.sidebar a:hover {
+  color: var(--cimbology-orange-soft);
+}
+
+:root[data-theme='light'] nav.sidebar a:hover {
+  color: var(--cimbology-orange);
+}
+
+/* Content links & subtle orange hover accent */
+.sl-markdown-content a:not([class]) {
+  text-decoration-color: rgba(226, 92, 4, 0.45);
+  text-underline-offset: 2px;
+}
+
+.sl-markdown-content a:not([class]):hover {
+  color: var(--cimbology-orange-soft);
+  text-decoration-color: var(--cimbology-orange);
+}
+
+:root[data-theme='light'] .sl-markdown-content a:not([class]):hover {
+  color: var(--cimbology-orange);
+}
+
+/* CIM Metadata Bar & Badges */
 .cim-meta-bar {
   display: flex;
   flex-wrap: wrap;
@@ -20,7 +119,7 @@
 
 .cim-badge {
   display: inline-block;
-  padding: 0.15rem 0.6rem;
+  padding: 0.18rem 0.65rem;
   border-radius: 999px;
   font-size: 0.78rem;
   font-weight: 600;
@@ -29,29 +128,39 @@
 }
 
 .cim-badge-normative {
-  background: rgba(44, 95, 45, 0.15);
-  color: var(--sl-color-accent-high);
-  border-color: rgba(44, 95, 45, 0.4);
+  background: rgba(44, 95, 45, 0.25);
+  color: #b8e3ba;
+  border-color: rgba(76, 169, 80, 0.5);
+}
+
+:root[data-theme='light'] .cim-badge-normative {
+  background: rgba(44, 95, 45, 0.14);
+  color: #1e4620;
+  border-color: rgba(44, 95, 45, 0.45);
 }
 
 .cim-badge-informative {
-  background: rgba(196, 132, 24, 0.18);
-  color: #f0b951;
-  border-color: rgba(196, 132, 24, 0.45);
+  background: rgba(226, 92, 4, 0.2);
+  color: #ffb074;
+  border-color: rgba(226, 92, 4, 0.55);
 }
 
 :root[data-theme='light'] .cim-badge-informative {
-  color: #8a5400;
+  background: rgba(226, 92, 4, 0.12);
+  color: #a84200;
+  border-color: rgba(226, 92, 4, 0.45);
 }
 
 .cim-badge-ext {
-  background: rgba(56, 118, 189, 0.16);
-  color: #7eb8f7;
-  border-color: rgba(56, 118, 189, 0.4);
+  background: rgba(138, 86, 172, 0.22);
+  color: #d8b8f0;
+  border-color: rgba(138, 86, 172, 0.5);
 }
 
 :root[data-theme='light'] .cim-badge-ext {
-  color: #1c4e80;
+  background: rgba(138, 86, 172, 0.12);
+  color: #5d337a;
+  border-color: rgba(138, 86, 172, 0.4);
 }
 
 .cim-badge-kind {
@@ -60,26 +169,44 @@
   border-color: var(--sl-color-gray-5);
 }
 
+/* Canonical IRI Callout */
 .cim-iri-box {
   font-family: var(--sl-font-mono);
   font-size: 0.85rem;
-  padding: 0.55rem 0.8rem;
+  padding: 0.6rem 0.9rem;
   border-radius: 6px;
   background: var(--sl-color-gray-6);
   border: 1px solid var(--sl-color-gray-5);
+  border-left: 4px solid var(--cimbology-orange);
   overflow-x: auto;
   margin: 0.5rem 0 1rem;
 }
 
+/* Mermaid Class Diagram Container */
 pre.mermaid {
   background: var(--sl-color-gray-6);
   border: 1px solid var(--sl-color-gray-5);
+  border-top: 3px solid var(--cimbology-green);
   border-radius: 8px;
   padding: 1rem;
   overflow-x: auto;
   text-align: center;
 }
 
+/* Compact Property Tables */
 .sl-markdown-content table {
   font-size: 0.9rem;
+}
+
+.sl-markdown-content th {
+  background: var(--sl-color-gray-6);
+  border-bottom: 2px solid var(--cimbology-green);
+}
+
+/* Blockquote Callouts (Informative caveats) */
+.sl-markdown-content blockquote {
+  border-inline-start: 3px solid var(--cimbology-orange);
+  background: rgba(226, 92, 4, 0.06);
+  padding: 0.75rem 1rem;
+  border-radius: 0 6px 6px 0;
 }
