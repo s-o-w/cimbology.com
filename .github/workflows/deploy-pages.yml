@@ -1,0 +1,108 @@
+name: Deploy cimbology.com & CIM Explorer to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: explorer/package-lock.json
+
+      - name: Install explorer dependencies
+        working-directory: explorer
+        run: npm ci
+
+      - name: Verify hosted ontologies
+        working-directory: explorer
+        run: npm run verify:ontologies
+
+      - name: Generate and build CIM Explorer
+        working-directory: explorer
+        run: |
+          npm run generate
+          npm run build
+          npm run verify:explorer
+
+      - name: Assemble GitHub Pages artifact (_site)
+        run: |
+          rm -rf _site
+          mkdir -p _site
+          rsync -a \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='explorer' \
+            --exclude='_site' \
+            --exclude='node_modules' \
+            ./ _site/
+          mkdir -p _site/cim
+          rsync -a explorer/dist/ _site/cim/
+          touch _site/.nojekyll
+
+      - name: Smoke-check assembled _site
+        run: |
+          set -euo pipefail
+          for f in \
+            "_site/CNAME" \
+            "_site/.nojekyll" \
+            "_site/index.html" \
+            "_site/dotTC57.html" \
+            "_site/resume.pdf" \
+            "_site/AnalysisPrep - pe_exam_answers.csv" \
+            "_site/css/styles.css" \
+            "_site/js/nav-loader.js" \
+            "_site/imgs/dottc57.png" \
+            "_site/ontology/iec61970.ttl" \
+            "_site/ontology/iec61968.ttl" \
+            "_site/ontology/cim100.ttl" \
+            "_site/ontology/cimbology-kg.ttl" \
+            "_site/ontology/cim-model.json" \
+            "_site/cim/index.html" \
+            "_site/cim/iec61970/base/wires/breaker/index.html" \
+            "_site/cim/cimbology-kg/classes/foundation/index.html" \
+            "_site/cim/pagefind/pagefind.js"; do
+            if [ ! -f "$f" ]; then
+              echo "MISSING required Pages artifact file: $f" >&2
+              exit 1
+            fi
+          done
+          echo "Pages artifact smoke-check PASSED."
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
