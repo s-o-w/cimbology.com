@@ -1,0 +1,3477 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix cimbology: <https://cimbology.com/ontology/kg#> .
+@prefix cim: <http://iec.ch/TC57/CIM100#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix qkind: <http://qudt.org/vocab/quantitykind/> .
+
+# =============================================================================
+# CIMBOLOGY-KG Core Ontology
+# =============================================================================
+# CIMBOLOGY-KG uses CIM (IEC 61970/61968) types directly for electrical equipment.
+# CIM types are referenced directly from IEC 61970/61968 (CIM100).
+# This ontology defines ONLY CIMBOLOGY-KG-specific extensions (relations, geometry, metadata).
+# It also defines domain-specific types and properties for substation and
+# distribution electrical infrastructure in the cimbology: namespace.
+# =============================================================================
+
+<https://cimbology.com/ontology/cimbology-kg.ttl>
+    a owl:Ontology ;
+    rdfs:label "CIMBOLOGY-KG Core Ontology"@en ;
+    rdfs:comment "CIMBOLOGY-KG Core Ontology — CIM-grounded knowledge graph extensions for electrical infrastructure. Uses IEC CIM100 types directly."@en ;
+    owl:versionInfo "1.0.0" ;
+    owl:imports <https://cimbology.com/ontology/cim100.ttl> ;
+    rdfs:seeAlso <http://iec.ch/TC57/CIM100> .
+
+# =============================================================================
+# CIMBOLOGY-KG ANNOTATION PROPERTIES
+# =============================================================================
+
+cimbology:firstClassProperty a owl:AnnotationProperty ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "If true, this property is handled as a first-class structural field during serialization rather than as a generic extension property. Serializers can query this annotation from the ontology graph to discover structural properties dynamically." ;
+    rdfs:label "First-Class Property" .
+
+cimbology:equipmentDomain a owl:AnnotationProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Industry domain classification for this equipment type (e.g., 'structural', 'electrical'). Used for domain-specific filtering. Types without this annotation are assumed to be domain equipment from the loaded type library (e.g., IEC CIM)." ;
+    rdfs:label "Equipment Domain" .
+
+# =============================================================================
+# CIM EQUIPMENT TYPES (Reference Only - Defined in IEC 61970)
+# =============================================================================
+# These are NOT redefined here - they come directly from IEC CIM (CIM100).
+# Listed for documentation/discoverability. Use @type with full cim: URI.
+#
+# SWITCHING EQUIPMENT:
+#   cim:Breaker          - Circuit breaker (fault interruption)
+#   cim:Disconnector     - Disconnect switch (isolation, no-load)
+#   cim:LoadBreakSwitch  - Load break switch (load switching)
+#   cim:Fuse             - Fuse (overcurrent protection)
+#   cim:GroundDisconnector - Grounding switch
+#   cim:Jumper           - Temporary jumper connection
+#
+# TRANSFORMERS:
+#   cim:PowerTransformer - Power transformer (2 or 3 winding)
+#   cim:TransformerEnd   - Winding/end of a transformer
+#
+# CONDUCTORS:
+#   cim:ACLineSegment    - AC overhead line or cable segment
+#   cim:BusbarSection    - Busbar section
+#   cim:Conductor        - Generic conductor
+#
+# CONNECTIVITY (Topology):
+#   cim:Terminal         - Connection point on equipment
+#   cim:ConnectivityNode - Electrical node joining terminals
+#
+# SUBSTATIONS:
+#   cim:Substation       - Substation container
+#   cim:Bay              - Bay within substation
+#   cim:VoltageLevel     - Voltage level grouping
+#
+# MEASUREMENTS:
+#   cim:CurrentTransformer - CT
+#   cim:PotentialTransformer - PT/VT
+#
+# AUXILIARY EQUIPMENT:
+#   cim:SurgeArrester    - Surge protection device
+#   cim:WaveTrap         - Line trap for power line carrier signals
+#   cim:FaultIndicator   - Fault location indicator
+#
+# STRUCTURES (IEC 61968 Assets):
+#   cim:Structure        - Base class for physical structures (Pole, Tower, etc.)
+#   cim:Pole             - Utility pole
+#   cim:Tower            - Lattice tower
+#
+# ASSET CONTAINERS (IEC 61968):
+#   cim:DuctBank         - Underground duct bank for cables
+#
+# Example CIMBOLOGY-KG JSON-LD using CIM types:
+# {
+#   "@id": "urn:uuid:abc-123",
+#   "@type": "cim:Breaker",
+#   "cim:mRID": "abc-123",
+#   "cim:IdentifiedObject.name": "BKR-001",
+#   "cimbology:transform": { ... }
+# }
+# =============================================================================
+
+# =============================================================================
+# CIMBOLOGY-KG NON-CIM EQUIPMENT TYPES
+# =============================================================================
+# WHY: These types represent physical substation components that are NOT modeled
+# in IEC CIM. CIM focuses on electrical topology and switching equipment;
+# it does not define classes for structural steel, conduit, fittings, or
+# grounding infrastructure. CIMBOLOGY-KG needs these to represent the full physical
+# BIM model of a substation.
+#
+# Each type is declared as owl:Class so consumers can discover extended types
+# directly from the ontology graph without hardcoding type tables.
+# Where a related CIM class exists, rdfs:seeAlso provides a cross-reference.
+# =============================================================================
+
+cimbology:Foundation a owl:Class ;
+    rdfs:comment "Concrete foundation for substation equipment (transformer pads, switch bases, etc.). Not modeled in CIM." ;
+    rdfs:label "Foundation" ;
+    cimbology:equipmentDomain "structural" .
+
+cimbology:SupportStructure a owl:Class ;
+    rdfs:comment "Steel structure supporting equipment in a substation (A-frames, columns, bus support stands). CIM models structures via cim:Structure (Pole, Tower) but does not cover substation-specific steel support." ;
+    rdfs:label "Support Structure" ;
+    rdfs:seeAlso cim:Structure ;
+    cimbology:equipmentDomain "structural" .
+
+cimbology:DeadEndStructure a owl:Class ;
+    rdfs:comment "Termination structure where overhead lines end and transition (e.g., line-to-bus or line-to-cable). A specialized structural type not modeled in CIM." ;
+    rdfs:label "Dead-End Structure" ;
+    cimbology:equipmentDomain "structural" .
+
+# Control building representation policy:
+# Use cim:Structure instances for relay/control buildings.
+# WHY: CIM Structure already models constructions that hold assets
+# (for example conductors, transformers, and switchgear), so a
+# dedicated control-building class is unnecessary.
+
+cimbology:DCSystem a owl:Class ;
+    rdfs:comment "Station DC control power system (batteries, charger, distribution panels). Provides power for trip/close coils and relays. Not modeled in CIM." ;
+    rdfs:label "DC System" ;
+    cimbology:equipmentDomain "electrical" .
+
+cimbology:TripCircuit a owl:Class ;
+    rdfs:comment "Aggregate circuit object representing the ordered wiring path that trips a breaker. Queryable metadata object, not a physical conductor." ;
+    rdfs:label "Trip Circuit" ;
+    cimbology:equipmentDomain "electrical" .
+
+cimbology:CloseCircuit a owl:Class ;
+    rdfs:comment "Aggregate circuit object representing the ordered wiring path that closes a breaker. Queryable metadata object, not a physical conductor." ;
+    rdfs:label "Close Circuit" ;
+    cimbology:equipmentDomain "electrical" .
+
+cimbology:AuxiliaryContact a owl:Class ;
+    rdfs:comment "Discrete auxiliary breaker contact (for example 52a/52b) modeled as a first-class circuit node for path tracing." ;
+    rdfs:label "Auxiliary Contact" ;
+    cimbology:equipmentDomain "electrical" .
+
+cimbology:Insulator a owl:Class ;
+    rdfs:comment "Electrical insulator (post, suspension, pin, etc.) providing mechanical support and electrical isolation. CIM does not define an insulator class; it models insulation as properties on other equipment." ;
+    rdfs:label "Insulator" ;
+    cimbology:equipmentDomain "structural" .
+
+cimbology:InsulatorBracket a owl:Class ;
+    rdfs:comment "Mounting bracket or hardware for attaching an insulator to a support structure. Not modeled in CIM." ;
+    rdfs:label "Insulator Bracket" ;
+    cimbology:equipmentDomain "structural" .
+
+cimbology:Fitting a owl:Class ;
+    rdfs:comment "Conductor fitting or hardware (splices, clamps, connectors, terminations). Used for physical conductor accessories not modeled in CIM." ;
+    rdfs:label "Fitting" ;
+    cimbology:equipmentDomain "structural" .
+
+cimbology:CableTap a owl:Class ;
+    rdfs:comment "Cable tap or junction point where a cable is tapped for a branch connection. Not modeled in CIM." ;
+    rdfs:label "Cable Tap" .
+
+cimbology:TerminalConnector a owl:Class ;
+    rdfs:comment "Physical terminal connector hardware (lugs, bolted connectors, compression connectors). Distinct from CIM's cim:Terminal which is an abstract electrical connection point in the network model." ;
+    rdfs:label "Terminal Connector" .
+
+cimbology:BusEnd a owl:Class ;
+    rdfs:comment "End fitting or termination point of a bus section. Not modeled in CIM (cim:BusbarSection models the bus itself, not its endpoints)." ;
+    rdfs:label "Bus End" ;
+    rdfs:seeAlso cim:BusbarSection .
+
+cimbology:BusExpansion a owl:Class ;
+    rdfs:comment "Expansion joint or flexible connection in a bus run, allowing thermal expansion. Not modeled in CIM." ;
+    rdfs:label "Bus Expansion" .
+
+cimbology:Conduit a owl:Class ;
+    rdfs:comment "Conduit, raceway, or cable tray for routing and protecting cables. CIM models underground duct banks via cim:DuctBank but does not cover above-ground conduit or cable tray." ;
+    rdfs:label "Conduit" ;
+    rdfs:seeAlso cim:DuctBank ;
+    cimbology:equipmentDomain "structural" .
+
+cimbology:ConduitFitting a owl:Class ;
+    rdfs:comment "Conduit fitting (elbows, couplings, junction boxes, pull boxes). Not modeled in CIM." ;
+    rdfs:label "Conduit Fitting" ;
+    cimbology:equipmentDomain "structural" .
+
+cimbology:GroundingSystem a owl:Class ;
+    rdfs:comment "Physical grounding infrastructure (ground rods, ground grid, ground wells, grounding conductors). Distinct from CIM's cim:Ground which is an abstract electrical connection to earth in the network model." ;
+    rdfs:label "Grounding System" ;
+    cimbology:equipmentDomain "structural" .
+
+cimbology:Fence a owl:Class ;
+    rdfs:comment "Perimeter fencing around a substation (chain-link fabric, pipe rails, masonry walls, gates). Every substation has a security fence but CIM does not model it — cim:AssetContainer mentions 'fences' only as an example of aggregated assets with no dedicated class." ;
+    rdfs:label "Fence" ;
+    cimbology:equipmentDomain "structural" .
+
+cimbology:GenericEquipment a owl:Class ;
+    rdfs:comment "Catch-all type for equipment that does not map to any specific CIM or CIMBOLOGY-KG type. Used as a fallback when type mapping produces no match." ;
+    rdfs:label "Generic Equipment" ;
+    cimbology:equipmentDomain "structural" .
+
+# =============================================================================
+# CIMBOLOGY-KG RELATION MODEL
+# =============================================================================
+# Generic many-to-many relations with required relationKind discriminator.
+# Use for physical/design relationships. For electrical topology, use CIM
+# Terminal-ConnectivityNode directly.
+# =============================================================================
+
+cimbology:Relation a rdfs:Class ;
+    rdfs:comment "Generic relation between CIMBOLOGY-KG objects. Requires relationKind." .
+
+cimbology:source a owl:ObjectProperty ;
+    rdfs:domain cimbology:Relation ;
+    rdfs:comment "The source/from object URI - points to the originating node of a relation" .
+
+cimbology:target a owl:ObjectProperty ;
+    rdfs:domain cimbology:Relation ;
+    rdfs:comment "The target/to object URI - points to the destination node of a relation" .
+
+cimbology:relationKind a owl:ObjectProperty ;
+    rdfs:domain cimbology:Relation ;
+    rdfs:range cimbology:RelationKind ;
+    rdfs:comment "REQUIRED: The semantic type of this relation (Containment, PhysicalConnection, ParentChild, ProtectionAssignment, etc.)" .
+
+cimbology:wireNumber a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Wire number or conductor identifier within a cable bundle or conduit run." ;
+    rdfs:label "Wire Number" .
+
+cimbology:phase a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Electrical phase assignment (e.g., 'A', 'B', 'C', 'N', 'ABC'). Used on relations and conductors. Supplementary convenience property for fast querying. cim:Terminal.phases is the authoritative source. If both present and conflict, cim:Terminal.phases wins." ;
+    rdfs:label "Phase" .
+
+cimbology:cableSpec a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Cable specification string for protection/control runs (for example '4/C #10' or '12/C #10')." ;
+    rdfs:label "Cable Spec" .
+
+cimbology:coreCount a owl:DatatypeProperty ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Number of conductors/cores in a cable run." ;
+    rdfs:label "Core Count" .
+
+cimbology:circuitRole a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Functional circuit role for a wiring relation or cable (for example trip, close, ct, dc-power, status, alarm)." ;
+    rdfs:label "Circuit Role" .
+
+cimbology:cableRef a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Reference to the cable URN associated with a connection relation." ;
+    rdfs:label "Cable Reference" .
+
+cimbology:contactDesignation a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Auxiliary contact designation such as 52a or 52b." ;
+    rdfs:label "Contact Designation" .
+
+cimbology:circuitMembers a owl:ObjectProperty ;
+    rdfs:comment "Ordered list of cimbology:Relation URNs that compose a functional circuit path." ;
+    rdfs:label "Circuit Members" .
+
+# Relation Kinds
+cimbology:RelationKind a rdfs:Class .
+cimbology:Containment a cimbology:RelationKind ;
+    rdfs:comment "Source contains target (cables in conduits, equipment in bays)" .
+cimbology:PhysicalConnection a cimbology:RelationKind ;
+    rdfs:comment "Source connects to target (terminal-to-terminal wiring)" .
+cimbology:ParentChild a cimbology:RelationKind ;
+    rdfs:comment "Source is parent of target (assembly hierarchy)" .
+cimbology:ProtectionAssignment a cimbology:RelationKind ;
+    rdfs:comment "Links a protection relay (cim:ProtectionEquipment) to the breaker it protects." .
+cimbology:HousedIn a cimbology:RelationKind ;
+    rdfs:comment "Links equipment (relays, panels, batteries) to the cim:Structure that physically contains it." .
+cimbology:ConnectivityHint a cimbology:RelationKind ;
+    rdfs:comment "Low-confidence hint from IFC port topology suggesting two elements are connected." .
+cimbology:ElectricalProximityHint a cimbology:RelationKind ;
+    rdfs:comment "Low-confidence hint from spatial proximity analysis suggesting electrical adjacency." .
+cimbology:Clearance a cimbology:RelationKind ;
+    rdfs:comment "Source-to-target clearance relation carrying measured/required distance and governing rule metadata." .
+cimbology:Replacement a cimbology:RelationKind ;
+    rdfs:comment "Source node replaces target node. Source should have changeAction=add, target should have changeAction=remove. Tools should transfer correlation data from target to source." .
+
+cimbology:flowDirection a owl:DatatypeProperty ;
+    rdfs:domain cimbology:Relation ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Flow direction relative to source→target on a PhysicalConnection relation. Values: Forward, Reverse, Both. Omit if directionality is not known or not applicable." ;
+    rdfs:label "Flow Direction" .
+
+cimbology:changeAction a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Node lifecycle status relative to prior file revision. Values: none (default/unchanged), add (new), modify (properties changed), remove (tombstone — kept so tools can detect deletions). Absent = none." ;
+    rdfs:label "Change Action" .
+
+# =============================================================================
+# CIMBOLOGY-KG GEOMETRY PROPERTIES (Flat Arrays - No Wrapper Classes)
+# =============================================================================
+# Spatial representation not covered by CIM. Uses flat arrays for simplicity:
+#   - Smaller file size, direct array access
+# rdfs:range rdf:JSON tells the JSON-LD context builder these values are native
+# JSON arrays, emitting @type: @json in the @context section.
+# =============================================================================
+
+cimbology:transform a owl:DatatypeProperty ;
+    rdfs:range rdf:JSON ;
+    rdfs:comment "4x4 placement matrix as 16 floats, row-major. Translation in m03,m13,m23." ;
+    cimbology:firstClassProperty true .
+    # Example: [1,0,0,10, 0,1,0,20, 0,0,1,0, 0,0,0,1] = translate to (10,20,0)
+
+cimbology:path a owl:DatatypeProperty ;
+    rdfs:range rdf:JSON ;
+    rdfs:comment "Ordered sequence of [x,y,z] points for linear geometry (cables, conduits)." .
+    # Example: [[0,0,0], [10,0,0], [10,5,0], [15,5,0]]
+
+cimbology:point a owl:DatatypeProperty ;
+    rdfs:range rdf:JSON ;
+    rdfs:comment "Single [x,y,z] coordinate (connection points, attachment locations)." ;
+    cimbology:firstClassProperty true .
+    # Example: [10, 5, 0]
+
+cimbology:points a owl:DatatypeProperty ;
+    rdfs:range rdf:JSON ;
+    rdfs:comment "Array of [x,y,z] coordinates (distinct from cimbology:path which implies ordering for linear geometry)." ;
+    cimbology:firstClassProperty true .
+
+cimbology:width a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Bounding-box width of the equipment in metres (X-axis)." ;
+    rdfs:label "Width" ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:height a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Bounding-box height of the equipment in metres (Z-axis)." ;
+    rdfs:label "Height" ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:depth a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Bounding-box depth of the equipment in metres (Y-axis)." ;
+    rdfs:label "Depth" ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:volume a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "3D bounding volume of the equipment in cubic meters." ;
+    rdfs:label "Volume" ;
+    qudt:applicableUnit unit:M3 ;
+    qudt:quantityKind qkind:Volume .
+
+cimbology:area a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Surface area or footprint area of the equipment in square meters." ;
+    rdfs:label "Area" ;
+    qudt:applicableUnit unit:M2 ;
+    qudt:quantityKind qkind:Area .
+
+cimbology:mountingLocation a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Description of where equipment is mounted on a host structure (e.g., 'top', 'side', 'crossarm')." ;
+    rdfs:label "Mounting Location" .
+
+# =============================================================================
+# CONDUCTOR / CABLE / BUS PROPERTIES
+# =============================================================================
+# WHY: Design tools need physical conductor dimensions for routing, clearance
+# analysis, and material takeoff. CIM models conductors via WireInfo and
+# PerLengthParameters but these are complex association chains. These flat
+# properties let CIMBOLOGY-KG files carry conductor geometry data directly.
+# =============================================================================
+
+cimbology:conductorLength a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Total length of a conductor instance, in meters." ;
+    rdfs:label "Conductor Length" ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:massPerLength a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Mass per unit length of a linear conductor, in kg/m." ;
+    rdfs:label "Mass Per Length" ;
+    qudt:applicableUnit unit:KiloGM-PER-M ;
+    qudt:quantityKind qkind:MassPerLength .
+
+cimbology:innerDiameter a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Internal diameter of a tubular conductor or equipment, in meters." ;
+    rdfs:label "Inner Diameter" ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Diameter .
+
+cimbology:outerDiameter a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "External diameter of a conductor or equipment, in meters." ;
+    rdfs:label "Outer Diameter" ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Diameter .
+
+cimbology:bendRadius a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Minimum bend radius at the conductor centerline. Not applicable for sagging or catenary conductors." ;
+    rdfs:label "Bend Radius" ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:sagPercent a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Percentage sag of a cable span relative to the span length." ;
+    rdfs:label "Sag Percent" .
+
+cimbology:wallThickness a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Wall thickness of a tubular bus bar, in meters." ;
+    rdfs:label "Wall Thickness" ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+# =============================================================================
+# CIMBOLOGY-KG FILE METADATA
+# =============================================================================
+
+cimbology:formatVersion a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "CIMBOLOGY-KG format version (e.g., '1.0.0')" .
+
+cimbology:created a owl:DatatypeProperty ;
+    rdfs:range xsd:dateTime .
+
+cimbology:modified a owl:DatatypeProperty ;
+    rdfs:range xsd:dateTime .
+
+cimbology:lastModified a owl:DatatypeProperty ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "Alias for cimbology:modified. Retained for backward compatibility with tools that use 'lastModified'." ;
+    rdfs:label "Last Modified" ;
+    cimbology:firstClassProperty true .
+
+cimbology:modifiedBy a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Username or identifier of the person or system that last modified this object." ;
+    rdfs:label "Modified By" ;
+    cimbology:firstClassProperty true .
+
+cimbology:sourceTool a owl:ObjectProperty ;
+    rdfs:comment "Tool that created/modified this file" .
+
+cimbology:toolName a owl:DatatypeProperty ;
+    rdfs:range xsd:string .
+
+cimbology:toolVersion a owl:DatatypeProperty ;
+    rdfs:range xsd:string .
+
+cimbology:toolFormatVersion a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Version of the tool-specific data format (e.g., CAD/BIM tool data format version). Distinct from cimbology:formatVersion which tracks the CIMBOLOGY-KG file format version." ;
+    rdfs:label "Tool Format Version" .
+
+cimbology:toolConnectorName a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Tool-assigned name for a connector point on equipment. Unique within the family/type where it is created." ;
+    rdfs:label "Tool Connector Name" .
+
+cimbology:pluginName a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Name of the tool plugin or exporter that produced this data." ;
+    rdfs:label "Plugin Name" .
+
+cimbology:pluginVersion a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Version of the tool plugin that produced this data." ;
+    rdfs:label "Plugin Version" .
+
+cimbology:fileRevision a owl:DatatypeProperty ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Monotonically increasing revision number, incremented on each persisted revision." ;
+    rdfs:label "File Revision" .
+
+cimbology:revisionTool a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Name of the tool that saved this revision." ;
+    rdfs:label "Revision Tool" .
+
+cimbology:revisionTimestamp a owl:DatatypeProperty ;
+    rdfs:range xsd:dateTime ;
+    rdfs:comment "ISO 8601 timestamp when this revision was saved." ;
+    rdfs:label "Revision Timestamp" .
+
+cimbology:revisionNote a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Optional human-readable description of what changed in this revision." ;
+    rdfs:label "Revision Note" .
+
+cimbology:classificationProvenance a owl:DatatypeProperty ;
+    rdfs:range rdf:JSON ;
+    rdfs:comment "Classification winner provenance payload as JSON object: tier, rule, confidence, rawSignal." ;
+    rdfs:label "Classification Provenance" .
+
+cimbology:classificationDisagreement a owl:DatatypeProperty ;
+    rdfs:range rdf:JSON ;
+    rdfs:comment "Classification disagreement payload as JSON array of tier/code/rawSignal objects." ;
+    rdfs:label "Classification Disagreement" .
+
+cimbology:qaReport a owl:DatatypeProperty ;
+    rdfs:range rdf:JSON ;
+    rdfs:comment "Graph-level QA summary as JSON object (counts and top disagreement patterns)." ;
+    rdfs:label "QA Report" .
+
+# =============================================================================
+# CIMBOLOGY-KG EXTENSIONS FOR CIM (Properties not in CIM)
+# =============================================================================
+# These properties extend CIM equipment with BIM/CAD data.
+# Geometry uses flat arrays (defined above), not object references.
+# =============================================================================
+
+# Note: cimbology:transform, cimbology:path, cimbology:point defined in GEOMETRY section above.
+# They are DatatypeProperty with flat array values, not ObjectProperty.
+
+# -----------------------------------------------------------------------------
+# General / Descriptive Properties
+# -----------------------------------------------------------------------------
+# WHY: CIM models name/description via IdentifiedObject inheritance. CIMBOLOGY-KG uses
+# flat string properties so any object can carry a display name and description
+# without requiring CIM's deep class hierarchy.
+# -----------------------------------------------------------------------------
+
+cimbology:name a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Display name for the object. Equivalent to cim:IdentifiedObject.name but usable on any CIMBOLOGY-KG object." ;
+    rdfs:label "Name" ;
+    cimbology:firstClassProperty true ;
+    owl:equivalentProperty cim:IdentifiedObject.name .
+
+cimbology:description a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Human-readable description. Equivalent to cim:IdentifiedObject.description but usable on any CIMBOLOGY-KG object." ;
+    rdfs:label "Description" ;
+    cimbology:firstClassProperty true ;
+    owl:equivalentProperty cim:IdentifiedObject.description .
+
+cimbology:catalogModel a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Catalog model identifier used for matching equipment to tool-specific catalog entries." ;
+    rdfs:label "Catalog Model" .
+
+cimbology:catalogName a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Catalog or library name where the equipment definition is stored." ;
+    rdfs:label "Catalog Name" .
+
+cimbology:catalogItemId a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Standard catalog item identifier preserved through round-trips for cross-tool catalog traceability. Tool-specific catalog provenance belongs in tool-prefixed properties (e.g. revit:familyName); cimbology:catalogItemId is the canonical, tool-agnostic identifier." ;
+    rdfs:label "Catalog Item ID" .
+
+cimbology:directCatalogItem a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Fully resolved tool-native catalog item identifier. When present, a catalog resolver may bypass lens-driven catalog query construction and return this value directly. Use when the producing tool already knows the exact catalog row (e.g. user selected from a picker) and round-tripping through canonical CIM properties would risk precision loss." ;
+    rdfs:label "Direct Catalog Item" .
+
+cimbology:toolValueUnit a owl:AnnotationProperty ;
+    rdfs:range rdfs:Resource ;
+    rdfs:comment "Unit of measure a specific tool uses for this property. Use a QUDT unit URI when the tool stores values in a non-canonical unit requiring conversion." ;
+    rdfs:label "Tool Value Unit" .
+
+cimbology:sdsType a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Legacy Spatial Design System (SDS) type name, preserved for backward-compatible type mapping." ;
+    rdfs:label "SDS Type" .
+
+cimbology:standardsReference a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Reference to an applicable standard (e.g., 'IEEE C57.12', 'IEC 62271-100')." ;
+    rdfs:label "Standards Reference" .
+
+# -----------------------------------------------------------------------------
+# Design Tool Placement Properties
+# -----------------------------------------------------------------------------
+
+cimbology:level a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Vertical level/elevation name" .
+
+cimbology:host a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "URI of hosting element (e.g., foundation for transformer)" .
+
+cimbology:workPlane a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "CAD/BIM work plane or reference plane on which this element was placed." ;
+    rdfs:label "Work Plane" .
+
+cimbology:hostFace a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Identifier of the face on the host element where this element is attached." ;
+    rdfs:label "Host Face" .
+
+cimbology:offsetFromHost a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Offset distance from the host element surface, in meters." ;
+    rdfs:label "Offset From Host" ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:phaseCreated a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Design/construction phase during which this element was created (e.g., 'Schematic', 'Detail Design')." ;
+    rdfs:label "Phase Created" .
+
+# =============================================================================
+# ASSET MANAGEMENT PROPERTIES
+# =============================================================================
+# WHY: Substation equipment has lifecycle and identity data that CIM does not
+# model (CIM focuses on electrical topology, not asset tracking). These
+# properties let CIMBOLOGY-KG files carry asset management data alongside CIM types.
+# =============================================================================
+
+cimbology:serialNumber a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Manufacturer-assigned serial number for the physical asset." ;
+    rdfs:label "Serial Number" .
+
+cimbology:assetTag a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Utility/owner-assigned asset tracking identifier." ;
+    rdfs:label "Asset Tag" .
+
+cimbology:purchaseDate a owl:DatatypeProperty ;
+    rdfs:range xsd:date ;
+    rdfs:comment "Date the equipment was purchased." ;
+    rdfs:label "Purchase Date" .
+
+cimbology:installationDate a owl:DatatypeProperty ;
+    rdfs:range xsd:date ;
+    rdfs:comment "Date the equipment was physically installed." ;
+    rdfs:label "Installation Date" .
+
+cimbology:commissioningDate a owl:DatatypeProperty ;
+    rdfs:range xsd:date ;
+    rdfs:comment "Date the equipment was energized and placed into service." ;
+    rdfs:label "Commissioning Date" .
+
+cimbology:lastMaintenance a owl:DatatypeProperty ;
+    rdfs:range xsd:date ;
+    rdfs:comment "Date of the most recent maintenance or inspection." ;
+    rdfs:label "Last Maintenance" .
+
+cimbology:status a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Current operational status (e.g., 'In Service', 'Retired', 'Planned')." ;
+    rdfs:label "Status" .
+
+# =============================================================================
+# SUBSTATION ORGANIZATION PROPERTIES
+# =============================================================================
+# WHY: CIM models substation hierarchy via containment (Substation > VoltageLevel
+# > Bay) but does not provide simple string-valued properties for these concepts.
+# Design tools and asset databases often need flat string identifiers for
+# filtering, grouping, and display. These properties bridge that gap.
+# =============================================================================
+
+cimbology:bayId a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Identifier of the bay containing this equipment." ;
+    rdfs:label "Bay ID" .
+
+cimbology:bayNumber a owl:DatatypeProperty ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "1-based bay number within the voltage level. CIM models Bay as an EquipmentContainer but does not define an ordering property. This CIMBOLOGY-KG extension provides explicit bay sequencing for layout tools, SLD generators, and 3D renderers." ;
+    rdfs:label "Bay Number" .
+
+cimbology:positionInBay a owl:DatatypeProperty ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "0-based position of equipment within its bay. For BAH: 0=Bus-A-side, 1=Middle/Tie, 2=Bus-B-side. For DBDB: 0=Bus-A-side, 1=Bus-B-side. Consuming tools use this instead of parsing equipment names." ;
+    rdfs:label "Position In Bay" .
+
+cimbology:substationName a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Name of the substation containing this equipment." ;
+    rdfs:label "Substation Name" .
+
+cimbology:feederLine a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Feeder or line identifier associated with this equipment." ;
+    rdfs:label "Feeder Line" .
+
+cimbology:projectCode a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Project or work order code for tracking design/construction scope." ;
+    rdfs:label "Project Code" .
+
+# =============================================================================
+# ELECTRICAL PROPERTIES (CIMBOLOGY-KG extensions beyond CIM)
+# =============================================================================
+# WHY: CIM defines rated voltage/current but not all properties needed for
+# substation BIM workflows. BIL (Basic Insulation Level) and weight are
+# commonly required for equipment specification and structural analysis.
+# =============================================================================
+
+cimbology:weight a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Equipment weight (units specified by value, e.g., '450 kg')." ;
+    rdfs:label "Weight" ;
+    qudt:applicableUnit unit:LB ;
+    qudt:quantityKind qkind:Mass .
+
+cimbology:voltageRating a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Rated voltage in kV. Simplified flat property; CIM models voltage via complex measurement objects." ;
+    rdfs:label "Voltage Rating" ;
+    qudt:applicableUnit unit:KiloV ;
+    qudt:quantityKind qkind:Voltage .
+
+cimbology:currentRating a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Rated continuous current in amperes. Supplementary convenience alias of cim:Switch.ratedCurrent for compatibility with tools that still query CIMBOLOGY-KG namespace properties." ;
+    rdfs:label "Current Rating" ;
+    qudt:applicableUnit unit:A ;
+    qudt:quantityKind qkind:ElectricCurrent .
+
+cimbology:breakingCapacity a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Fault interrupting capacity in kA. Supplementary convenience alias of cim:ProtectedSwitch.breakingCapacity for compatibility with tools that still query CIMBOLOGY-KG namespace properties." ;
+    rdfs:label "Breaking Capacity" ;
+    qudt:applicableUnit unit:KiloAMP ;
+    qudt:quantityKind qkind:ElectricCurrent .
+
+# -----------------------------------------------------------------------------
+# PROTECTION / INSULATION PROPERTIES (shared across substation & distribution)
+# -----------------------------------------------------------------------------
+
+cimbology:bil a owl:DatatypeProperty ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Basic Insulation Level (BIL) in kV. Applies to both substation and distribution equipment — transformers, capacitors, surge arresters, and switches at any voltage class." ;
+    rdfs:label "BIL" ;
+    qudt:applicableUnit unit:KiloV ;
+    qudt:quantityKind qkind:Voltage .
+
+cimbology:ctRatio a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Legacy current-transformer ratio string (e.g., '2000:5' for substation, '400:5' for distribution metering/recloser protection). For structured ratio metadata such as accuracy class, ratio components, and core count, use cim:CurrentTransformerInfo from the IEC 61968 informative AssetInfo package alongside this string when needed." ;
+    rdfs:label "CT Ratio" .
+
+cimbology:ptRatio a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Legacy potential-transformer ratio string (e.g., '138000:120' for substation, '7200:120' for distribution). For structured ratio metadata such as accuracy class and ratio components, use cim:PotentialTransformerInfo from the IEC 61968 informative AssetInfo package alongside this string when needed." ;
+    rdfs:label "PT Ratio" .
+
+cimbology:ansiDeviceNumber a owl:DatatypeProperty ;
+    rdfs:comment "ANSI/IEEE device function number(s) (e.g., '50/51', '79', '86', '25'). Used by substation protection relays and distribution recloser/relay controllers. Multiple functions separated by '/'." ;
+    rdfs:label "ANSI Device Number" .
+
+cimbology:relayModel a owl:DatatypeProperty ;
+    rdfs:comment "Manufacturer model identifier for a protection relay or recloser controller (e.g., 'SEL-351', 'SEL-651R', 'SEL-411L')." ;
+    rdfs:label "Relay Model" .
+
+cimbology:hasReclosing a owl:DatatypeProperty ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether automatic reclosing is enabled. Applies to substation breakers with reclosing relays and distribution reclosers/switches with recloser controllers." ;
+    rdfs:label "Has Reclosing" .
+
+cimbology:monitors a owl:ObjectProperty ;
+    rdfs:comment "Functional relationship linking an instrument transformer (CT/PT/CCVT) to the equipment it monitors for metering and protection logic." ;
+    rdfs:label "Monitors" .
+
+cimbology:dcVoltage a owl:DatatypeProperty ;
+    rdfs:comment "Nominal DC control voltage in volts (e.g. 125, 250)." ;
+    rdfs:label "DC Voltage" ;
+    rdfs:domain cimbology:DCSystem ;
+    qudt:applicableUnit unit:V ;
+    qudt:quantityKind qkind:Voltage .
+
+cimbology:hasAntiPump a owl:DatatypeProperty ;
+    rdfs:comment "Whether the breaker close circuit includes anti-pump logic." ;
+    rdfs:label "Has Anti-Pump" ;
+    rdfs:range xsd:boolean .
+
+cimbology:hasTripSupervision a owl:DatatypeProperty ;
+    rdfs:comment "Whether the breaker trip circuit includes supervision (open-circuit / blown-fuse detection)." ;
+    rdfs:label "Has Trip Supervision" ;
+    rdfs:range xsd:boolean .
+
+cimbology:protects a owl:ObjectProperty ;
+    rdfs:comment "Functional relationship linking a surge arrester to the equipment or junction it protects from overvoltage events." ;
+    rdfs:label "Protects" .
+
+cimbology:groundedTo a owl:ObjectProperty ;
+    rdfs:comment "Functional relationship linking conductive equipment to the station grounding system used for fault-current dissipation and personnel safety." ;
+    rdfs:label "Grounded To" .
+
+cimbology:phases a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Number or combination of electrical phases (e.g., '3', 'ABC', '1'). Simplified from CIM's PhaseCode enumeration. Supplementary convenience property for fast querying. cim:Terminal.phases is the authoritative source. If both present and conflict, cim:Terminal.phases wins." ;
+    rdfs:label "Phases" .
+
+# WHY: Some HV circuit breakers are installed physically 180° from the standard
+# orientation (DC arc-magnet polarity, site cable routing, cabinet bus layout).
+# Electrical topology stays the same - odd sequence numbers (1,3,5) still name
+# physical side 1 (line side) and even (2,4,6) name physical side 2 (load side).
+# What flips is which physical terminal on the device body the sequenceNumber maps to.
+# Consumers that only care about electrical connectivity should ignore this
+# property. Consumers that drive physical visualization, DC polarity validation,
+# or cabinet-layout queries must honor it.
+cimbology:isPhysicallyInverted a owl:DatatypeProperty ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "True if the equipment is physically installed 180° from the conventional orientation. Affects only the physical mapping from cim:Terminal.sequenceNumber to the physical terminal on the equipment body. Does NOT change electrical topology (odd sequenceNumber 1,3,5 = line side; even 2,4,6 = load side). Absent or false = conventional. Applicable to two-sided switching equipment (cim:Breaker, cim:Disconnector, cim:Fuse, cim:ACLineSegment)." ;
+    rdfs:label "Is Physically Inverted" .
+
+cimbology:physicalSide a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Physical side designation on a terminal of an inverted equipment. Values: 'LineSide' or 'LoadSide'. REQUIRED on all 6 terminals when the parent equipment has cimbology:isPhysicallyInverted = true; OMITTED on terminals of conventionally-installed equipment (convention is unambiguous from cim:Terminal.sequenceNumber). When inverted: terminals with odd sequenceNumber (1,3,5) carry physicalSide='LoadSide' and terminals with even sequenceNumber (2,4,6) carry physicalSide='LineSide'." ;
+    rdfs:label "Physical Side" .
+
+# -----------------------------------------------------------------------------
+# Equipment Bank & Gang Operation Properties
+# -----------------------------------------------------------------------------
+# WHY: Physical infrastructure commonly groups individual per-phase equipment
+# into a coordinated bank (e.g., 3 CTs - one per phase - installed as a set).
+# This model represents each bank as a first-class cimbology:EquipmentBank node
+# (a subclass of cim:EquipmentContainer) with stable URN identity. Equipment
+# links to its bank via cimbology:memberOfBank, preserving the existing
+# cim:Equipment.EquipmentContainer slot for Substation/VoltageLevel/Bay.
+#
+# For gang-operated switches, CIM provides SwitchInfo.isUnganged on the asset
+# info layer, but CIMBOLOGY-KG places the flag directly on the equipment node for
+# simpler querying. Positive semantics (isGangOperated=true) used instead of
+# CIM's negative semantics (isUnganged=true) for clarity.
+# -----------------------------------------------------------------------------
+
+cimbology:EquipmentBank a owl:Class ;
+    rdfs:subClassOf cim:EquipmentContainer ;
+    rdfs:comment "A coordinated set of per-phase equipment (typically 3 members - one per phase) installed and managed as a single logical asset. Examples: 3 CTs monitoring a breaker, 3 CCVTs at a line entrance, 3 PTs at a bus section, 3 surge arresters protecting a transformer side. Subclassing cim:EquipmentContainer aligns the concept with CIM containment semantics; however, equipment links to its bank via cimbology:memberOfBank rather than cim:Equipment.EquipmentContainer (which remains reserved for the Substation/VoltageLevel/Bay containment chain). A bank node has UUID identity; its rdfs:label is optional and human-friendly only." ;
+    rdfs:label "Equipment Bank" .
+
+cimbology:memberOfBank a owl:ObjectProperty ;
+    rdfs:range cimbology:EquipmentBank ;
+    rdfs:comment "Links per-phase equipment to its cimbology:EquipmentBank node. Replaces the earlier name-derived bank identifier string model. Stable across equipment renames because the value is the bank's URN, not a derived label. Query pattern: SELECT ?member WHERE { ?member cimbology:memberOfBank <urn:uuid:...> } returns all bank members." ;
+    rdfs:label "Member Of Bank" .
+
+cimbology:isGangOperated a owl:DatatypeProperty ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "True if a multi-pole switching device operates all poles simultaneously via a shared operating mechanism. Applicable to cim:Disconnector and cim:LoadBreakSwitch where independent-pole operation is physically possible but operationally undesired. Absent or false = poles may operate independently. Breakers inherently operate all poles simultaneously and do not need this flag. Aligns with (and inverts) CIM's SwitchInfo.isUnganged: isGangOperated = NOT isUnganged." ;
+    rdfs:label "Is Gang Operated" .
+
+# -----------------------------------------------------------------------------
+# Conductor Run Model
+# -----------------------------------------------------------------------------
+# WHY: Per-phase electrical conductors run between two equipment terminals
+# (e.g., from a breaker load-side terminal to a transformer line-side
+# terminal). Physically these runs are an assembly of rigid bus sections,
+# A-frame jumpers, and/or cable drops. cimbology:Conductor is the logical
+# per-phase entity that represents the run as one queryable thing; physical
+# members (cim:BusbarSection, cim:ACLineSegment) point back to it via
+# cimbology:memberOfConductorRun.
+#
+# Phase lives on each cim:Terminal (cim:Terminal.phases), per CIM standard.
+# Length is NOT stored at emit time — it is the lazy sum of member
+# cimbology:memberLength values, computed by consumers on demand.
+# (cimbology:memberLength used instead of cim:Conductor.length because
+# cim:BusbarSection extends cim:Connector, not cim:Conductor.)
+#
+# Optional fault-calculation properties (cimbology:r, cimbology:x, cimbology:r0,
+# cimbology:x0) mirror what CIM provides on cim:ACLineSegment. They are
+# absent by default; downstream fault tools fall back to cim:WireInfo
+# per-length values * total length when the explicit properties are missing.
+# -----------------------------------------------------------------------------
+
+cimbology:Conductor a owl:Class ;
+    rdfs:subClassOf cim:Conductor ;
+    rdfs:comment "A logical per-phase electrical conductor that runs between two equipment termination points. Has exactly 2 cim:Terminal nodes (sequenceNumber 1 = source, sequenceNumber 2 = destination); phase is on each terminal via cim:Terminal.phases. Physically composed of one or more members typed as cim:BusbarSection (rigid bus, A-frame segments) or cim:ACLineSegment (cable). Members point back via cimbology:memberOfConductorRun. cim:Conductor.length on the cimbology:Conductor itself is NOT stored at emit time; it is the lazy sum of member lengths, computed on demand across the graph. Three cimbology:Conductor instances (one per phase A/B/C) make up a typical 3-phase logical run." ;
+    rdfs:label "Conductor (Logical Run)" .
+
+cimbology:memberOfConductorRun a owl:ObjectProperty ;
+    rdfs:range cimbology:Conductor ;
+    rdfs:comment "Links a physical current-carrying segment (cim:BusbarSection for rigid bus and A-frame segments; cim:ACLineSegment for cable runs) to the logical cimbology:Conductor it belongs to. Multiple physical members may share the same conductor URN — they are the assembly of pieces that make up one per-phase run between two terminals. Fittings, couplings, and elbows are NOT tracked at the CIMBOLOGY-KG layer in V1; they remain CAD/BIM tool-side concerns. Query pattern: SELECT ?member WHERE { ?member cimbology:memberOfConductorRun <urn:uuid:...> } returns all physical pieces of a known conductor run." ;
+    rdfs:label "Member Of Conductor Run" .
+
+cimbology:memberLength a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Length in metres of a physical conductor-run member (cim:BusbarSection or cim:ACLineSegment). Used INSTEAD OF cim:Conductor.length because cim:BusbarSection extends cim:Connector (not cim:Conductor), so cim:Conductor.length does not validly inherit. The lazy total length on cimbology:Conductor is the sum of cimbology:memberLength across all members. Members without this property are skipped in the sum; if no member declares it, total length is undefined." ;
+    rdfs:label "Conductor Member Length" ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:r a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Positive sequence series resistance, in ohms. Optional. Mirrors cim:ACLineSegment.r. Absent unless an explicit value is provided by the designer; consumers fall back to cim:WireInfo per-length values * total length when this property is missing." ;
+    rdfs:label "Positive Sequence Series Resistance" ;
+    qudt:applicableUnit unit:OHM ;
+    qudt:quantityKind qkind:Resistance .
+
+cimbology:x a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Positive sequence series reactance, in ohms. Optional. Mirrors cim:ACLineSegment.x. Absent unless an explicit value is provided by the designer." ;
+    rdfs:label "Positive Sequence Series Reactance" ;
+    qudt:applicableUnit unit:OHM ;
+    qudt:quantityKind qkind:Reactance .
+
+cimbology:r0 a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Zero sequence series resistance, in ohms. Optional. Mirrors cim:ACLineSegment.r0. Absent unless an explicit value is provided by the designer." ;
+    rdfs:label "Zero Sequence Series Resistance" ;
+    qudt:applicableUnit unit:OHM ;
+    qudt:quantityKind qkind:Resistance .
+
+cimbology:x0 a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Zero sequence series reactance, in ohms. Optional. Mirrors cim:ACLineSegment.x0. Absent unless an explicit value is provided by the designer." ;
+    rdfs:label "Zero Sequence Series Reactance" ;
+    qudt:applicableUnit unit:OHM ;
+    qudt:quantityKind qkind:Reactance .
+
+# =============================================================================
+# MANUFACTURER INFORMATION PROPERTIES
+# =============================================================================
+# WHY: CIM has cim:Manufacturer and cim:ProductAssetModel but they are complex
+# object types with deep association chains. Substation BIM tools need simple
+# string-valued manufacturer info for display and catalog matching.
+# =============================================================================
+
+cimbology:manufacturer a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Name of the equipment manufacturer." ;
+    rdfs:label "Manufacturer" .
+
+cimbology:partNumber a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Manufacturer part number or catalog number." ;
+    rdfs:label "Part Number" .
+
+cimbology:modelName a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Manufacturer model name or designation." ;
+    rdfs:label "Model Name" .
+
+# =============================================================================
+# IDENTITY PROPERTIES
+# =============================================================================
+# WHY: Design tools and legacy systems assign their own internal identifiers
+# that must survive round-trip conversions. These properties preserve tool-
+# specific identity alongside the canonical CIMBOLOGY-KG @id (UUID URN).
+# =============================================================================
+
+cimbology:internalId a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Internal identifier assigned by the originating design tool or system." ;
+    rdfs:label "Internal ID" .
+
+cimbology:legacyId a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Identifier from a legacy system, preserved for traceability during migration." ;
+    rdfs:label "Legacy ID" .
+
+# =============================================================================
+# CATALOG RESOLUTION PREDICATES
+# =============================================================================
+# WHY: These are the standard CIMBOLOGY-KG predicates that any lens file can use
+# to configure catalog resolution. Declaring them in the core ontology
+# ensures interoperability across tool-specific lens files. Without these
+# declarations, every lens file would invent its own predicate names.
+# =============================================================================
+
+cimbology:toolCategory a rdf:Property ;
+    rdfs:comment "The tool-specific category or library to search (e.g., 'Electrical Equipment')." ;
+    rdfs:label "Tool Category" .
+
+cimbology:isCatalogKey a rdf:Property ;
+    rdfs:comment "Boolean: if true, this property is used as a search filter in the catalog query." ;
+    rdfs:label "Is Catalog Key" .
+
+cimbology:toolParameter a rdf:Property ;
+    rdfs:comment "Maps a CIM/CIMBOLOGY-KG property to a tool-specific parameter name (e.g., 'Rated Volts')." ;
+    rdfs:label "Tool Parameter" .
+
+cimbology:toolValueMap a rdf:Property ;
+    rdfs:comment "Maps CIM/CIMBOLOGY-KG property values to tool-specific values (e.g., 'spring' -> 'SpringOp')." ;
+    rdfs:label "Tool Value Map" .
+
+cimbology:fallbackSymbol a rdf:Property ;
+    rdfs:comment "The symbol or family to use if no exact catalog match is found." ;
+    rdfs:label "Fallback Symbol" .
+
+# =============================================================================
+# GEOMETRY CLASSES (for ontology completeness)
+# =============================================================================
+# WHY: Formal class declarations for geometry types used in CIMBOLOGY-KG files.
+# These do NOT change serialization behavior — geometry is still serialized
+# as flat arrays on cimbology:transform, cimbology:path, and cimbology:point properties.
+# These classes exist for ontology tools and documentation.
+# =============================================================================
+
+cimbology:Transform a rdfs:Class ;
+    rdfs:comment "4x4 transformation matrix for equipment placement. Serialized as flat 16-float array." ;
+    rdfs:label "Transform" .
+
+cimbology:LinearGeometry a rdfs:Class ;
+    rdfs:comment "Ordered sequence of 3D points defining a path for cables, conduits, etc." ;
+    rdfs:label "Linear Geometry" .
+
+cimbology:PointGeometry a rdfs:Class ;
+    rdfs:comment "Single 3D coordinate for connection points and attachment locations." ;
+    rdfs:label "Point Geometry" .
+
+
+# =============================================================================
+# CIMBOLOGY-KG — Distribution Domain Ontology Extensions
+# =============================================================================
+#
+# PURPOSE:
+#   CIMBOLOGY-KG defines the domain concepts needed to exchange overhead transmission
+#   and distribution line design data between tools. It covers both T&D because
+#   ~70% of concepts (sag-tension, clearance, crossings, conductor/pole
+#   properties, provenance) are shared. Domain-specific concepts are tagged
+#   The cimbology: namespace itself serves as the domain indicator.
+#   CIMBOLOGY-KG is the line-infrastructure counterpart to CIMBOLOGY-KG (Substation Interchange
+#   Format) and follows the same domain-vs-lens split.
+#
+# GOVERNANCE RULES:
+#   1. If it's in CIM → don't repeat it unless superclassing
+#   2. If it's not CIM but affects ALL infrastructure → cimbology:
+#   3. If it's substation-specific → cimbology:
+#   4. If it's unique to line infrastructure (T&D) → cimbology:
+#
+# WHAT BELONGS HERE:
+#   Physical line concepts, code-driven properties (NESC), CIM mappings,
+#   provenance, and engineering analysis results — all in SI units.
+#   Properties removed as duplicates of existing cimbology: properties are
+#   marked with "NOTE: ... use cimbology:..." comments.
+#
+# WHAT DOES NOT BELONG HERE:
+#   Tool names, renderer visualization hints, native-unit companions (imperial),
+#   catalog resolution annotations, or any tool-specific workflow fields.
+#   Those belong in the application lens (e.g., cad-lens.ttl).
+#
+# KEY TEST:
+#   If you handed this file to an engineer at a competing line design
+#   tool and they immediately understood every class and property — it's right.
+#
+# STANDARDS REFERENCES:
+#   IEC CIM 61970/61968 (type hierarchy — cim:Pole, cim:ACLineSegment, etc.)
+#   NESC C2-2023 §23  (distribution loading rules, OLFs, construction grades)
+#   NESC C2-2023 §232 (clearance tables, Table 232-1 rows 1–7)
+#   NESC C2-2023 §250B (loading districts, wind/ice/temperature)
+#   NESC C2-2023 §253  (overload factors for Grade B/C construction)
+#   NESC C2-2023 §261  (strength reduction factors)
+#   ANSI O5.1-2017     (wood pole class, species, ground-line moment capacity)
+#   ASTM B232-17       (stranded aluminum conductor, RBS, diameter, mass)
+#   IEEE C37.06-2009   (AC breaker rated interrupt/continuous current)
+#   IEEE C37.42-2016   (fuse design and ratings for distribution equipment)
+#   IEEE C37.60-2012   (overhead-pad-mounted-dry-vault distribution reclosers)
+#   IEEE C57.15-2009   (step voltage regulators, range, bandwidth)
+#   IEEE 1036-2020     (shunt capacitor bank application and ratings)
+#   QUDT 2.1           (unit and quantity kind annotations)
+#
+# STANDARDS EXPLICITLY NOT INCLUDED (and why):
+#
+#   IEC 61850 (Substation/Distribution Automation):
+#     61850 defines logical nodes for protection and communication (XCBR,
+#     XSWI, PTOC, RREC, etc.). CIMBOLOGY-KG models PHYSICAL DESIGN, not automation.
+#     61850 mappings belong in a future "protection coordination lens" or
+#     "SCADA lens". When that lens is built, cross-references to CIMBOLOGY-KG equipment
+#     classes will be straightforward (e.g., cimbology:recloserType ↔ RREC).
+#
+#   IFC 4x3 (Building/Infrastructure BIM):
+#     IFC 4.3 has relevant classes (IfcCableSegment, IfcProtectiveDevice,
+#     IfcTransformer). However, CIMBOLOGY-KG already handles IFC mappings in a
+#     separate file (cimbology-kg-ifc.ttl). Distribution IFC mappings should follow
+#     the same pattern in a future tdif-ifc-lens.ttl. Mixing IFC concerns
+#     into the domain ontology would violate the domain-vs-lens separation.
+#
+#   IEEE 1547 (DER Interconnection):
+#     Relevant if CIMBOLOGY-KG ever models distributed energy resources at service
+#     points (solar, storage). Not in the initial distribution design scope.
+#     Can be added as a DER extension section when needed.
+#
+#   MultiSpeak (Utility Data Exchange):
+#     XML-schema distribution utility standard. No formal RDF ontology or
+#     URI namespace exists. Service point concepts overlap but a formal
+#     semantic mapping is not possible. Documented here for awareness.
+#
+# DESIGN DECISIONS (read these before modifying this file):
+#
+#   D1. FLAT PROPERTIES OVER CIM ASSOCIATION CHAINS
+#       CIM models conductor data via Equipment → AssetInfo → WireInfo →
+#       PerLengthParameters (4+ hops). CIMBOLOGY-KG uses flat properties (cimbology:conductorMaterial,
+#       cimbology:rbs, cimbology:conductorSizeAwg) because: (a) design tools store data flat,
+#       (b) round-trip fidelity requires 1:1 property mapping, (c) junior
+#       engineers can read flat properties in 5 seconds vs. tracing CIM
+#       associations. Where CIM has a near-equivalent property, CIMBOLOGY-KG adds
+#       rdfs:seeAlso to the CIM property for discoverability.
+#
+#   D2. SI UNITS ONLY IN DOMAIN ONTOLOGY
+#       All numeric properties use SI units (meters, newtons, pascals, etc.).
+#       Application lenses add imperial companions (e.g., cad:stationFt) for
+#       round-trip fidelity with tools that use imperial internally. This
+#       prevents unit ambiguity in the domain layer.
+#
+#   D3. DESIGN INPUTS VS. AS-BUILT STATE
+#       CIM models as-built operational state. CIMBOLOGY-KG models design inputs
+#       (criteria, load cases) AND analysis outputs (sag-tension, clearance,
+#       pole loading). Both are needed for distribution design interchange.
+#       Classes like cimbology:DistributionCriteria and cimbology:LoadCase have no CIM
+#       equivalent because CIM was not designed for design workflows.
+#
+#   D4. FRAMING AS FIRST-CLASS CONCEPT
+#       Distribution poles carry explicit framing configurations (horizontal,
+#       vertical, triangular, wishbone) that determine phase spacing, crossarm
+#       requirements, and construction cost. Transmission structures define
+#       attachment geometry implicitly. cimbology:Framing has no CIM or TIF
+#       equivalent — it is unique to distribution design.
+#
+#   D5. POLE LOADING IS FIRST-CLASS
+#       Every distribution pole must demonstrate adequate strength under NESC
+#       loading via ground-line moment analysis. cimbology:PoleLoadResult is a
+#       first-class output class. Transmission uses structure-level analysis
+#       with different methodology (lattice tower member checks vs. single-pole
+#       moment checks), so TIF does not have this class.
+#
+#   D6. PROVENANCE IN DOMAIN, NOT LENS
+#       provenanceTier, provenanceCitation, provenanceSetterInitials, and
+#       provenanceDate are domain properties (not lens properties) because the
+#       PE-stamp audit trail is a regulatory engineering concern that any tool
+#       exchanging distribution data must preserve. A competing tool must
+#       carry these fields regardless of the originating design tool.
+#
+#   D7. CIM CLASS REUSE ACROSS DOMAINS
+#       Both CIMBOLOGY-KG and CIMBOLOGY-KG (and TIF) map to cim:Pole, cim:ACLineSegment, etc.
+#       This is correct — CIM is the shared identity anchor. Domain ontologies
+#       add domain-specific properties; the CIM class gives the type identity.
+#       If CIMBOLOGY-KG were to "fork" CIM types, interop between CIMBOLOGY-KG and CIMBOLOGY-KG would
+#       require brittle mapping code. Shared CIM types prevent this.
+#
+# =============================================================================
+
+# =============================================================================
+# SECTION 1: CIMBOLOGY-KG domain classes
+# =============================================================================
+# Distribution-domain concepts that any tool would need to exchange.
+# Each class has no application dependency — only domain physics.
+# =============================================================================
+
+cimbology:DistributionLine a owl:Class ;
+    rdfs:comment "Root container for a distribution line or circuit. CIM's cim:Line is abstract and covers both transmission and distribution; this class anchors distribution-specific design data (criteria, spans, pole loading) that cim:Line cannot express."@en ;
+    rdfs:label "Distribution Line" ;
+    rdfs:seeAlso cim:Line  .
+
+cimbology:DistributionCriteria a owl:Class ;
+    rdfs:comment "NESC Section 23 design basis for a distribution line. Captures loading district, construction grade, overload factors, and environmental assumptions. CIM models as-built operational parameters, not design inputs — this class fills that gap."@en ;
+    rdfs:label "Distribution Criteria"  .
+
+cimbology:Framing a owl:Class ;
+    rdfs:comment "Pole-top configuration defining crossarm type, phase arrangement, and attachment geometry. Distribution poles carry framing as a first-class concept (horizontal, vertical, triangular, wishbone, etc.) whereas transmission structures define attachment implicitly via geometry. Not modeled in CIM."@en ;
+    rdfs:label "Framing"  .
+
+cimbology:PrimarySpan a owl:Class ;
+    rdfs:comment "Physical span of primary conductor between two adjacent distribution poles. The unit for sag-tension analysis. Distinct from cim:ACLineSegment which models the electrical segment, not the physical catenary."@en ;
+    rdfs:label "Primary Span" ;
+    rdfs:seeAlso cim:ACLineSegment  .
+
+cimbology:ServiceSpan a owl:Class ;
+    rdfs:comment "Span of secondary or service-drop conductor from a distribution pole or transformer to a service point. Distribution has distinct primary, secondary, and service conductor categories that transmission does not need."@en ;
+    rdfs:label "Service Span"  .
+
+cimbology:ServicePoint a owl:Class ;
+    rdfs:comment "Customer service delivery point where the utility's distribution system connects to the customer's premises. Carries load data (demand, connected load) for voltage drop and transformer sizing. Not modeled in CIM's network topology."@en ;
+    rdfs:label "Service Point"  .
+
+cimbology:SagTensionResult a owl:Class ;
+    rdfs:comment "Read-only solver output for a distribution span under a specific load case. Same concept as transmission sag-tension but applied to distribution spans with typically shorter spans and lighter conductors."@en ;
+    rdfs:label "Sag Tension Result"  .
+
+cimbology:ClearanceCheck a owl:Class ;
+    rdfs:subClassOf cimbology:Relation ;
+    rdfs:comment "Reusable clearance verification relation between two objects (including NESC Table 232-1 ground, road, building, and crossing checks for distribution spans as well as substation clearance checks). Stores actual clearance, required clearance, violation state, and governing rule citation."@en ;
+    rdfs:label "Clearance Check" .
+
+cimbology:PoleLoadResult a owl:Class ;
+    rdfs:comment "Pole loading analysis result expressing applied ground-line moment as a percentage of the pole's rated capacity. First-class in distribution design — every pole must pass a loading check. Transmission uses structure-level analysis instead."@en ;
+    rdfs:label "Pole Load Result"  .
+
+cimbology:Crossing a owl:Class ;
+    rdfs:comment "Location where the distribution line crosses a road, railroad, power line, waterway, or other facility requiring specific NESC clearance rules. Not modeled in CIM."@en ;
+    rdfs:label "Crossing"  .
+
+cimbology:LoadCase a owl:Class ;
+    rdfs:comment "Temperature, wind, and ice loading combination for design analysis. Defines the environmental conditions under which sag-tension and clearance are evaluated. Distinct from CIM's cim:LoadGroup which models operational demand."@en ;
+    rdfs:label "Load Case"  .
+
+cimbology:AnchorGuy a owl:Class ;
+    rdfs:comment "Down-guy and anchor assembly providing lateral support to a distribution pole. Carries guy wire tension, lead distance, and attachment height. CIM has cim:StructureSupport.anchorKind (an enum) but does not model the full guy assembly as a class with engineering properties."@en ;
+    rdfs:label "Anchor and Guy" ;
+    rdfs:seeAlso cim:StructureSupport .
+
+cimbology:VoltageDropResult a owl:Class ;
+    rdfs:comment "Voltage drop analysis result for a distribution circuit section. Any distribution design tool must exchange voltage drop and flicker percentages to verify ANSI C84.1 service voltage limits. Not modeled in CIM (CIM tracks operational voltage, not design-stage voltage drop analysis)."@en ;
+    rdfs:label "Voltage Drop Result" .
+
+cimbology:GuyingResult a owl:Class ;
+    rdfs:comment "Per-guy analysis result from pole loading / guying calculations. Captures the computed tension, lead distance adequacy, and strength factor for an individual guy wire. Separating guy-level results from pole-level results (cimbology:PoleLoadResult) allows violation queries at each guy independently."@en ;
+    rdfs:label "Guying Result" .
+
+
+# =============================================================================
+# SECTION 3: DESIGN CRITERIA PROPERTIES
+# =============================================================================
+# NESC Section 23 loading rules and environmental assumptions.
+# These are design INPUTS, not measurements — CIM does not model them.
+# All values in SI units.
+# =============================================================================
+
+cimbology:nescDistrict a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "NESC loading district (Heavy, Medium, Light, or Warm Islands per NESC §250B). Determines baseline wind and ice loading assumptions."@en ;
+    rdfs:label "NESC District" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+cimbology:constructionGrade a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "NESC construction grade (A, B, or C per NESC §24). Grade B is most common for distribution; Grade A for crossings. Determines overload and strength factors."@en ;
+    rdfs:label "Construction Grade" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+cimbology:overloadFactorVertical a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Vertical overload factor (OLF) per NESC Table 253-1. Applied to vertical loads (conductor weight + ice)."@en ;
+    rdfs:label "Overload Factor Vertical" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+cimbology:overloadFactorTransverse a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Transverse overload factor (OLF) per NESC Table 253-1. Applied to wind loads on conductors and pole."@en ;
+    rdfs:label "Overload Factor Transverse" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+cimbology:strengthFactor a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Strength reduction factor per NESC §261. Applied to pole and crossarm rated strength (e.g., 0.65 for Grade B wood poles)."@en ;
+    rdfs:label "Strength Factor" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+cimbology:windPressure a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Design wind pressure in pascals. NESC §250B defines default values per loading district (e.g., 430 Pa for Heavy district)."@en ;
+    rdfs:label "Wind Pressure" ;
+    rdfs:domain cimbology:DistributionCriteria ;
+    qudt:applicableUnit unit:PA ;
+    qudt:quantityKind qkind:Pressure .
+
+cimbology:iceThickness a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Radial ice thickness in meters for the design loading district. NESC §250B defines defaults (e.g., 0.0127 m = 0.5 in for Heavy district)."@en ;
+    rdfs:label "Ice Thickness" ;
+    rdfs:domain cimbology:DistributionCriteria ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:ambientTemp a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Ambient temperature for NESC combined loading in degrees Celsius. NESC §250B specifies -18°C for Heavy/Medium, -1°C for Light."@en ;
+    rdfs:label "Ambient Temperature" ;
+    rdfs:domain cimbology:DistributionCriteria ;
+    qudt:applicableUnit unit:DEG_C ;
+    qudt:quantityKind qkind:Temperature .
+
+cimbology:maxOperatingTemp a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Maximum operating temperature in degrees Celsius for thermal rating. Applies to distribution conductors (sag calculation), HV cables (insulation thermal limit), and substation buswork (continuous current rating). CIM equivalent: cim:WireInfo.ratedCurrent implicitly encodes this via the thermal rating."@en ;
+    rdfs:label "Max Operating Temperature" ;
+    qudt:applicableUnit unit:DEG_C ;
+    qudt:quantityKind qkind:Temperature .
+
+cimbology:maxTensionPctRbs a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Maximum initial stringing tension as a percentage of rated breaking strength (RBS). Typical limit: 35% for distribution conductors under NESC heavy loading."@en ;
+    rdfs:label "Max Tension Percent RBS" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+# --- 3a: Sag-tension analysis criteria ---
+# Parameters governing conductor sag and tension analysis. These are design
+# limits that constrain the sag-tension solver — any sag-tension engine needs
+# these values to run.
+
+cimbology:maxSagTemp a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Maximum conductor temperature for sag analysis in degrees Celsius. Determines worst-case sag condition. Typical default: 120°F = 48.9°C."@en ;
+    rdfs:label "Max Sag Temperature" ;
+    rdfs:domain cimbology:DistributionCriteria ;
+    qudt:applicableUnit unit:DEG_C ;
+    qudt:quantityKind qkind:Temperature .
+
+cimbology:minSagTemp a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Minimum conductor temperature for sag analysis in degrees Celsius. Determines worst-case tension condition. Typical default: 5°F = -15°C."@en ;
+    rdfs:label "Min Sag Temperature" ;
+    rdfs:domain cimbology:DistributionCriteria ;
+    qudt:applicableUnit unit:DEG_C ;
+    qudt:quantityKind qkind:Temperature .
+
+cimbology:normalTemp a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Everyday (initial stringing) conductor temperature in degrees Celsius. Typical default: 68°F = 20°C."@en ;
+    rdfs:label "Normal Temperature" ;
+    rdfs:domain cimbology:DistributionCriteria ;
+    qudt:applicableUnit unit:DEG_C ;
+    qudt:quantityKind qkind:Temperature .
+
+cimbology:maxAllowableSag a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Maximum allowable conductor sag in meters. Design limit — conductors must not sag below this value under any design condition. Typical default: 16.4 ft = 5.0 m."@en ;
+    rdfs:label "Max Allowable Sag" ;
+    rdfs:domain cimbology:DistributionCriteria ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:minAllowableSag a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Minimum allowable conductor sag in meters. Prevents conductors strung too tight. Typical default: 0.0656 ft = 0.02 m."@en ;
+    rdfs:label "Min Allowable Sag" ;
+    rdfs:domain cimbology:DistributionCriteria ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:maxSpan a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Maximum allowable span length in meters. Typical default: 328.083 ft = 100 m."@en ;
+    rdfs:label "Max Span" ;
+    rdfs:domain cimbology:DistributionCriteria ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:minSpan a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Minimum span length in meters below which sag analysis is skipped. Typical default: 32.808 ft = 10 m."@en ;
+    rdfs:label "Min Span" ;
+    rdfs:domain cimbology:DistributionCriteria ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:maxRulingSpan a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Maximum ruling span length in meters. Typical default: 328.083 ft = 100 m."@en ;
+    rdfs:label "Max Ruling Span" ;
+    rdfs:domain cimbology:DistributionCriteria ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:maxRulingAngle a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Maximum ruling span angle in degrees. Typical default: 15°."@en ;
+    rdfs:label "Max Ruling Angle" ;
+    rdfs:domain cimbology:DistributionCriteria ;
+    qudt:applicableUnit unit:DEG ;
+    qudt:quantityKind qkind:PlaneAngle .
+
+cimbology:maxConductorTension a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Maximum allowable conductor tension in newtons for stringing design. Typical default: 22480 lbf = 99,970 N."@en ;
+    rdfs:label "Max Conductor Tension" ;
+    rdfs:domain cimbology:DistributionCriteria ;
+    qudt:applicableUnit unit:N ;
+    qudt:quantityKind qkind:Force .
+
+cimbology:minConductorTension a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Minimum conductor tension in newtons. Typical default: 1 lbf = 4.45 N."@en ;
+    rdfs:label "Min Conductor Tension" ;
+    rdfs:domain cimbology:DistributionCriteria ;
+    qudt:applicableUnit unit:N ;
+    qudt:quantityKind qkind:Force .
+
+cimbology:lowestPointTension a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Conductor tension at the lowest point of the catenary in newtons (equals horizontal tension for a catenary; used both as a DistributionCriteria threshold, typical default 1 lbf = 4.45 N, and as a SagTensionResult output)."@en ;
+    rdfs:label "Lowest Point Tension" ;
+    qudt:applicableUnit unit:N ;
+    qudt:quantityKind qkind:Force .
+
+cimbology:maxIceThickness a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Maximum radial ice thickness in meters for sag analysis. Distinct from cimbology:iceThickness (the NESC district design load). Typical default: 0.083 ft = 0.025 m."@en ;
+    rdfs:label "Max Ice Thickness" ;
+    rdfs:domain cimbology:DistributionCriteria ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:normalIceThickness a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Normal (everyday) radial ice thickness in meters for initial stringing. Typically 0 in most districts. Typical default: 0."@en ;
+    rdfs:label "Normal Ice Thickness" ;
+    rdfs:domain cimbology:DistributionCriteria ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:maxWindPressure a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Maximum wind pressure in pascals for sag analysis. Distinct from cimbology:windPressure (the NESC district design load). Typical default: 0.069 psi = 476 Pa."@en ;
+    rdfs:label "Max Wind Pressure" ;
+    rdfs:domain cimbology:DistributionCriteria ;
+    qudt:applicableUnit unit:PA ;
+    qudt:quantityKind qkind:Pressure .
+
+cimbology:normalWindPressure a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Normal (everyday) wind pressure in pascals for initial stringing condition. Typical default: 0."@en ;
+    rdfs:label "Normal Wind Pressure" ;
+    rdfs:domain cimbology:DistributionCriteria ;
+    qudt:applicableUnit unit:PA ;
+    qudt:quantityKind qkind:Pressure .
+
+cimbology:sagMinGroundClearance a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Global default minimum ground clearance in meters for sag analysis. Applied when no per-conductor clearance is specified. NESC §232. Typical default: 9.842 ft = 3.0 m."@en ;
+    rdfs:label "Sag Min Ground Clearance" ;
+    rdfs:domain cimbology:DistributionCriteria ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:defaultHouseHeight a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Assumed building height in meters for conductor-to-structure clearance checks when building height data is unavailable. Typical default: 16.4 ft = 5.0 m."@en ;
+    rdfs:label "Default House Height" ;
+    rdfs:domain cimbology:DistributionCriteria ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:excavationDepth a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Assumed excavation depth in meters for underground clearance checks. Typical default: 0."@en ;
+    rdfs:label "Excavation Depth" ;
+    rdfs:domain cimbology:DistributionCriteria ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:poleCapLength a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Pole cap length in meters — reserved clearance from pole top to the first conductor attachment. Typical default: 0."@en ;
+    rdfs:label "Pole Cap Length" ;
+    rdfs:domain cimbology:DistributionCriteria ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+# --- 3b: Guying analysis criteria ---
+# Parameters governing automatic guy wire selection and placement.
+# Any guying engine needs these design defaults.
+
+cimbology:maxUnguyedMoment a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Maximum pole moment in newton-meters before guying is required. Poles with ground-line moment below this threshold do not require guying. Typical default: ~2001.75 N·m."@en ;
+    rdfs:label "Max Unguyed Moment" ;
+    rdfs:domain cimbology:DistributionCriteria ;
+    qudt:applicableUnit unit:N-M ;
+    qudt:quantityKind qkind:Torque .
+
+cimbology:normalGuyLead a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Default guy lead distance in meters from pole base to anchor. Typical default: 25 ft = 7.62 m."@en ;
+    rdfs:label "Normal Guy Lead" ;
+    rdfs:domain cimbology:DistributionCriteria ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:guyHighVoltOffset a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Attachment height offset in meters at high-voltage levels to clear phase conductors. Typical default: ~0.984 ft = 0.3 m."@en ;
+    rdfs:label "Guy HV Level Offset" ;
+    rdfs:domain cimbology:DistributionCriteria ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:guyLowVoltOffset a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Attachment height offset in meters at low-voltage levels to clear secondary conductors. Typical default: ~0.492 ft = 0.15 m."@en ;
+    rdfs:label "Guy LV Level Offset" ;
+    rdfs:domain cimbology:DistributionCriteria ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:maxQueenpostLength a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Maximum queenpost (sidewalk guy strut) length in meters. Typical default: ~8.005 ft = 2.44 m."@en ;
+    rdfs:label "Max Queenpost Length" ;
+    rdfs:domain cimbology:DistributionCriteria ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:queenpostHeight a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Normal queenpost attachment height in meters. Typical default: ~8.005 ft = 2.44 m."@en ;
+    rdfs:label "Queenpost Height" ;
+    rdfs:domain cimbology:DistributionCriteria ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:stubAttachmentHeight a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Default stub guy attachment height in meters. Typical default: ~16.01 ft = 4.88 m."@en ;
+    rdfs:label "Stub Attachment Height" ;
+    rdfs:domain cimbology:DistributionCriteria ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:guyNextDisplacement a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Vertical displacement in meters between adjacent guy attachment levels. Typical default: ~0.492 ft = 0.15 m."@en ;
+    rdfs:label "Guy Next Displacement" ;
+    rdfs:domain cimbology:DistributionCriteria ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:guyLevelGroupTolerance a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Tolerance in meters for grouping guys at the same attachment level. Guys within this distance are treated as co-planar. Typical default: ~0.15 m."@en ;
+    rdfs:label "Guy Level Group Tolerance" ;
+    rdfs:domain cimbology:DistributionCriteria ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+# --- 3c: Voltage drop analysis criteria ---
+# Design limits governing distribution voltage drop and flicker analysis.
+# Any voltage-drop engine needs these parameters.
+# NOTE: tool-specific encoded diversity strings stay in tool lenses rather than the core ontology.
+
+cimbology:maxWireVoltageDrop a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Maximum allowable wire voltage drop as a percent of nominal voltage. Typical default: 2%."@en ;
+    rdfs:label "Max Wire Voltage Drop (%)" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+cimbology:maxXmfrVoltageDrop a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Maximum allowable transformer voltage drop as a percent of nominal voltage. Typical default: 4.6%."@en ;
+    rdfs:label "Max Xmfr Voltage Drop (%)" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+cimbology:maxTotalVoltageDrop a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Maximum allowable total system voltage drop (wire + transformer) as a percent. Typical default: 5%."@en ;
+    rdfs:label "Max Total Voltage Drop (%)" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+cimbology:maxWireFlicker a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Maximum allowable wire flicker as a percent of nominal voltage. Typical default: 3%."@en ;
+    rdfs:label "Max Wire Flicker (%)" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+cimbology:maxXmfrFlicker a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Maximum allowable transformer flicker as a percent. Typical default: 2.2%."@en ;
+    rdfs:label "Max Xmfr Flicker (%)" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+cimbology:maxTotalFlicker a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Maximum allowable total flicker as a percent. Typical default: 6%."@en ;
+    rdfs:label "Max Total Flicker (%)" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+cimbology:vdPowerFactor a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Power factor used in voltage drop calculations. Typical default: 0.9."@en ;
+    rdfs:label "VD Power Factor" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+cimbology:flickerPowerFactor a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Power factor used in flicker calculations. May differ from vdPowerFactor. Typical default: 0.9."@en ;
+    rdfs:label "Flicker Power Factor" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+cimbology:lockedRotorAmpsMultiplier a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Locked rotor amps multiplier for motor starting flicker analysis. Typical default: 5."@en ;
+    rdfs:label "Locked Rotor Amps Multiplier" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+cimbology:yearsOfGrowth a owl:DatatypeProperty ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Load growth projection period in years for conductor sizing. Typical default: 10."@en ;
+    rdfs:label "Years of Growth" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+cimbology:loadGrowthPerYear a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Annual load growth rate as a multiplier (1.0 = no growth). Typical default: 1.0."@en ;
+    rdfs:label "Load Growth Per Year" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+cimbology:applyWireDiversity a owl:DatatypeProperty ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether to apply load diversity factors to wire voltage drop calculations. Typical default: true."@en ;
+    rdfs:label "Apply Wire Diversity" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+cimbology:applyXmfrDiversity a owl:DatatypeProperty ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether to apply load diversity factors to transformer voltage drop calculations. Typical default: true."@en ;
+    rdfs:label "Apply Xmfr Diversity" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+cimbology:vdSafetyFactorWire a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Safety factor applied to wire voltage drop results before comparing to limit. Typical default: 1.0."@en ;
+    rdfs:label "Wire VD Safety Factor" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+cimbology:vdSafetyFactorXmfr a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Safety factor applied to transformer voltage drop results. Typical default: 1.0."@en ;
+    rdfs:label "Xmfr VD Safety Factor" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+cimbology:flickerSafetyFactorWire a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Safety factor applied to wire flicker results. Typical default: 1.0."@en ;
+    rdfs:label "Wire Flicker Safety Factor" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+cimbology:flickerSafetyFactorXmfr a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Safety factor applied to transformer flicker results. Typical default: 1.0."@en ;
+    rdfs:label "Xmfr Flicker Safety Factor" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+cimbology:sizeWireForVoltageDrop a owl:DatatypeProperty ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether to automatically upsize conductors to meet wire voltage drop limit. Typical default: true."@en ;
+    rdfs:label "Size Wire For VD" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+cimbology:sizeWireForFlicker a owl:DatatypeProperty ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether to automatically upsize conductors to meet wire flicker limit. Typical default: true."@en ;
+    rdfs:label "Size Wire For Flicker" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+cimbology:sizeWireForTotalVd a owl:DatatypeProperty ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether to automatically upsize conductors to meet total voltage drop limit. Typical default: false."@en ;
+    rdfs:label "Size Wire For Total VD" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+cimbology:sizeWireForTotalFlicker a owl:DatatypeProperty ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether to automatically upsize conductors to meet total flicker limit. Typical default: false."@en ;
+    rdfs:label "Size Wire For Total Flicker" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+# --- 3d: Pulling tension criteria ---
+# Parameters governing underground cable pulling tension analysis.
+# Any pulling-tension engine needs these.
+
+cimbology:highFrictionCoeff a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "High friction coefficient (dimensionless) for cable-in-conduit pulling analysis. Applied when tension exceeds cimbology:frictionCoeffThreshold. Typical default: 0.09."@en ;
+    rdfs:label "High Friction Coefficient" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+cimbology:lowFrictionCoeff a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Low friction coefficient (dimensionless) for cable-in-conduit pulling analysis. Applied when tension is below cimbology:frictionCoeffThreshold. Typical default: 0.05."@en ;
+    rdfs:label "Low Friction Coefficient" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+cimbology:frictionCoeffThreshold a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Threshold in N/m above which the high friction coefficient applies. Imperial equivalent: lbf/ft (typical default: 2190 N/m = 150 lbf/ft)."@en ;
+    rdfs:label "Friction Coeff Threshold" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+cimbology:reelTension a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Cable reel back-tension in newtons applied at the start of pull. Typical default: 50 lbf = 222 N."@en ;
+    rdfs:label "Reel Tension" ;
+    rdfs:domain cimbology:DistributionCriteria ;
+    qudt:applicableUnit unit:N ;
+    qudt:quantityKind qkind:Force .
+
+cimbology:pullingTensionSafetyFactor a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Safety factor applied to computed maximum pulling tension before comparing to cable rating. Typical default: 1.0."@en ;
+    rdfs:label "Pulling Tension Safety Factor" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+cimbology:swbpSafetyFactor a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Safety factor applied to sidewall bearing pressure (SWBP) at conduit bends. Typical default: 1.0."@en ;
+    rdfs:label "SWBP Safety Factor" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+cimbology:excludeFinalBend a owl:DatatypeProperty ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether to exclude the final bend from the pulling tension calculation. Typical default: false."@en ;
+    rdfs:label "Exclude Final Bend" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+# --- 3e: Duct sizing criteria ---
+# Fill ratio and jam ratio limits for underground duct bank design.
+# Standards: NEMA/ICEA guidelines for fill ratio; jam ratio prevents 3-cable jamming.
+
+cimbology:frLengthThreshold a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Duct length threshold in meters above which fill ratio governs sizing (shorter ducts are governed by jam ratio). Typical default: ~1.969 ft = 0.6 m."@en ;
+    rdfs:label "FR Length Threshold" ;
+    rdfs:domain cimbology:DistributionCriteria ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:maxJamRatio a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Maximum allowable jam ratio (duct inner diameter / cable outer diameter). Jam occurs when ratio approaches 3. Typical default: 3.1."@en ;
+    rdfs:label "Max Jam Ratio" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+cimbology:minJamRatio a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Minimum jam ratio — jam also occurs when ratio is too low (near 1). Typical default: 2.75."@en ;
+    rdfs:label "Min Jam Ratio" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+cimbology:multiCableFrThreshold a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Maximum fill ratio for three or more cables in a duct (dimensionless, 0–1). NEMA/ICEA guideline: 0.40. Typical default: 0.4."@en ;
+    rdfs:label "Multi Cable FR Threshold" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+cimbology:oneCableFrThreshold a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Maximum fill ratio for a single cable in a duct (dimensionless, 0–1). NEMA/ICEA guideline: 0.53. Typical default: 0.53."@en ;
+    rdfs:label "One Cable FR Threshold" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+cimbology:smallDuctFrThreshold a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Maximum fill ratio for small duct installations (dimensionless, 0–1). Typical default: 0.6."@en ;
+    rdfs:label "Small Duct FR Threshold" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+cimbology:twoCableFrThreshold a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Maximum fill ratio for two cables in a duct (dimensionless, 0–1). NEMA/ICEA guideline: 0.31. Typical default: 0.31."@en ;
+    rdfs:label "Two Cable FR Threshold" ;
+    rdfs:domain cimbology:DistributionCriteria .
+
+
+# =============================================================================
+# SECTION 4: POLE / STRUCTURE PROPERTIES
+# =============================================================================
+# Physical properties of distribution poles. CIM's cim:Pole carries identity
+# but not the structural engineering data needed for pole loading analysis.
+# =============================================================================
+
+cimbology:poleClass a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "ANSI O5.1 pole class. Standard classes: '7', '6', '5', '4', '3', '2', '1', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6'. Concrete classes: 'C-01.9' through 'C-12.0'. Other: 'G', 'F', 'H', 'J'. Determines ground-line moment capacity. CIM equivalent: cim:Pole.classification (IEC61968 InfAssets), which uses the same class codes."@en ;
+    rdfs:label "Pole Class" ;
+    rdfs:seeAlso cim:Pole .
+
+cimbology:poleSpecies a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Wood pole species per ANSI O5.1 (e.g., 'Southern Yellow Pine', 'Western Red Cedar', 'Douglas Fir'). Species determines fiber strength and ground-line moment capacity. CIM equivalent: cim:Pole.speciesType (IEC61968 InfAssets), which lists 'Wood-Treated', 'Wood-Hard', 'Wood-Salt Treated', 'Wood-Soft', etc. CIMBOLOGY-KG uses ANSI O5.1 species names because design tools reference the standard directly."@en ;
+    rdfs:label "Pole Species" ;
+    rdfs:seeAlso cim:Pole .
+
+cimbology:poleHeight a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Total pole height in meters (above ground + setting depth). CIM equivalent: cim:Pole.length (IEC61968 InfAssets) — 'Length of the pole (inclusive of any section of the pole that may be underground post-installation).'"@en ;
+    rdfs:label "Pole Height" ;
+    rdfs:seeAlso cim:Pole ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:settingDepth a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Pole burial depth in meters (typically 10% of pole length + 2 ft per ANSI O5.1 rule of thumb)."@en ;
+    rdfs:label "Setting Depth" ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:aboveGroundHeight a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Pole height above ground in meters (poleHeight minus settingDepth). CIM equivalent: cim:Structure.height (IEC61968 AssetInfo) — 'Visible height of structure above ground level for overhead construction (e.g., Pole or Tower).' cim:Pole is a subclass of cim:Structure, so this field applies directly."@en ;
+    rdfs:label "Above Ground Height" ;
+    rdfs:seeAlso cim:Structure ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:groundLineMomentCapacity a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Rated ground-line moment capacity in newton-meters, derived from pole class, species, and circumference at ground line per ANSI O5.1."@en ;
+    rdfs:label "Ground-Line Moment Capacity" ;
+    qudt:applicableUnit unit:N-M ;
+    qudt:quantityKind qkind:Torque .
+
+cimbology:maxHeight a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Maximum rated pole height in meters — the longest standard length available for this pole class/species. Distinct from cimbology:poleHeight which is the actual installed pole height."@en ;
+    rdfs:label "Max Pole Height" ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:maxVerticalLoad a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Maximum allowable vertical load on the pole in newtons — the pole's rated capacity for downward loads from conductors, equipment, and ice. Used in pole loading analysis alongside ground-line moment."@en ;
+    rdfs:label "Max Vertical Load" ;
+    qudt:applicableUnit unit:N ;
+    qudt:quantityKind qkind:Force .
+
+cimbology:station a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Station position along the distribution line in meters from the starting reference point. Canonical SI stationing property — application lenses add imperial companions (e.g., cad:stationFt) for round-trip fidelity."@en ;
+    rdfs:label "Station" ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:bearing a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Bearing of the line at this pole in degrees from true north (0–360)."@en ;
+    rdfs:label "Bearing" ;
+    qudt:applicableUnit unit:DEG ;
+    qudt:quantityKind qkind:Angle .
+
+cimbology:lineAngle a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Line deflection angle at this pole in degrees. Zero for tangent poles, nonzero for angle poles. Determines transverse loading from conductor tension."@en ;
+    rdfs:label "Line Angle" ;
+    qudt:applicableUnit unit:DEG ;
+    qudt:quantityKind qkind:Angle .
+
+cimbology:poleType a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Pole functional type (e.g., 'support', 'guy', 'porch', 'deadend', 'tangent', 'non-meter'). Describes the structural role in the line, not the material (use poleSpecies/poleMaterial for material)."@en ;
+    rdfs:label "Pole Type" ;
+    rdfs:seeAlso cim:Pole .
+
+cimbology:dispositionStatus a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Asset lifecycle status (e.g., 'install', 'existing', 'removal', 'modified', 'future', 'data correction', 'abandon'). Cross-domain — any GIS, asset management, or design tool (distribution, substation, comms) needs to exchange brownfield lifecycle state."@en ;
+    rdfs:label "Disposition Status" .
+
+cimbology:yearBuilt a owl:DatatypeProperty ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Year the asset was originally installed. Applies to poles, substation equipment, cables, and any field asset in any domain. Used for age-based calculations (strength reduction, depreciation, replacement planning). CIM equivalent: cim:Asset.installationDate (date form)."@en ;
+    rdfs:label "Year Built" .
+
+cimbology:conditionPct a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Remaining strength as a percentage (0–100) based on field inspection (bore test, ultrasound, or visual). Applied as a multiplier to ground-line moment capacity."@en ;
+    rdfs:label "Condition Percent" .
+
+cimbology:existingFamily a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Existing pole family or catalog designation from the utility's asset system. Used for brownfield uprate design."@en ;
+    rdfs:label "Existing Family" .
+
+cimbology:poleMaterial a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Pole material (e.g., 'wood', 'composite', 'steel', 'concrete'). CIM equivalent: cim:Structure.materialKind (IEC61968 AssetInfo) using cim:StructureMaterialKind enum (wood, steel, concrete, other). CIMBOLOGY-KG uses a string to accommodate 'composite' which the CIM enum does not include."@en ;
+    rdfs:label "Pole Material" ;
+    rdfs:seeAlso cim:Structure .
+
+cimbology:supportConstruction a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Support structure construction style (e.g., 'single', 'grid', 'couple', 'A shape', 'on roof', 'wood')."@en ;
+    rdfs:label "Support Construction" .
+
+cimbology:structureType a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Structure location or installation type (e.g., 'above ground', 'underground', 'overhead'). Applies to distribution poles, substation structures, HV cable routes, and civil infrastructure alike."@en ;
+    rdfs:label "Structure Type" .
+
+# =============================================================================
+# SECTION 5: FRAMING PROPERTIES
+# =============================================================================
+# Pole-top configuration is first-class in distribution. Transmission carries
+# configuration implicitly via attachment geometry; distribution uses explicit
+# framing types because crossarm configuration drives construction cost,
+# material lists, and pole loading calculations.
+# =============================================================================
+
+cimbology:framingType a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Pole-top framing layout (e.g., 'Horizontal', 'Vertical', 'Spacer'). Determines phase spacing, crossarm requirements, and pole head geometry."@en ;
+    rdfs:label "Framing Type" ;
+    rdfs:domain cimbology:Framing .
+
+cimbology:phaseArrangement a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Phase arrangement on the framing (e.g., 'ABC', 'ACB', 'BAC', 'Single'). Affects induced voltage calculations and circuit identification."@en ;
+    rdfs:label "Phase Arrangement" ;
+    rdfs:domain cimbology:Framing .
+
+cimbology:crossarmType a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Crossarm material and style (e.g., 'Wood 8ft', 'Fiberglass 8ft', 'Steel'). Determines load-bearing capacity and material cost."@en ;
+    rdfs:label "Crossarm Type" ;
+    rdfs:domain cimbology:Framing .
+
+cimbology:crossarmLength a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Crossarm length in meters. Determines phase spacing for horizontal and triangular configurations."@en ;
+    rdfs:label "Crossarm Length" ;
+    rdfs:domain cimbology:Framing ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:neutralOffset a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Vertical offset of the neutral attachment point below the lowest phase conductor, in meters."@en ;
+    rdfs:label "Neutral Offset" ;
+    rdfs:domain cimbology:Framing ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:phaseCount a owl:DatatypeProperty ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Number of phases (1 for single-phase, 2 for V-phase/open-delta, 3 for three-phase). Applies to distribution framings, service points, and substation equipment (transformers, switchgear, feeders) in any domain."@en ;
+    rdfs:label "Phase Count" .
+
+cimbology:hasNeutral a owl:DatatypeProperty ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "Whether this framing includes a neutral conductor attachment."@en ;
+    rdfs:label "Has Neutral" ;
+    rdfs:domain cimbology:Framing .
+
+cimbology:poleHeadType a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Pole head conductor type (e.g., 'primary', 'secondary', 'service', 'neutral', 'communication'). Identifies which circuit level a pole head assembly serves."@en ;
+    rdfs:label "Pole Head Type" ;
+    rdfs:domain cimbology:Framing .
+
+cimbology:poleHeadStyle a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Pole head assembly style (e.g., 'ruling span', 'non ruling span', 'buck', 'end'). Describes the structural assembly configuration."@en ;
+    rdfs:label "Pole Head Style" ;
+    rdfs:domain cimbology:Framing .
+
+# =============================================================================
+# SECTION 6: CONDUCTOR / SPAN PROPERTIES
+# =============================================================================
+# Two groups in this section:
+#   6a. Conductor catalog properties — flat wire attributes for round-trip
+#       fidelity with design tools. CIM models these via WireInfo +
+#       PerLengthSequenceImpedance associations; CIMBOLOGY-KG flattens them onto
+#       cim:ACLineSegment for simplicity. No rdfs:domain declared (open-world).
+#   6b. Span geometry properties — physical catenary span data with domain
+#       cimbology:PrimarySpan / cimbology:ServiceSpan. No rdfs:domain declared (open-world).
+# =============================================================================
+
+# --- 6a: Conductor catalog properties (intended for cim:ACLineSegment) ---
+
+cimbology:conductorType a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Conductor specification/model string (e.g., '#2 ACSR', '1/0 AAC', '336.4 ACSR', '4/0 Triplex'). This is the wire designation, NOT the functional role (use cimbology:conductorRole for primary/neutral/service)."@en ;
+    rdfs:label "Conductor Type" .
+
+cimbology:conductorRole a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Functional role of the conductor (e.g., 'primary', 'secondary', 'neutral', 'service', 'street light', 'feeder', 'transmission', 'control', 'connection', 'internal'). Required to differentiate conductors sharing the same CIM type (cim:ACLineSegment)."@en ;
+    rdfs:label "Conductor Role" .
+
+cimbology:conductorCount a owl:DatatypeProperty ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Number of conductors or cores represented by this cable specification. Required for triplex, quadruplex, and multi-core underground cable designs where one cim:ACLineSegment carries a multi-conductor assembly."@en ;
+    rdfs:label "Conductor Count" .
+
+cimbology:conductorMaterial a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Conductor material designation (e.g., 'Aluminum', 'Copper', 'fiber', 'aluminum conductor steel reinforced', 'hard drawn copper', 'soft drawn copper', 'stranded copper'). Applies to distribution overhead conductors, substation bus conductors, and control cables — any current-carrying conductor in any domain has a material. CIM models this via cim:WireInfo.material using the WireMaterialKind enum. CIMBOLOGY-KG uses a flat string because design tools use material names more granular than the CIM enum (e.g., 'hard drawn copper' vs 'soft drawn copper' are sub-classifications CIM does not distinguish). Tool lens toolValueMap entries should map tool strings toward cim:WireMaterialKind values where a match exists."@en ;
+    rdfs:label "Conductor Material" ;
+    rdfs:seeAlso cim:WireInfo .
+
+cimbology:conductorSizeAwg a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Wire size in AWG or kcmil (e.g., '#2', '1/0', '336.4'). String because AWG uses non-numeric notation. Applies to distribution overhead conductors, substation control wiring, power cables, and grounding conductors — AWG/kcmil notation is used across all electric utility domains. CIM equivalent: cim:WireInfo.sizeDescription (IEC61968 AssetInfo) — 'Describes the wire gauge or cross section (e.g., 4/0, #2, 336.5).' CIMBOLOGY-KG keeps it flat (see decision D1) for round-trip fidelity with design tools."@en ;
+    rdfs:label "Conductor Size" ;
+    rdfs:seeAlso cim:WireInfo .
+
+cimbology:rbs a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Rated breaking strength in newtons. Applies to distribution overhead conductors, substation strain bus conductors, and shield wires. Source: ASTM B232 and conductor manufacturer data sheets."@en ;
+    rdfs:label "Rated Breaking Strength" ;
+    qudt:applicableUnit unit:N ;
+    qudt:quantityKind qkind:Force .
+
+# NOTE: Conductor diameter → use cimbology:outerDiameter (already defined in core).
+# NOTE: Conductor mass per length → use cimbology:massPerLength (already defined in core).
+
+cimbology:acResistance a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "AC resistance at operating temperature in ohms per kilometer. Applies to distribution overhead conductors and HV cables alike. CIM equivalent: cim:WireInfo.rAC50 (IEC61968 AssetInfo) — resistance per unit length at 50°C. CIMBOLOGY-KG uses ohms/km to match ASTM B232 and conductor manufacturer data sheets; CIM uses ohms/meter."@en ;
+    rdfs:label "AC Resistance" ;
+    rdfs:seeAlso cim:WireInfo .
+
+# --- 6b: Span geometry properties (intended for cimbology:PrimarySpan / cimbology:ServiceSpan) ---
+
+cimbology:horizontalSpan a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Horizontal distance between adjacent poles in meters."@en ;
+    rdfs:label "Horizontal Span" ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:verticalSpan a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Elevation difference between adjacent attachment points in meters (positive = uphill)."@en ;
+    rdfs:label "Vertical Span" ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:weightSpan a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Weight span in meters — the horizontal distance over which conductor weight is supported by this pole."@en ;
+    rdfs:label "Weight Span" ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:windSpan a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Wind span in meters — the horizontal distance over which wind load is applied to this pole (average of adjacent horizontal spans)."@en ;
+    rdfs:label "Wind Span" ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+# NOTE: Rated voltage → use cimbology:voltageRating (already defined in core).
+
+cimbology:attachmentHeight a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Height of conductor attachment point above ground in meters."@en ;
+    rdfs:label "Attachment Height" ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:conductorConstruction a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Physical installation method for the conductor (e.g., 'full tension', 'slack', 'in conduit', 'direct buried', 'in conduit jacketed', 'direct buried jacketed', 'full tension twisted', 'slack twisted'). Applies to distribution overhead and underground conductors AND substation power cables routed through conduit, cable trench, or direct-buried duct bank. Determines sag behavior, pulling tension applicability, and construction constraints. Not modeled in CIM."@en ;
+    rdfs:label "Conductor Construction" .
+
+cimbology:dcResistance a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "DC resistance at 20°C in ohms per kilometer. Companion to cimbology:acResistance for conductors where AC and DC values differ (large ACSR, bundled conductors, HV cable). Source: ASTM B232 conductor data sheets."@en ;
+    rdfs:label "DC Resistance" ;
+    rdfs:seeAlso cim:WireInfo .
+
+cimbology:reactance a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Inductive reactance at 60 Hz in ohms per kilometer. Required by any tool performing voltage drop or power flow calculations — distribution overhead conductors, HV cable, and substation buswork all carry this parameter. Source: ASTM B232 and conductor manufacturer data sheets."@en ;
+    rdfs:label "Reactance" ;
+    rdfs:seeAlso cim:WireInfo .
+
+cimbology:ampacity a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Continuous thermal current rating in amperes. Applies to distribution conductors, HV cables, and substation buswork — any current-carrying conductor in any domain has an ampacity limit. Source: IEEE 738 and conductor manufacturer data."@en ;
+    rdfs:label "Ampacity" ;
+    rdfs:seeAlso cim:WireInfo ;
+    qudt:applicableUnit unit:A ;
+    qudt:quantityKind qkind:ElectricCurrent .
+
+cimbology:modulusOfElasticity a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Modulus of elasticity in pascals. Used in sag-tension analysis for distribution overhead conductors and substation strain bus, and in rigid bus structural calculations (IEEE 605 — Guide for Bus Design in Air Insulated Substations) for deflection and vibration checks. Source: ASTM B232 and manufacturer data."@en ;
+    rdfs:label "Modulus of Elasticity" ;
+    qudt:applicableUnit unit:PA ;
+    qudt:quantityKind qkind:Pressure .
+
+cimbology:thermalExpansionCoeff a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Coefficient of linear thermal expansion in per-degree Celsius (1/°C). Required for temperature-dependent catenary calculations (distribution overhead, substation strain bus) and for rigid bus expansion fitting design (IEEE 605). Source: ASTM B232 and manufacturer data."@en ;
+    rdfs:label "Thermal Expansion Coeff" .
+
+cimbology:crossSectionArea a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Total conductor cross-sectional area in square meters (sum of all strands). Used for current density checks and weight-per-length derivation. Applies to distribution overhead conductors, substation bus conductors, and power cables. Distinct from cimbology:busbarCrossSectionArea which covers flat/rectangular buswork. Source: ASTM B232 conductor data."@en ;
+    rdfs:label "Cross Section Area" ;
+    qudt:applicableUnit unit:M2 ;
+    qudt:quantityKind qkind:Area .
+
+cimbology:conductorMaxTension a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Maximum rated tension for this conductor specification in newtons — the tension the conductor manufacturer warrants without mechanical damage. A catalog property on the conductor model. Distinct from cimbology:maxTension (domain: cimbology:SagTensionResult) which is the computed tension in a specific span under a specific load case."@en ;
+    rdfs:label "Conductor Max Tension" ;
+    qudt:applicableUnit unit:N ;
+    qudt:quantityKind qkind:Force .
+
+cimbology:minGroundClearance a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Minimum ground clearance requirement for this conductor type in meters per NESC Table 232-1. A catalog property that encodes the conductor voltage class clearance requirement. Distinct from cimbology:clearance (domain: cimbology:ClearanceCheck) which is the computed actual clearance in a specific span."@en ;
+    rdfs:label "Min Ground Clearance" ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+# Underground conductor installation properties.
+# Required by any underground cable design tool doing pulling tension analysis.
+# Source: IEEE 1185 and conductor manufacturer installation data.
+
+cimbology:maxGripPull a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Maximum pulling tension via a grip or stocking on the conductor outer jacket in newtons. Limits cable jacket damage during conduit pulls. Source: conductor manufacturer installation data."@en ;
+    rdfs:label "Max Grip Pull" ;
+    qudt:applicableUnit unit:N ;
+    qudt:quantityKind qkind:Force .
+
+cimbology:maxEyePull a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Maximum pulling tension via a pulling eye attached to the conductor core in newtons. Typically higher than cimbology:maxGripPull because load is transferred directly to the structural core. Source: conductor manufacturer installation data."@en ;
+    rdfs:label "Max Eye Pull" ;
+    qudt:applicableUnit unit:N ;
+    qudt:quantityKind qkind:Force .
+
+cimbology:maxSidewallBearingPressure a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Maximum allowable sidewall bearing pressure in pascals at conduit bends during cable installation. Prevents conductor deformation at corners. Commonly abbreviated SWBP. Source: conductor manufacturer installation data."@en ;
+    rdfs:label "Max Sidewall Bearing Pressure" ;
+    qudt:applicableUnit unit:PA ;
+    qudt:quantityKind qkind:Pressure .
+
+cimbology:minCableBendRadius a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Minimum installation bend radius for flexible cable in meters, used for conduit layout and splicing. Distinct from cimbology:bendRadius which applies to rigid tubular bus. Source: conductor manufacturer installation data."@en ;
+    rdfs:label "Min Cable Bend Radius" ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+# =============================================================================
+# SECTION 7: SAG-TENSION RESULT PROPERTIES
+# =============================================================================
+# Read-only solver outputs per span + load case combination.
+#
+# WHY A SEPARATE CLASS (not properties on cimbology:PrimarySpan):
+#   One span produces multiple results — one per load case (e.g., NESC Heavy,
+#   Max Operating Temp, Everyday 60°F). A DatatypeProperty can only appear once
+#   per subject node, so cimbology:maxSag cannot appear on the same PrimarySpan node
+#   twice with different values. The result is modeled as its own object node:
+#
+#     _:result a cimbology:SagTensionResult ;
+#         cimbology:span     :span_123 ;        ← back-reference to the PrimarySpan
+#         cimbology:loadCase :loadCase_Heavy ;   ← which conditions produced this
+#         cimbology:maxSag   1.23 ;
+#         cimbology:horizontalTension 5000.0 .
+#
+#   Query pattern: SELECT ?result WHERE { ?result cimbology:span :span_123 }
+#   This is the same pattern CIM uses for MeasurementValue → Terminal.
+#
+# WHY rdfs:domain IS declared here (unlike Section 4/6):
+#   These properties are unambiguously result-only — maxSag, horizontalTension,
+#   etc. have no meaning outside a solver result node, so the domain inference
+#   risk is negligible. Pole/conductor properties were left domain-free because
+#   they might reasonably appear on related structures.
+# =============================================================================
+
+cimbology:loadCase a owl:ObjectProperty ;
+    rdfs:comment "Reference to the cimbology:LoadCase under which this result was computed."@en ;
+    rdfs:label "Load Case" ;
+    rdfs:domain cimbology:SagTensionResult .
+
+cimbology:span a owl:ObjectProperty ;
+    rdfs:comment "Reference to the cimbology:PrimarySpan or cimbology:ServiceSpan this result applies to."@en ;
+    rdfs:label "Span" ;
+    rdfs:domain cimbology:SagTensionResult .
+
+cimbology:maxSag a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Maximum sag in meters under the specified load case."@en ;
+    rdfs:label "Maximum Sag" ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:sagAtMidspan a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Sag at midspan in meters (equals maxSagM for level spans)."@en ;
+    rdfs:label "Midspan Sag" ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:horizontalTension a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Horizontal component of conductor tension in newtons."@en ;
+    rdfs:label "Horizontal Tension" ;
+    qudt:applicableUnit unit:N ;
+    qudt:quantityKind qkind:Force .
+
+cimbology:maxTension a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Maximum conductor tension in newtons (at the high support point)."@en ;
+    rdfs:label "Maximum Tension" ;
+    qudt:applicableUnit unit:N ;
+    qudt:quantityKind qkind:Force .
+
+cimbology:tensionPctRbs a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Tension as a percentage of rated breaking strength (0–100). Must not exceed cimbology:maxTensionPctRbs from the design criteria."@en ;
+    rdfs:label "Tension Percent RBS" .
+
+cimbology:catenaryConstant a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Catenary constant H/w in meters (horizontal tension divided by weight per unit length)."@en ;
+    rdfs:label "Catenary Constant" ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:conductorLengthSpan a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Actual conductor length in the span in meters (longer than horizontal span due to sag)."@en ;
+    rdfs:label "Conductor Length In Span" ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:startHeight a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Conductor attachment height at the start (back) pole in meters above ground."@en ;
+    rdfs:label "Start Height" ;
+    rdfs:domain cimbology:SagTensionResult ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:endHeight a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Conductor attachment height at the end (ahead) pole in meters above ground."@en ;
+    rdfs:label "End Height" ;
+    rdfs:domain cimbology:SagTensionResult ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:avgHeight a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Average conductor height above ground across the span in meters."@en ;
+    rdfs:label "Average Height" ;
+    rdfs:domain cimbology:SagTensionResult ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:startTension a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Conductor tension at the start (back) support point in newtons."@en ;
+    rdfs:label "Start Tension" ;
+    rdfs:domain cimbology:SagTensionResult ;
+    qudt:applicableUnit unit:N ;
+    qudt:quantityKind qkind:Force .
+
+cimbology:endTension a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Conductor tension at the end (ahead) support point in newtons."@en ;
+    rdfs:label "End Tension" ;
+    rdfs:domain cimbology:SagTensionResult ;
+    qudt:applicableUnit unit:N ;
+    qudt:quantityKind qkind:Force .
+
+cimbology:avgTension a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Average conductor tension across the span in newtons."@en ;
+    rdfs:label "Average Tension" ;
+    rdfs:domain cimbology:SagTensionResult ;
+    qudt:applicableUnit unit:N ;
+    qudt:quantityKind qkind:Force .
+
+cimbology:startHorizontalLoad a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Horizontal load component at the start support in newtons."@en ;
+    rdfs:label "Start Horizontal Load" ;
+    rdfs:domain cimbology:SagTensionResult ;
+    qudt:applicableUnit unit:N ;
+    qudt:quantityKind qkind:Force .
+
+cimbology:endHorizontalLoad a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Horizontal load component at the end support in newtons."@en ;
+    rdfs:label "End Horizontal Load" ;
+    rdfs:domain cimbology:SagTensionResult ;
+    qudt:applicableUnit unit:N ;
+    qudt:quantityKind qkind:Force .
+
+cimbology:startVerticalLoad a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Vertical load component at the start support in newtons."@en ;
+    rdfs:label "Start Vertical Load" ;
+    rdfs:domain cimbology:SagTensionResult ;
+    qudt:applicableUnit unit:N ;
+    qudt:quantityKind qkind:Force .
+
+cimbology:endVerticalLoad a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Vertical load component at the end support in newtons."@en ;
+    rdfs:label "End Vertical Load" ;
+    rdfs:domain cimbology:SagTensionResult ;
+    qudt:applicableUnit unit:N ;
+    qudt:quantityKind qkind:Force .
+
+cimbology:lowestPointDistance a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Horizontal distance from the start pole to the lowest point of the catenary in meters."@en ;
+    rdfs:label "Lowest Point Distance" ;
+    rdfs:domain cimbology:SagTensionResult ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:lowestPointHeight a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Height of the lowest point of the catenary above ground in meters."@en ;
+    rdfs:label "Lowest Point Height" ;
+    rdfs:domain cimbology:SagTensionResult ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:spanClearance a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Minimum clearance to ground/obstacles within the span in meters."@en ;
+    rdfs:label "Span Clearance" ;
+    rdfs:domain cimbology:SagTensionResult ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:spanClearanceDistance a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Horizontal distance from the start pole to the minimum clearance point in meters."@en ;
+    rdfs:label "Span Clearance Distance" ;
+    rdfs:domain cimbology:SagTensionResult ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:maxSpanClearance a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Maximum clearance to ground/obstacles within the span in meters."@en ;
+    rdfs:label "Max Span Clearance" ;
+    rdfs:domain cimbology:SagTensionResult ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:maxSpanClearanceDistance a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Horizontal distance from the start pole to the maximum clearance point in meters."@en ;
+    rdfs:label "Max Span Clearance Distance" ;
+    rdfs:domain cimbology:SagTensionResult ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:wireResultantLoad a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Resultant wire load (vector sum of vertical and horizontal loads) in newtons."@en ;
+    rdfs:label "Wire Resultant Load" ;
+    rdfs:domain cimbology:SagTensionResult ;
+    qudt:applicableUnit unit:N ;
+    qudt:quantityKind qkind:Force .
+
+cimbology:spanOrder a owl:DatatypeProperty ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Ordinal position of this span in the circuit (1-based). Used for sequential identification and reporting."@en ;
+    rdfs:label "Span Order" ;
+    rdfs:domain cimbology:SagTensionResult .
+
+cimbology:isReversed a owl:DatatypeProperty ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "True if the span direction was reversed during analysis (start/end poles swapped for computational reasons). Consumers must account for this when interpreting start/end height and tension values."@en ;
+    rdfs:label "Is Reversed" ;
+    rdfs:domain cimbology:SagTensionResult .
+
+cimbology:loadCaseTemperature a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Temperature for this load case in degrees Celsius."@en ;
+    rdfs:label "Load Case Temperature" ;
+    rdfs:domain cimbology:LoadCase ;
+    qudt:applicableUnit unit:DEG_C ;
+    qudt:quantityKind qkind:Temperature .
+
+cimbology:loadCaseWind a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Wind pressure for this load case in pascals."@en ;
+    rdfs:label "Load Case Wind" ;
+    rdfs:domain cimbology:LoadCase ;
+    qudt:applicableUnit unit:PA ;
+    qudt:quantityKind qkind:Pressure .
+
+cimbology:loadCaseIce a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Radial ice thickness for this load case in meters."@en ;
+    rdfs:label "Load Case Ice" ;
+    rdfs:domain cimbology:LoadCase ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:loadCaseName a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Human-readable name for this load case (e.g., 'NESC Heavy', 'Max Operating Temp', 'Everyday 60°F')."@en ;
+    rdfs:label "Load Case Name" ;
+    rdfs:domain cimbology:LoadCase .
+
+
+# =============================================================================
+# SECTION 8: CLEARANCE CHECK PROPERTIES
+# =============================================================================
+# Shared clearance vocabulary used by multiple domains. Distribution-specific
+# NESC narrowing is expressed in cimbology:* subproperties.
+# =============================================================================
+
+cimbology:ClearanceKind a rdfs:Class .
+cimbology:ElectricalClearance a cimbology:ClearanceKind ;
+    rdfs:comment "Clearance driven by electrical insulation/separation requirements."@en .
+cimbology:MaintenanceAccess a cimbology:ClearanceKind ;
+    rdfs:comment "Clearance driven by maintenance access and removal path requirements."@en .
+cimbology:GroundOrCrossing a cimbology:ClearanceKind ;
+    rdfs:comment "Clearance driven by ground/crossing rulebooks such as NESC crossing tables."@en .
+
+cimbology:clearance a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Actual measured or computed clearance distance in meters at the governing point for the evaluated source-to-target pair (including distribution span NESC checks)."@en ;
+    rdfs:label "Clearance" ;
+    rdfs:domain cimbology:ClearanceCheck ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:requiredClearance a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Minimum required clearance distance in meters from the governing rule source (e.g., NESC Table 232-1)."@en ;
+    rdfs:label "Required Clearance" ;
+    rdfs:domain cimbology:ClearanceCheck ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:clearanceViolated a owl:DatatypeProperty ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "True when actual clearance is below the required clearance threshold."@en ;
+    rdfs:label "Clearance Violated" ;
+    rdfs:domain cimbology:ClearanceCheck .
+
+cimbology:clearanceRule a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Citation or identifier for the governing clearance rule used by this check (e.g., 'Table 232-1, Row 3 — Roads')."@en ;
+    rdfs:label "Clearance Rule" ;
+    rdfs:domain cimbology:ClearanceCheck .
+
+cimbology:clearanceKind a owl:ObjectProperty ;
+    rdfs:domain cimbology:ClearanceCheck ;
+    rdfs:range cimbology:ClearanceKind ;
+    rdfs:comment "Classifies the driver for this clearance check (electrical, maintenance access, or ground/crossing)."@en ;
+    rdfs:label "Clearance Kind" .
+
+cimbology:worstPointStation a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Station of the worst-case clearance point along the span in meters."@en ;
+    rdfs:label "Worst Point Station" ;
+    rdfs:domain cimbology:ClearanceCheck ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:surfaceType a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type of surface or facility over which clearance is measured (e.g., 'Ground', 'Road', 'Railroad', 'Building', 'Swimming Pool')."@en ;
+    rdfs:label "Surface Type" ;
+    rdfs:domain cimbology:ClearanceCheck .
+
+
+# =============================================================================
+# SECTION 9: POLE LOAD RESULT PROPERTIES
+# =============================================================================
+# Ground-line moment analysis is first-class in distribution. Every pole must
+# demonstrate adequate strength under NESC loading. Transmission uses
+# structure-level analysis with different methodology.
+# =============================================================================
+
+cimbology:groundLineMomentApplied a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Total applied ground-line moment in newton-meters (sum of all transverse and vertical moment contributions from conductors, equipment, wind, and ice)."@en ;
+    rdfs:label "Applied Ground-Line Moment" ;
+    rdfs:domain cimbology:PoleLoadResult ;
+    qudt:applicableUnit unit:N-M ;
+    qudt:quantityKind qkind:Torque .
+
+cimbology:poleLoadingPct a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Applied ground-line moment as a percentage of rated capacity (0–100+). Values over 100% indicate overloaded poles."@en ;
+    rdfs:label "Pole Loading Percent" ;
+    rdfs:domain cimbology:PoleLoadResult .
+
+cimbology:poleLoadingViolated a owl:DatatypeProperty ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "True if poleLoadingPct exceeds 100% (pole is overloaded after applying NESC strength factors per §261). Same convenience-boolean pattern as cimbology:clearanceViolated."@en ;
+    rdfs:label "Pole Loading Violated" ;
+    rdfs:domain cimbology:PoleLoadResult .
+
+cimbology:windMoment a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Ground-line moment contribution from wind on the pole body in newton-meters."@en ;
+    rdfs:label "Wind Moment" ;
+    rdfs:domain cimbology:PoleLoadResult ;
+    qudt:applicableUnit unit:N-M ;
+    qudt:quantityKind qkind:Torque .
+
+cimbology:conductorMoment a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Ground-line moment contribution from conductor tension and wind on conductors in newton-meters."@en ;
+    rdfs:label "Conductor Moment" ;
+    rdfs:domain cimbology:PoleLoadResult ;
+    qudt:applicableUnit unit:N-M ;
+    qudt:quantityKind qkind:Torque .
+
+cimbology:equipmentMoment a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Ground-line moment contribution from pole-mounted equipment (transformers, switches, etc.) in newton-meters."@en ;
+    rdfs:label "Equipment Moment" ;
+    rdfs:domain cimbology:PoleLoadResult ;
+    qudt:applicableUnit unit:N-M ;
+    qudt:quantityKind qkind:Torque .
+
+cimbology:guyRelief a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Ground-line moment reduction from guy wires in newton-meters. Subtracted from the total applied moment."@en ;
+    rdfs:label "Guy Relief" ;
+    rdfs:domain cimbology:PoleLoadResult ;
+    qudt:applicableUnit unit:N-M ;
+    qudt:quantityKind qkind:Torque .
+
+cimbology:transverseMoment a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Transverse component of the applied ground-line moment in newton-meters (perpendicular to the line direction)."@en ;
+    rdfs:label "Transverse Moment" ;
+    rdfs:domain cimbology:PoleLoadResult ;
+    qudt:applicableUnit unit:N-M ;
+    qudt:quantityKind qkind:Torque .
+
+cimbology:transverseMomentDirection a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Direction of the transverse moment component in degrees from true north."@en ;
+    rdfs:label "Transverse Moment Direction" ;
+    rdfs:domain cimbology:PoleLoadResult ;
+    qudt:applicableUnit unit:DEG ;
+    qudt:quantityKind qkind:Angle .
+
+cimbology:resultantMomentDirection a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Direction of the resultant applied ground-line moment in degrees from true north."@en ;
+    rdfs:label "Resultant Moment Direction" ;
+    rdfs:domain cimbology:PoleLoadResult ;
+    qudt:applicableUnit unit:DEG ;
+    qudt:quantityKind qkind:Angle .
+
+cimbology:totalVerticalLoad a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Total vertical load on the pole in newtons (sum of conductor weight, equipment weight, and ice loading). Checked against cimbology:maxVerticalLoad."@en ;
+    rdfs:label "Total Vertical Load" ;
+    rdfs:domain cimbology:PoleLoadResult ;
+    qudt:applicableUnit unit:N ;
+    qudt:quantityKind qkind:Force .
+
+cimbology:unguyedMoment a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Applied ground-line moment before guy relief in newton-meters. If this exceeds the pole's strength-factored capacity, guying is required."@en ;
+    rdfs:label "Unguyed Moment" ;
+    rdfs:domain cimbology:PoleLoadResult ;
+    qudt:applicableUnit unit:N-M ;
+    qudt:quantityKind qkind:Torque .
+
+
+# =============================================================================
+# SECTION 9A: GUYING RESULT PROPERTIES
+# =============================================================================
+# Per-guy analysis outputs from pole loading / guying calculations. While
+# cimbology:PoleLoadResult captures the pole-level loading summary, these
+# properties capture per-guy outcomes needed to verify individual guy
+# adequacy. Any distribution tool exchanging guying designs needs these.
+# =============================================================================
+
+cimbology:guyTensionResult a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Computed tension in the guy wire in newtons under the design load case."@en ;
+    rdfs:label "Guy Tension (Result)" ;
+    rdfs:domain cimbology:GuyingResult ;
+    qudt:applicableUnit unit:N ;
+    qudt:quantityKind qkind:Force .
+
+cimbology:guyHorizontalLoad a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Horizontal component of the guy wire load in newtons."@en ;
+    rdfs:label "Guy Horizontal Load" ;
+    rdfs:domain cimbology:GuyingResult ;
+    qudt:applicableUnit unit:N ;
+    qudt:quantityKind qkind:Force .
+
+cimbology:guyMinLeadDistance a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Minimum required lead distance for this guy in meters based on attachment height and guy angle constraints."@en ;
+    rdfs:label "Minimum Lead Distance" ;
+    rdfs:domain cimbology:GuyingResult ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:guyStrengthFactor a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Strength factor for the guy wire — ratio of rated strength to applied tension. Values below 1.0 indicate the guy is overstressed."@en ;
+    rdfs:label "Guy Strength Factor" ;
+    rdfs:domain cimbology:GuyingResult .
+
+cimbology:anchorStrengthFactor a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Strength factor for the anchor — ratio of anchor holding capacity to applied guy tension. Values below 1.0 indicate the anchor is inadequate."@en ;
+    rdfs:label "Anchor Strength Factor" ;
+    rdfs:domain cimbology:GuyingResult .
+
+cimbology:guyTensionDeviationAngle a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Angle between the guy wire direction and the resultant load direction in degrees. Large deviations reduce guy effectiveness."@en ;
+    rdfs:label "Tension Deviation Angle" ;
+    rdfs:domain cimbology:GuyingResult ;
+    qudt:applicableUnit unit:DEG ;
+    qudt:quantityKind qkind:Angle .
+
+
+# =============================================================================
+# SECTION 10: CROSSING PROPERTIES
+# =============================================================================
+# Same concept as TIF crossings but with distribution-specific clearance
+# tables (NESC Table 232-1 rows for voltages up to 50kV).
+# =============================================================================
+
+cimbology:crossingType a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type of crossing (e.g., 'Road', 'Railroad', 'PowerLine', 'CommunicationLine', 'Waterway', 'Pipeline')."@en ;
+    rdfs:label "Crossing Type" ;
+    rdfs:domain cimbology:Crossing .
+
+cimbology:crossingClearance a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Actual clearance at the crossing point in meters."@en ;
+    rdfs:label "Crossing Clearance" ;
+    rdfs:domain cimbology:Crossing ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:crossingRequired a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Required clearance at the crossing per NESC in meters."@en ;
+    rdfs:label "Crossing Required Clearance" ;
+    rdfs:domain cimbology:Crossing ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:crossingElevation a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Elevation of the crossed facility at the crossing point in meters above datum."@en ;
+    rdfs:label "Crossing Elevation" ;
+    rdfs:domain cimbology:Crossing ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+
+# =============================================================================
+# SECTION 11: DISTRIBUTION EQUIPMENT PROPERTIES
+# =============================================================================
+# Properties for pole-mounted and pad-mounted distribution equipment.
+# CIM models the electrical topology; CIMBOLOGY-KG adds distribution-specific
+# sizing and configuration properties.
+# =============================================================================
+
+cimbology:transformerKva a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Transformer rated capacity in kilovolt-amperes. CIM models this as cim:PowerTransformerEnd.ratedS (in VA). CIMBOLOGY-KG uses kVA because utility transformers are universally specified in kVA on nameplates (distribution: 25, 50, 100, 167, 250; substation: 500, 1000, 5000 etc.)."@en ;
+    rdfs:label "Transformer kVA" ;
+    rdfs:seeAlso cim:PowerTransformer ;
+    qudt:applicableUnit unit:KiloV-A ;
+    qudt:quantityKind qkind:ApparentPower .
+
+cimbology:transformerMounting a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Transformer mounting style (e.g., 'Pole-Mounted', 'Pad-Mounted', 'Submersible', 'Vault')."@en ;
+    rdfs:label "Transformer Mounting" .
+
+cimbology:transformerImpedancePct a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Transformer impedance as a percentage of rated. Used for fault current and voltage drop calculations in both distribution and substation contexts. CIM models this as cim:TransformerEnd.x (per-unit reactance); CIMBOLOGY-KG uses percentage because transformer test reports universally express it as %Z."@en ;
+    rdfs:label "Transformer Impedance" ;
+    rdfs:seeAlso cim:PowerTransformer .
+
+cimbology:transformerConnection a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Transformer winding connection type in utility-notation string (e.g., 'Single-Phase', 'Wye-Wye', 'Delta-Wye', 'Open-Delta'). CIM models this via cim:TransformerEnd.connectionKind (WindingConnection enum). CIMBOLOGY-KG uses a string to accommodate utility naming conventions. Note: IEC vector group notation (Dyn11, YNd1) is captured separately in cimbology:vectorGroup."@en ;
+    rdfs:label "Transformer Connection" ;
+    rdfs:seeAlso cim:PowerTransformer .
+
+cimbology:switchType a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type of distribution switch (e.g., 'disconnect', 'airbreak', 'line tension', 'load break elbow', 'solid blade'). CIM models switches via cim:Switch subtypes (LoadBreakSwitch, Disconnector); CIMBOLOGY-KG captures the switch form factor for design and catalog resolution."@en ;
+    rdfs:label "Switch Type" ;
+    rdfs:seeAlso cim:Switch .
+
+cimbology:recloserType a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Recloser operational type (e.g., 'normal', 'bypass'). CIM may model reclosers as cim:Breaker or cim:Recloser depending on profile version."@en ;
+    rdfs:label "Recloser Type" .
+
+cimbology:fuseRating a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Fuse continuous current rating in amperes per IEEE C37.42-2016 (distribution cutouts and fuse links). CIM models fuses via cim:Fuse but does not carry detailed fuse link ratings."@en ;
+    rdfs:label "Fuse Rating" ;
+    rdfs:seeAlso cim:Fuse ;
+    qudt:applicableUnit unit:A ;
+    qudt:quantityKind qkind:ElectricCurrent .
+
+cimbology:fuseType a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Fuse/cutout type (e.g., 'standard fuse', 'cutout', 'arrester', 'disconnect'). Fuse type determines time-current characteristics and fault interrupting behavior."@en ;
+    rdfs:label "Fuse Type" ;
+    rdfs:seeAlso cim:Fuse .
+
+cimbology:regulatorBandwidth a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Voltage regulator bandwidth in volts per IEEE C57.15-2009. Bandwidth defines the voltage deadband within which the regulator does not tap-change. Typical values: 1.5–3.0 V on a 120 V base."@en ;
+    rdfs:label "Regulator Bandwidth" ;
+    qudt:applicableUnit unit:V ;
+    qudt:quantityKind qkind:Voltage .
+
+cimbology:regulatorRangePct a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Voltage regulator range as a percentage of nominal per IEEE C57.15 (e.g., ±10% is the most common for 32-step regulators). CIM models this via cim:RatioTapChanger.stepVoltageIncrement and step count."@en ;
+    rdfs:label "Regulator Range" ;
+    rdfs:seeAlso cim:PowerTransformer .
+
+cimbology:capacitorKvar a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Capacitor bank reactive power rating in kVAR per IEEE 1036-2020. CIM models this as cim:ShuntCompensator.nomQ (in VAR). CIMBOLOGY-KG uses kVAR because capacitor banks are universally specified in kVAR whether in distribution (300, 600, 900, 1200) or substation (power factor correction) contexts."@en ;
+    rdfs:label "Capacitor kVAR" ;
+    rdfs:seeAlso cim:ShuntCompensator .
+
+cimbology:capacitorControl a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Capacitor switching control type per IEEE 1036 (e.g., 'Fixed', 'Switched-Voltage', 'Switched-VAR', 'Switched-Time'). CIM models this via cim:RegulatingControl.mode. CIMBOLOGY-KG uses a string to accommodate vendor-specific control algorithms."@en ;
+    rdfs:label "Capacitor Control" ;
+    rdfs:seeAlso cim:ShuntCompensator .
+
+cimbology:transformerType a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Transformer configuration type (e.g., 'Radial', 'Looped', 'Csp', 'Conventional'). Describes the transformer design topology."@en ;
+    rdfs:label "Transformer Type" ;
+    rdfs:seeAlso cim:PowerTransformer .
+
+cimbology:regulatorType a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Voltage regulator type designation."@en ;
+    rdfs:label "Regulator Type" ;
+    rdfs:seeAlso cim:PowerTransformer .
+
+cimbology:arresterMounting a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Lightning arrester mounting method (e.g., 'Crossarm mounted', 'Bracket mounted')."@en ;
+    rdfs:label "Arrester Mounting" .
+
+cimbology:capacitorUnitKvar a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Individual capacitor unit rating in kVAR. Used in both distribution banks (standard sizes: 50, 100, 150, 200, 300) and substation power factor correction assemblies."@en ;
+    rdfs:label "Capacitor Unit kVAR" ;
+    rdfs:seeAlso cim:ShuntCompensator .
+
+# NOTE: Interrupt rating → use cimbology:breakingCapacity (already defined in core).
+# NOTE: Continuous current rating → use cimbology:currentRating (already defined in core).
+
+cimbology:equipmentWeight a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Weight of pole-mounted equipment in newtons. Contributes to vertical pole loading."@en ;
+    rdfs:label "Equipment Weight" ;
+    qudt:applicableUnit unit:N ;
+    qudt:quantityKind qkind:Force .
+
+cimbology:mountingHeight a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Height of equipment mounting point above ground in meters. Used for pole loading moment arm calculation."@en ;
+    rdfs:label "Mounting Height" ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:transformerPctReactance a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Transformer percent reactance from factory test data — the reactive component of percent impedance (%Z). Any tool performing fault current or power flow analysis needs %R and %X separately rather than only total %Z. Applies to both distribution and substation transformers. CIM models this via cim:TransformerEnd.x (per-unit). CIMBOLOGY-KG uses percentage to match ANSI C57.12 nameplate convention."@en ;
+    rdfs:label "Transformer % Reactance" ;
+    rdfs:seeAlso cim:PowerTransformer .
+
+cimbology:transformerPctResistance a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Transformer percent resistance from factory test data — the resistive component of percent impedance (%Z). Used with cimbology:transformerPctReactance to compute total %Z = sqrt(%R² + %X²). Applies to both distribution and substation transformers. Source: transformer factory test report per ANSI C57.12."@en ;
+    rdfs:label "Transformer % Resistance" ;
+    rdfs:seeAlso cim:PowerTransformer .
+
+cimbology:transformerPhaseCount a owl:DatatypeProperty ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Number of phases for this transformer (1 for single-phase, 3 for three-phase). Distinct from cimbology:phaseCount (general-purpose phase count for any resource) — this property is scoped to distribution transformer catalog entries where the phase count drives winding configuration. CIM models this via cim:PowerTransformerEnd.phaseCode."@en ;
+    rdfs:label "Transformer Phase Count" ;
+    rdfs:seeAlso cim:PowerTransformer .
+
+cimbology:noLoadLoss a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Transformer core loss in watts at rated voltage with the secondary open. Needed for lifecycle costing and efficiency analysis in both distribution and substation tools. CIM equivalent if any: cim:NoLoadTest.loss."@en ;
+    rdfs:label "No-Load Loss" ;
+    rdfs:seeAlso cim:NoLoadTest ;
+    qudt:applicableUnit unit:W ;
+    qudt:quantityKind qkind:Power .
+
+cimbology:loadLoss a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Transformer load loss in watts from the rated-current short-circuit test. Needed for efficiency, voltage-drop, and thermal studies in both distribution and substation contexts. CIM equivalent if any: cim:ShortCircuitTest.loss."@en ;
+    rdfs:label "Load Loss" ;
+    rdfs:seeAlso cim:ShortCircuitTest ;
+    qudt:applicableUnit unit:W ;
+    qudt:quantityKind qkind:Power .
+
+cimbology:oilCapacity a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Insulating oil volume in liters for oil-filled transformers and regulators. Needed for maintenance planning, environmental handling, and catalog matching in both distribution and substation contexts. CIM has no direct oil-volume property on the base equipment classes."@en ;
+    rdfs:label "Oil Capacity" ;
+    qudt:applicableUnit unit:L ;
+    qudt:quantityKind qkind:Volume .
+
+cimbology:breakerType a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Functional breaker application string (for example 'feeder', 'tie', 'sectionalizing', 'main'). Distribution tools use this to distinguish system role even when all devices are cim:Breaker. Related CIM field: cim:AssetDeployment.breakerApplication."@en ;
+    rdfs:label "Breaker Type" ;
+    rdfs:seeAlso cim:AssetDeployment .
+
+cimbology:frameSize a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Physical frame designation for a breaker or switchgear assembly (for example '225AF' or '600A frame'). Needed for catalog resolution and replacement planning."@en ;
+    rdfs:label "Frame Size" .
+
+cimbology:tripUnitType a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Trip unit technology or protection package in the breaker (for example 'electronic', 'thermal-magnetic', 'hydraulic'). This matters to distribution protection behavior even when interrupting rating is unchanged."@en ;
+    rdfs:label "Trip Unit Type" .
+
+cimbology:busbarMaterial a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Bus bar conductor material (for example 'copper' or 'aluminum'). CIM BusbarSection models the conducting equipment but not the physical bar material needed for catalog and thermal checks."@en ;
+    rdfs:label "Bus Bar Material" .
+
+cimbology:busbarCrossSectionArea a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Bus bar cross-sectional area in square millimeters. Needed for current-density and thermal-rise calculations on bus work. CIM BusbarSectionInfo carries rated electrical values but not physical section area."@en ;
+    rdfs:label "Bus Bar Cross Section Area" ;
+    qudt:applicableUnit unit:MM2 ;
+    qudt:quantityKind qkind:Area .
+
+cimbology:meterClass a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Metering or protection accuracy class string (for example '0.3', '0.5', '1.2', or relay-class designations). Applies to revenue metering CTs in distribution and protection CTs in substations. CIM equivalent if any: cim:CurrentTransformer.accuracyClass and cim:PotentialTransformer.accuracyClass."@en ;
+    rdfs:label "Meter Class" ;
+    rdfs:seeAlso cim:CurrentTransformer ,
+                  cim:PotentialTransformer .
+
+cimbology:ctBurden a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Current transformer burden rating in volt-amperes. Needed for instrument-transformer selection and meter/relay loading checks. CIM equivalent if any: cim:CurrentTransformer.coreBurden."@en ;
+    rdfs:label "CT Burden" ;
+    rdfs:seeAlso cim:CurrentTransformer ;
+    qudt:applicableUnit unit:V-A ;
+    qudt:quantityKind qkind:ApparentPower .
+
+cimbology:switchOnVoltage a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Capacitor control setpoint voltage in kilovolts at which the bank switches on. Distribution tools commonly store explicit on/off thresholds for capacitor automation; CIM only provides the broader regulating-control concept."@en ;
+    rdfs:label "Switch On Voltage" ;
+    qudt:applicableUnit unit:KiloV ;
+    qudt:quantityKind qkind:Voltage .
+
+cimbology:switchOffVoltage a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Capacitor control setpoint voltage in kilovolts at which the bank switches off. Separate on/off thresholds prevent hunting and must survive interchange between distribution design tools."@en ;
+    rdfs:label "Switch Off Voltage" ;
+    qudt:applicableUnit unit:KiloV ;
+    qudt:quantityKind qkind:Voltage .
+
+cimbology:timeOn a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Time-of-day at which a switched capacitor is scheduled to turn on, formatted as HH:MM. Needed for time-clock control schemes."@en ;
+    rdfs:label "Time On" .
+
+cimbology:timeOff a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Time-of-day at which a switched capacitor is scheduled to turn off, formatted as HH:MM. Needed for time-clock control schemes."@en ;
+    rdfs:label "Time Off" .
+
+cimbology:regulatorImpedancePct a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Series impedance of a voltage regulator expressed as percent of rated. Needed for voltage-drop and short-circuit studies on regulator banks. Related CIM concept: cim:TransformerEnd.x on the underlying regulator transformer."@en ;
+    rdfs:label "Regulator Impedance" ;
+    rdfs:seeAlso cim:PowerTransformer .
+
+cimbology:tapChangerCycleCount a owl:DatatypeProperty ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Maintenance counter recording the number of tap-change operations. Used by both distribution utilities (voltage regulators) and substation engineers (on-load tap changers on power transformers) to schedule inspection or rebuild work."@en ;
+    rdfs:label "Tap Changer Cycle Count" .
+
+# =============================================================================
+# SECTION 12: SERVICE POINT PROPERTIES
+# =============================================================================
+# Customer service delivery point data used for voltage drop analysis,
+# transformer sizing, and service conductor selection.
+# =============================================================================
+
+cimbology:connectedLoadKw a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Total connected load at the service point in kilowatts. Used for voltage drop analysis and transformer sizing. CIM models loads via cim:EnergyConsumer but focuses on operational metered load, not connected load for design sizing."@en ;
+    rdfs:label "Connected Load" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:demandFactor a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Demand factor (0–1) applied to connected load to estimate peak demand. Distribution design uses demand factors to avoid oversizing transformers and service conductors. Typical residential: 0.4–0.6; commercial: varies by load category."@en ;
+    rdfs:label "Demand Factor" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:serviceVoltage a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Service voltage designation (e.g., '120/240V', '120/208V', '277/480V')."@en ;
+    rdfs:label "Service Voltage" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:servicePhase a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Service phase configuration (e.g., '1PH-2W', '1PH-3W', '3PH-4W')."@en ;
+    rdfs:label "Service Phase" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:meterNumber a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Utility meter number at the service point."@en ;
+    rdfs:label "Meter Number" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:demandKw a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Peak demand at the service point in kilowatts (connectedLoadKw × demandFactor). Used for transformer sizing and voltage drop analysis."@en ;
+    rdfs:label "Peak Demand" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:actualDemandKw a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Measured or actual service demand in kilowatts. Distinct from cimbology:demandKw, which is a design estimate derived from connected load and diversity."@en ;
+    rdfs:label "Actual Demand" ;
+    rdfs:domain cimbology:ServicePoint ;
+    qudt:applicableUnit unit:KiloW ;
+    qudt:quantityKind qkind:Power .
+
+cimbology:actualDemandKvar a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Measured or actual reactive demand in kilovar at the service point. Any distribution planning tool exchanging load-study inputs needs a separate reactive-demand slot."@en ;
+    rdfs:label "Actual Demand kVAR" ;
+    rdfs:domain cimbology:ServicePoint ;
+    qudt:applicableUnit unit:KILO-VAR ;
+    qudt:quantityKind qkind:ReactivePower .
+
+cimbology:peakDemandKw a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Historical or billed peak demand in kilowatts. Distinct from cimbology:demandKw, which is the design-calculated demand, and cimbology:actualDemandKw, which captures current measured load."@en ;
+    rdfs:label "Measured Peak Demand" ;
+    rdfs:domain cimbology:ServicePoint ;
+    qudt:applicableUnit unit:KiloW ;
+    qudt:quantityKind qkind:Power .
+
+cimbology:serviceLoadFactor a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Load factor at the service point (average load divided by peak load, typically 0–1). Useful for transformer sizing, load forecasting, and distinguishing high-utilization services from peaky loads."@en ;
+    rdfs:label "Service Load Factor" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:motorLoadKw a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Motor load at the service point in kilowatts. Separated from general load because motor starting drives flicker calculations (locked-rotor amps)."@en ;
+    rdfs:label "Motor Load" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:mainPanelSize a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Customer main service entrance panel size in amperes. Used for service conductor sizing — the service drop must be rated for at least the main breaker ampacity. Any distribution design tool performing service conductor selection needs this."@en ;
+    rdfs:label "Main Panel Size" ;
+    rdfs:domain cimbology:ServicePoint ;
+    qudt:applicableUnit unit:A ;
+    qudt:quantityKind qkind:ElectricCurrent .
+
+# --- 12a: Commercial load estimation inputs ---
+# Standard per-category commercial load breakdown used by any detailed load
+# estimation engine. Categories follow the IEEE/utility commercial sizing method.
+# Each category carries: connected load (1PH + 3PH), demand factor, operating
+# schedule (days/month and fraction of hours).
+
+cimbology:operatingHoursPerDay a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Facility operating hours per day. Used with per-category operating schedules to compute energy and demand. Typical default: 24."@en ;
+    rdfs:label "Operating Hours Per Day" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:buildingArea a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Building floor area in square meters. Used for VA/m² load density calculations. Imperial equivalent: sq ft (typical default: ~232 m² / 2500 sq ft)."@en ;
+    rdfs:label "Building Area" ;
+    rdfs:domain cimbology:ServicePoint ;
+    qudt:applicableUnit unit:M2 ;
+    qudt:quantityKind qkind:Area .
+
+cimbology:vaDensity a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Load density in VA per square meter. Used for commercial load estimation when per-category breakdown is unavailable. Imperial equivalent: VA/sq ft (conversion: VA/sqft × 10.7639 = VA/m²)."@en ;
+    rdfs:label "VA Density" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:estimatedDemand a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Directly entered estimated peak demand in kilowatts. Override for computed demand when actual metered or contracted data is available. Typical default: 0."@en ;
+    rdfs:label "Estimated Demand" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:marginAllowance a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Total estimated margin allowance as a fraction or kW adder to account for unspecified future loads. Typical default: 0."@en ;
+    rdfs:label "Margin Allowance" ;
+    rdfs:domain cimbology:ServicePoint .
+
+# Cooking loads
+cimbology:cookingDemandFactor a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Demand factor for cooking loads (0–1). Typical default: 0.4."@en ;
+    rdfs:label "Cooking Demand Factor" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:cookingLoad1ph a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Single-phase connected cooking load in kW. Typical default: 0."@en ;
+    rdfs:label "Cooking Load 1PH" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:cookingLoad3ph a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Three-phase connected cooking load in kW. Typical default: 0."@en ;
+    rdfs:label "Cooking Load 3PH" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:cookingOprDaysPerMon a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Cooking equipment operating days per month. Typical default: 21."@en ;
+    rdfs:label "Cooking Opr Days/Month" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:cookingPctOprHours a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Fraction of daily operating hours cooking equipment runs (0–1). Typical default: 0.5."@en ;
+    rdfs:label "Cooking % Opr Hours" ;
+    rdfs:domain cimbology:ServicePoint .
+
+# Cooling loads
+cimbology:coolingDemandFactor a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Demand factor for cooling loads (0–1). Typical default: 0.8."@en ;
+    rdfs:label "Cooling Demand Factor" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:coolingLoad1ph a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Single-phase connected cooling load in kW. Typical default: 0."@en ;
+    rdfs:label "Cooling Load 1PH" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:coolingLoad3ph a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Three-phase connected cooling load in kW. Typical default: 0."@en ;
+    rdfs:label "Cooling Load 3PH" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:coolingOprDaysPerMon a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Cooling equipment operating days per month. Typical default: 21."@en ;
+    rdfs:label "Cooling Opr Days/Month" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:coolingPctOprHours a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Fraction of daily operating hours cooling equipment runs (0–1). Typical default: 0.5."@en ;
+    rdfs:label "Cooling % Opr Hours" ;
+    rdfs:domain cimbology:ServicePoint .
+
+# Elevator loads
+cimbology:elevatorsDemandFactor a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Demand factor for elevator loads (0–1). Typical default: 0.3."@en ;
+    rdfs:label "Elevators Demand Factor" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:elevatorsLoad1ph a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Single-phase connected elevator load in kW. Typical default: 0."@en ;
+    rdfs:label "Elevators Load 1PH" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:elevatorsLoad3ph a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Three-phase connected elevator load in kW. Typical default: 0."@en ;
+    rdfs:label "Elevators Load 3PH" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:elevatorsOprDaysPerMon a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Elevator operating days per month. Typical default: 21."@en ;
+    rdfs:label "Elevators Opr Days/Month" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:elevatorsPctOprHours a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Fraction of daily operating hours elevators run (0–1). Typical default: 0.25."@en ;
+    rdfs:label "Elevators % Opr Hours" ;
+    rdfs:domain cimbology:ServicePoint .
+
+# Heating loads
+cimbology:heatingDemandFactor a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Demand factor for heating loads (0–1). Typical default: 0.5."@en ;
+    rdfs:label "Heating Demand Factor" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:heatingLoad1ph a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Single-phase connected heating load in kW. Typical default: 0."@en ;
+    rdfs:label "Heating Load 1PH" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:heatingLoad3ph a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Three-phase connected heating load in kW. Typical default: 0."@en ;
+    rdfs:label "Heating Load 3PH" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:heatingOprDaysPerMon a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Heating equipment operating days per month. Typical default: 21."@en ;
+    rdfs:label "Heating Opr Days/Month" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:heatingPctOprHours a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Fraction of daily operating hours heating equipment runs (0–1). Typical default: 0.5."@en ;
+    rdfs:label "Heating % Opr Hours" ;
+    rdfs:domain cimbology:ServicePoint .
+
+# Lighting loads
+cimbology:lightingDemandFactor a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Demand factor for lighting loads (0–1). Typical default: 0.9."@en ;
+    rdfs:label "Lighting Demand Factor" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:lightingLoad1ph a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Single-phase connected lighting load in kW. Typical default: 0."@en ;
+    rdfs:label "Lighting Load 1PH" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:lightingLoad3ph a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Three-phase connected lighting load in kW. Typical default: 0."@en ;
+    rdfs:label "Lighting Load 3PH" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:lightingOprDaysPerMon a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Lighting operating days per month. Typical default: 21."@en ;
+    rdfs:label "Lighting Opr Days/Month" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:lightingPctOprHours a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Fraction of daily operating hours lighting runs (0–1). Typical default: 1.0."@en ;
+    rdfs:label "Lighting % Opr Hours" ;
+    rdfs:domain cimbology:ServicePoint .
+
+# Miscellaneous loads
+cimbology:miscDemandFactor a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Demand factor for miscellaneous loads (0–1). Typical default: 0.2."@en ;
+    rdfs:label "Misc Demand Factor" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:miscLoad1ph a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Single-phase connected miscellaneous load in kW. Typical default: 0."@en ;
+    rdfs:label "Misc Load 1PH" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:miscLoad3ph a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Three-phase connected miscellaneous load in kW. Typical default: 0."@en ;
+    rdfs:label "Misc Load 3PH" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:miscOprDaysPerMon a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Miscellaneous load operating days per month. Typical default: 21."@en ;
+    rdfs:label "Misc Opr Days/Month" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:miscPctOprHours a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Fraction of daily operating hours misc loads run (0–1). Typical default: 0.35."@en ;
+    rdfs:label "Misc % Opr Hours" ;
+    rdfs:domain cimbology:ServicePoint .
+
+# Motor loads
+cimbology:motorsDemandFactor a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Demand factor for motor loads (0–1). Separate from motorLoadKw which captures the total motor load for flicker; this factor applies to connected motor load in the detailed breakdown. Typical default: 0.3."@en ;
+    rdfs:label "Motors Demand Factor" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:motorsLoad1ph a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Single-phase connected motor load in kW. Typical default: 0."@en ;
+    rdfs:label "Motors Load 1PH" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:motorsLoad3ph a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Three-phase connected motor load in kW. Typical default: 0."@en ;
+    rdfs:label "Motors Load 3PH" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:motorsOprDaysPerMon a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Motor operating days per month. Typical default: 21."@en ;
+    rdfs:label "Motors Opr Days/Month" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:motorsPctOprHours a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Fraction of daily operating hours motors run (0–1). Typical default: 0.5."@en ;
+    rdfs:label "Motors % Opr Hours" ;
+    rdfs:domain cimbology:ServicePoint .
+
+# Refrigeration loads
+cimbology:refDemandFactor a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Demand factor for refrigeration loads (0–1). Typical default: 0.5."@en ;
+    rdfs:label "Refrigeration Demand Factor" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:refLoad1ph a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Single-phase connected refrigeration load in kW. Typical default: 0."@en ;
+    rdfs:label "Refrigeration Load 1PH" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:refLoad3ph a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Three-phase connected refrigeration load in kW. Typical default: 0."@en ;
+    rdfs:label "Refrigeration Load 3PH" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:refOprDaysPerMon a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Refrigeration operating days per month. Typical default: 21."@en ;
+    rdfs:label "Refrigeration Opr Days/Month" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:refPctOprHours a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Fraction of daily operating hours refrigeration runs (0–1). Typical default: 1.0."@en ;
+    rdfs:label "Refrigeration % Opr Hours" ;
+    rdfs:domain cimbology:ServicePoint .
+
+# Water heating loads
+cimbology:waterheatDemandFactor a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Demand factor for water heating loads (0–1). Typical default: 0.5."@en ;
+    rdfs:label "Water Heat Demand Factor" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:waterheatLoad1ph a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Single-phase connected water heating load in kW. Typical default: 0."@en ;
+    rdfs:label "Water Heat Load 1PH" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:waterheatLoad3ph a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Three-phase connected water heating load in kW. Typical default: 0."@en ;
+    rdfs:label "Water Heat Load 3PH" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:waterheatOprDaysPerMon a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Water heating operating days per month. Typical default: 21."@en ;
+    rdfs:label "Water Heat Opr Days/Month" ;
+    rdfs:domain cimbology:ServicePoint .
+
+cimbology:waterheatPctOprHours a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Fraction of daily operating hours water heating runs (0–1). Typical default: 0.5."@en ;
+    rdfs:label "Water Heat % Opr Hours" ;
+    rdfs:domain cimbology:ServicePoint .
+
+# =============================================================================
+# SECTION 12A: VOLTAGE DROP RESULT PROPERTIES
+# =============================================================================
+# Voltage drop analysis results that any distribution tool must exchange.
+# ANSI C84.1 defines service voltage limits; these properties capture the
+# design-stage voltage drop analysis needed to verify compliance.
+# =============================================================================
+
+cimbology:vdWireOnlyPct a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Voltage drop through conductors only (excluding transformer) as a percentage of nominal voltage."@en ;
+    rdfs:label "Wire Voltage Drop (%)" ;
+    rdfs:domain cimbology:VoltageDropResult .
+
+cimbology:vdWireAndTransformerPct a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Total voltage drop through conductors plus transformer as a percentage of nominal voltage."@en ;
+    rdfs:label "Wire+Transformer Voltage Drop (%)" ;
+    rdfs:domain cimbology:VoltageDropResult .
+
+cimbology:flickerWireOnlyPct a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Flicker (voltage dip from motor starting) through conductors only as a percentage."@en ;
+    rdfs:label "Wire Flicker (%)" ;
+    rdfs:domain cimbology:VoltageDropResult .
+
+cimbology:flickerWireAndTransformerPct a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Total flicker through conductors plus transformer as a percentage."@en ;
+    rdfs:label "Wire+Transformer Flicker (%)" ;
+    rdfs:domain cimbology:VoltageDropResult .
+
+cimbology:faultCurrent a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Available fault current in amperes. Used in distribution voltage-drop studies (service point fault level) and substation protection coordination (bus fault current). No rdfs:domain declared to allow use across distribution and substation contexts."@en ;
+    rdfs:label "Fault Current" ;
+    qudt:applicableUnit unit:A ;
+    qudt:quantityKind qkind:ElectricCurrent .
+
+cimbology:conductorCurrentValue a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Per-conductor current value in amperes captured by the voltage-drop solver. Needed to exchange conductor-by-conductor loading alongside the voltage-drop percentages."@en ;
+    rdfs:label "Conductor Current Value" ;
+    rdfs:domain cimbology:VoltageDropResult ;
+    qudt:applicableUnit unit:A ;
+    qudt:quantityKind qkind:ElectricCurrent .
+
+cimbology:transformerDemandValue a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Transformer demand captured in the voltage-drop result set in kilowatts. Needed to exchange the load value actually used in the transformer portion of the study."@en ;
+    rdfs:label "Transformer Demand Value" ;
+    rdfs:domain cimbology:VoltageDropResult ;
+    qudt:applicableUnit unit:KiloW ;
+    qudt:quantityKind qkind:Power .
+
+cimbology:vdPhase a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Phase designation for this voltage drop result (e.g., 'A', 'B', 'C', 'AB', 'ABC')."@en ;
+    rdfs:label "VD Phase" ;
+    rdfs:domain cimbology:VoltageDropResult .
+
+
+# =============================================================================
+# SECTION 13: ANCHOR AND GUY PROPERTIES
+# =============================================================================
+# Guying is critical to distribution pole loading — a properly guyed pole can
+# handle significantly higher transverse loads. These properties capture the
+# guy wire configuration needed for pole loading calculations.
+# =============================================================================
+
+cimbology:anchorType a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Anchor type (e.g., 'expanding', 'screw', 'plate', 'rock', 'swamp', 'log', 'cone', 'rail anchor', 'hinged tie bar', 'traction strut')."@en ;
+    rdfs:label "Anchor Type" ;
+    rdfs:domain cimbology:AnchorGuy .
+
+cimbology:guyType a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Guy wire functional type (e.g., 'normal', 'sidewalk', 'stub', 'head', 'brace', 'span', 'arm'). Describes the guy wire role, not the wire specification."@en ;
+    rdfs:label "Guy Type" ;
+    rdfs:domain cimbology:AnchorGuy .
+
+cimbology:guyAttachmentHeight a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Height of guy wire attachment on the pole above ground in meters."@en ;
+    rdfs:label "Guy Attachment Height" ;
+    rdfs:domain cimbology:AnchorGuy ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:guyLead a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Horizontal distance from pole base to anchor point in meters."@en ;
+    rdfs:label "Guy Lead" ;
+    rdfs:domain cimbology:AnchorGuy ;
+    qudt:applicableUnit unit:M ;
+    qudt:quantityKind qkind:Length .
+
+cimbology:guyAngle a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Guy wire angle from horizontal in degrees. Derived from attachment height and lead distance."@en ;
+    rdfs:label "Guy Angle" ;
+    rdfs:domain cimbology:AnchorGuy ;
+    qudt:applicableUnit unit:DEG ;
+    qudt:quantityKind qkind:Angle .
+
+cimbology:guyStrength a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Rated breaking strength of the guy wire in newtons."@en ;
+    rdfs:label "Guy Strength" ;
+    rdfs:domain cimbology:AnchorGuy ;
+    qudt:applicableUnit unit:N ;
+    qudt:quantityKind qkind:Force .
+
+cimbology:anchorCapacity a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Holding capacity of the anchor in newtons based on soil class."@en ;
+    rdfs:label "Anchor Capacity" ;
+    rdfs:domain cimbology:AnchorGuy ;
+    qudt:applicableUnit unit:N ;
+    qudt:quantityKind qkind:Force .
+
+cimbology:guyWireCount a owl:DatatypeProperty ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Number of parallel guy wires in this assembly. Some high-load poles require two parallel guys for increased capacity. Needed for guy assembly material takeoff and total assembly strength calculations."@en ;
+    rdfs:label "Guy Wire Count" ;
+    rdfs:domain cimbology:AnchorGuy .
+
+cimbology:anchorIsDouble a owl:DatatypeProperty ;
+    rdfs:range xsd:boolean ;
+    rdfs:comment "True if the anchor consists of two anchor rods or plates (double anchor) providing roughly double the single-anchor holding capacity. Affects anchor adequacy check in pole loading analysis."@en ;
+    rdfs:label "Is Double Anchor" ;
+    rdfs:domain cimbology:AnchorGuy .
+
+cimbology:anchorMaxTension a owl:DatatypeProperty ;
+    rdfs:range xsd:double ;
+    rdfs:comment "Maximum rated pullout tension for this anchor assembly in newtons — the manufacturer's catalog capacity at standard soil class. Distinct from cimbology:anchorCapacity (domain: cimbology:GuyingResult) which is the computed soil-specific holding capacity for a specific installation."@en ;
+    rdfs:label "Anchor Max Tension" ;
+    rdfs:domain cimbology:AnchorGuy ;
+    qudt:applicableUnit unit:N ;
+    qudt:quantityKind qkind:Force .
+
+# =============================================================================
+# SECTION 14: PROVENANCE PROPERTIES
+# =============================================================================
+# Provenance is a DOMAIN concern — the PE-stamp audit trail belongs to the
+# distribution engineering domain, not any specific application. Same pattern
+# as TIF provenance.
+# =============================================================================
+
+cimbology:provenanceTier a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Data confidence tier (e.g., 'Survey', 'GIS', 'Assumed', 'Calculated', 'PE-Verified'). Indicates the reliability of the associated property values. Applies to any CIMBOLOGY-KG data regardless of source tool."@en ;
+    rdfs:label "Provenance Tier" .
+
+cimbology:provenanceCitation a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Source citation for the data (e.g., 'Field survey 2024-03-15', 'GIS export v2.1', 'NESC Table 232-1'). Applies to any CIMBOLOGY-KG data regardless of source tool."@en ;
+    rdfs:label "Provenance Citation" .
+
+cimbology:provenanceSetterInitials a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Initials of the engineer who set or verified this value. Part of the PE-stamp audit trail. Applies to any CIMBOLOGY-KG data regardless of source tool."@en ;
+    rdfs:label "Provenance Setter" .
+
+cimbology:provenanceDate a owl:DatatypeProperty ;
+    rdfs:range xsd:date ;
+    rdfs:comment "Date when this value was set or last verified. Applies to any CIMBOLOGY-KG data regardless of source tool."@en ;
+    rdfs:label "Provenance Date" .

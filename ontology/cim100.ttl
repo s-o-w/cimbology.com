@@ -1,0 +1,16 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix owl: <http://www.w3.org/2002/07/owl#>.
+@prefix dcterms: <http://purl.org/dc/terms/>.
+@prefix cim: <http://iec.ch/TC57/CIM100#>.
+@prefix cimdoc: <https://cimbology.com/ontology/cimdoc#>.
+
+<https://cimbology.com/ontology/cim100.ttl> dcterms:description "Umbrella ontology importing both IEC 61970 and IEC 61968 CIM100 modules generated from dotTC57."@en;
+                                            dcterms:license <https://opensource.org/licenses/MIT>;
+                                            dcterms:source <https://github.com/s-o-w/dotTC57>;
+                                            a owl:Ontology;
+                                            rdfs:label "IEC TC57 CIM100 Full Ontology (dotTC57)"@en;
+                                            owl:imports <https://cimbology.com/ontology/iec61970.ttl>,
+                                                        <https://cimbology.com/ontology/iec61968.ttl>;
+                                            owl:versionInfo "1.0.0+git.b72346e".
