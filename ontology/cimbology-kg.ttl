@@ -1084,7 +1084,7 @@ cimbology:PointGeometry a rdfs:Class ;
 #     IFC 4.3 has relevant classes (IfcCableSegment, IfcProtectiveDevice,
 #     IfcTransformer). However, CIMBOLOGY-KG already handles IFC mappings in a
 #     separate file (cimbology-kg-ifc.ttl). Distribution IFC mappings should follow
-#     the same pattern in a future tdif-ifc-lens.ttl. Mixing IFC concerns
+#     the same pattern in a future distribution-ifc-lens.ttl. Mixing IFC concerns
 #     into the domain ontology would violate the domain-vs-lens separation.
 #
 #   IEEE 1547 (DER Interconnection):

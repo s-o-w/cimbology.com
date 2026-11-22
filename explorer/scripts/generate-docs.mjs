@@ -30,10 +30,11 @@ const XSD_NS = 'http://www.w3.org/2001/XMLSchema#';
 // 0. Copy local mermaid bundle for zero-CDN offline rendering
 const mermaidSrc = path.join(explorerDir, 'node_modules/mermaid/dist/mermaid.min.js');
 const mermaidDest = path.join(explorerDir, 'public/vendor/mermaid.min.js');
-if (fs.existsSync(mermaidSrc)) {
-  fs.mkdirSync(path.dirname(mermaidDest), { recursive: true });
-  fs.copyFileSync(mermaidSrc, mermaidDest);
+if (!fs.existsSync(mermaidSrc)) {
+  throw new Error(`Expected mermaid bundle not found at ${mermaidSrc}. Run npm ci first.`);
 }
+fs.mkdirSync(path.dirname(mermaidDest), { recursive: true });
+fs.copyFileSync(mermaidSrc, mermaidDest);
 
 // 1. Load CIM model JSON
 const model = JSON.parse(fs.readFileSync(path.join(ontologyDir, 'cim-model.json'), 'utf8'));
@@ -371,12 +372,23 @@ Additional machine-readable artifacts: [\`cim-model.json\`](/ontology/cim-model.
 `;
 writeDoc('index.md', landingMd);
 
-// 4b. Standard overview pages (IEC61970 & IEC61968)
+// 4b. Standard overview pages (IEC61970 & IEC61968 — includes root-package version types)
 for (const std of ['IEC61970', 'IEC61968']) {
   const stdPkgs = model.packages.filter((p) => p.standard === std).sort((a, b) => a.id.localeCompare(b.id));
+  const subPkgs = stdPkgs.filter((p) => p.id !== std);
+  const rootPkg = stdPkgs.find((p) => p.id === std);
   const stdTypes = model.types.filter((t) => t.standard === std);
   const title = std === 'IEC61970' ? 'IEC 61970 — Transmission & EMS' : 'IEC 61968 — Distribution & Enterprise Assets';
-  const rows = stdPkgs
+
+  const rootTypesSection = rootPkg
+    ? `\n## Root Package Types (\`${rootPkg.id}\`)\n\n| Type | Kind | Description |\n|---|---|---|\n${rootPkg.types
+        .map((n) => typesByName.get(n))
+        .filter(Boolean)
+        .map((t) => `| [\`${t.name}\`](${cimTypeHref(t.name)}) | ${kindLabel(t.kind)} | ${escMdCell(truncate(t.summary, 140))} |`)
+        .join('\n')}\n`
+    : '';
+
+  const rows = subPkgs
     .map((p) => `| [\`${p.id}\`](${pkgHref(p.id)}) | ${tierBadge(p.tier)} | ${p.typeCount} |`)
     .join('\n');
 
@@ -388,8 +400,8 @@ description: ${yamlStr(`Browse all ${stdPkgs.length} packages and ${stdTypes.len
 - **Total types:** ${stdTypes.length} (${stdTypes.filter((t) => t.kind !== 'enum').length} classes/datatypes, ${stdTypes.filter((t) => t.kind === 'enum').length} enums)
 - **Packages:** ${stdPkgs.length} (${stdPkgs.filter((p) => p.tier === 'Normative').length} Normative, ${stdPkgs.filter((p) => p.tier === 'Informative').length} Informative)
 - **Downloads:** [\`${std.toLowerCase()}.ttl\`](/ontology/${std.toLowerCase()}.ttl) · [\`${std.toLowerCase()}.owl\`](/ontology/${std.toLowerCase()}.owl) · [\`${std.toLowerCase()}.jsonld\`](/ontology/${std.toLowerCase()}.jsonld)
-
-## Packages
+${rootTypesSection}
+## Packages (${subPkgs.length})
 
 | Package | Tier | Types |
 |---|---|---|
@@ -398,8 +410,9 @@ ${rows}
   writeDoc(`${std.toLowerCase()}/index.md`, md);
 }
 
-// 4c. All 77 CIM package index pages
+// 4c. Sub-package index pages (root IEC61970 / IEC61968 packages are rendered on Standard Overview pages above)
 for (const pkg of model.packages) {
+  if (pkg.id === 'IEC61970' || pkg.id === 'IEC61968') continue;
   const pkgTypes = pkg.types.map((n) => typesByName.get(n)).filter(Boolean);
   const rows = pkgTypes
     .map(
@@ -529,6 +542,10 @@ sidebar:
 
     // Semantic snippets
     const baseSub = t.baseType ? ` ;\n    rdfs:subClassOf cim:${t.baseType}` : '';
+    const isIdentified = t.name === 'IdentifiedObject' || t.ancestors.includes('IdentifiedObject');
+    const jsonLdLines = isIdentified
+      ? `{\n  "@id": "urn:uuid:00000000-0000-0000-0000-000000000000",\n  "@type": "${t.iri}",\n  "cim:IdentifiedObject.name": "Example ${t.name}"\n}`
+      : `{\n  "@id": "urn:uuid:00000000-0000-0000-0000-000000000000",\n  "@type": "${t.iri}"\n}`;
     parts.push(`## Semantic Web Snippets
 
 \`\`\`turtle
@@ -540,11 +557,7 @@ cim:${t.name} a owl:Class${baseSub} .
 \`\`\`
 
 \`\`\`json
-{
-  "@id": "urn:uuid:00000000-0000-0000-0000-000000000000",
-  "@type": "${t.iri}",
-  "cim:IdentifiedObject.name": "Example ${t.name}"
-}
+${jsonLdLines}
 \`\`\``);
   } else if (t.kind === 'enum') {
     const vals = t.enumValues ?? [];
@@ -651,32 +664,57 @@ ${kgClassRows}
 );
 
 // Individual CIMBOLOGY-KG class pages (41)
+function kgMermaidNode(uri) {
+  if (uri.startsWith(CIMBOLOGY_NS)) {
+    const n = uri.slice(CIMBOLOGY_NS.length);
+    return { id: `cimbology_${mermaidId(n)}`, label: `cimbology:${n}` };
+  }
+  if (uri.startsWith(CIM_NS)) {
+    const n = uri.slice(CIM_NS.length);
+    return { id: `cim_${mermaidId(n)}`, label: `cim:${n}` };
+  }
+  const n = localName(uri);
+  return { id: mermaidId(n), label: shortTerm(uri) };
+}
+
 for (const c of kgClasses) {
-  const ancestors = getKgAncestorsCycleSafe(c.uri);
+  const ancestors = [...getKgAncestorsCycleSafe(c.uri)].reverse();
   const directSubs = (kgSubclasses.get(c.uri) ?? []).sort();
   const classObjProps = kgObjectProps.filter((p) => p.domains.includes(c.uri));
   const classDtProps = domainScopedDt.filter((p) => p.domains.includes(c.uri));
 
   const mLines = ['classDiagram'];
+  const mNodes = new Map();
   const mEdges = new Set();
+  const ensureNode = (uri) => {
+    const info = kgMermaidNode(uri);
+    if (!mNodes.has(info.id)) {
+      mNodes.set(info.id, info.label);
+      mLines.push(`  class ${info.id}["${info.label}"]`);
+    }
+    return info.id;
+  };
   const addMEdge = (l) => {
     if (!mEdges.has(l)) {
       mEdges.add(l);
       mLines.push(`  ${l}`);
     }
   };
+  const selfId = ensureNode(c.uri);
   for (const p of c.parents) {
-    addMEdge(`${mermaidId(c.name)} --|> ${mermaidId(localName(p))}`);
+    const parentId = ensureNode(p);
+    addMEdge(`${selfId} --|> ${parentId}`);
   }
   for (const sub of directSubs.slice(0, 15)) {
-    addMEdge(`${mermaidId(sub)} --|> ${mermaidId(c.name)}`);
+    const subId = ensureNode(`${CIMBOLOGY_NS}${sub}`);
+    addMEdge(`${subId} --|> ${selfId}`);
   }
   for (const op of classObjProps.slice(0, 15)) {
     for (const r of op.ranges) {
-      addMEdge(`${mermaidId(c.name)} --> ${mermaidId(localName(r))} : ${op.name}`);
+      const rangeId = ensureNode(r);
+      addMEdge(`${selfId} --> ${rangeId} : ${op.name}`);
     }
   }
-  if (mEdges.size === 0) mLines.push(`  class ${mermaidId(c.name)}`);
 
   const sections = [];
   sections.push(`---
@@ -703,7 +741,7 @@ sidebar:
   let relLines = [];
   relLines.push(`- **Direct Superclass(es):** ${c.parents.length > 0 ? c.parents.map((p) => linkForUri(p, kgClassSet)).join(', ') : 'None'}`);
   if (ancestors.length > 0) {
-    relLines.push(`- **Ancestor Chain:** ${ancestors.map((a) => linkForUri(a, kgClassSet)).join(' → ')}`);
+    relLines.push(`- **Hierarchy:** ${[...ancestors.map((a) => linkForUri(a, kgClassSet)), `**\`cimbology:${c.name}\`**`].join(' → ')}`);
   }
   relLines.push(`- **Direct Subclasses:** ${directSubs.length > 0 ? directSubs.map((s) => `[\`cimbology:${s}\`](${kgClassHref(s)})`).join(', ') : 'None'}`);
   if (c.seeAlso.length > 0) {

@@ -95,6 +95,37 @@ if (brokenLinks.size > 30) {
   errors.push(`... and ${brokenLinks.size - 30} additional broken links`);
 }
 
+// 4. Verify Standard Overview pages were not clobbered & have no duplicate sidebar hrefs or Mermaid self-loops
+for (const [stdPath, expectedText] of [
+  ['iec61970/index.html', 'IEC61970.Base.Wires'],
+  ['iec61968/index.html', 'IEC61968.AssetInfo'],
+]) {
+  const html = fs.readFileSync(path.join(distDir, stdPath), 'utf8');
+  if (!html.includes(expectedText)) {
+    errors.push(`Standard overview page ${stdPath} missing expected package table entry '${expectedText}'`);
+  }
+}
+
+const indexHtml = fs.readFileSync(path.join(distDir, 'index.html'), 'utf8');
+const sidebarMatch = indexHtml.match(/<nav[^>]*aria-label="Main"[\s\S]*?<\/nav>/i);
+if (sidebarMatch) {
+  const sidebarHrefs = [...sidebarMatch[0].matchAll(/href="([^"]+)"/g)].map((m) => m[1]);
+  const seen = new Set();
+  for (const h of sidebarHrefs) {
+    if (seen.has(h)) errors.push(`Duplicate sidebar link detected: ${h}`);
+    seen.add(h);
+  }
+}
+
+const mermaidSelfLoopRe = /\b([A-Za-z0-9_]+)\s+--\|>\s+\1\b/;
+for (const file of htmlFiles) {
+  const html = fs.readFileSync(file, 'utf8');
+  const preMatch = html.match(/<pre class="mermaid">([\s\S]*?)<\/pre>/);
+  if (preMatch && mermaidSelfLoopRe.test(preMatch[1])) {
+    errors.push(`Mermaid self-inheritance loop detected in ${path.relative(distDir, file)}`);
+  }
+}
+
 if (errors.length > 0) {
   console.error(`Explorer verification FAILED (${errors.length} error(s)):`);
   for (const e of errors) console.error(`  - ${e}`);

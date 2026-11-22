@@ -14,7 +14,7 @@ function pkgSlug(pkgId) {
 
 function buildStandardSidebar(standard) {
   const pkgs = model.packages
-    .filter((p) => p.standard === standard)
+    .filter((p) => p.standard === standard && p.id !== standard)
     .sort((a, b) => a.id.localeCompare(b.id));
 
   // Group packages by second segment (e.g. Base, Dynamics, InfIEC61970, AssetInfo, Common...)
