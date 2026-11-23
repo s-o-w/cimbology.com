@@ -45,12 +45,12 @@ To avoid toy demos, I purchased a 2025 Professional Engineering (PE) practice ex
 
 ## Measured Results
 
-| # | Approach | Model / Stack | Accuracy | Citation Traceability | Verdict |
+| # | Approach | Retrieval / Stack | Accuracy | Citation Traceability | Verdict |
 |---|---|---|---|---|---|
-| 1 | **Baseline LLM (No RAG)** | GPT-5-Mini (zero context) | **77.27%** | None | Confident black box; unusable for safety-critical engineering |
-| 2 | **Naive RAG** | Page-level embeddings + vector search (Gemini 2.5 Pro) | **53.03%** | None | 24 points worse than no RAG; actively harmful |
-| 3 | **Advanced RAG** | Layout-aware chunking + table extraction + multimodal descriptions (GPT-5-Mini) | **83.33%** | Partial | Proved context quality dominates model size (+30 points over Naive RAG) |
-| 4 | **CIM GraphRAG** | Advanced RAG + GraphDB CIM knowledge graph reasoning (GPT-5-Mini) | **84.85%** | **Full** | Highest accuracy plus verifiable graph and document citations |
+| 1 | **Baseline LLM (No RAG)** | Zero external context | **77.27%** | None | Confident black box; unusable for safety-critical engineering |
+| 2 | **Naive RAG** | Page-level embeddings + vector search | **53.03%** | None | 24 points worse than no RAG; actively harmful |
+| 3 | **Advanced RAG** | Layout-aware chunking + table extraction + multimodal descriptions | **83.33%** | Partial | Proved context quality dominates retrieval accuracy (+30 points over Naive RAG) |
+| 4 | **CIM GraphRAG** | Advanced RAG + GraphDB CIM knowledge graph reasoning | **84.85%** | **Full** | Highest accuracy plus verifiable graph and document citations |
 
 ## Core Research Findings
 
