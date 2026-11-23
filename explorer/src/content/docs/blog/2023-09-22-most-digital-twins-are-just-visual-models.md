@@ -30,4 +30,4 @@ If a system misses those four criteria, call it what it is: a visual representat
 
 ## Why Semantics Come Before 3D
 
-Building a visual model is a graphics problem. Building a true digital twin is a **data architecture** problem. Until equipment identity, electrical topology, ratings, and telemetry share a governed semantic substrate (like [IEC CIM](/cim/) and [CIMBOLOGY-KG](/research/cimbology-kg/)), every 3D model starts decaying into a stale snapshot the day after commissioning.
+Building a visual model is a graphics problem. Building a true digital twin is a **data architecture** problem. Until equipment identity, electrical topology, ratings, and telemetry share a governed semantic substrate (like [IEC CIM](/cim/) and the [CIMBOLOGY Graph approach](/research/cimbology-graph/)), every 3D model starts decaying into a stale snapshot the day after commissioning.

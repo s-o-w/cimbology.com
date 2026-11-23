@@ -8,7 +8,7 @@ tags:
   - data-first
   - knowledge-graphs
   - utility-design
-  - cimbology-kg
+  - cimbology-graph
 excerpt: "Ask a substation general arrangement drawing which breaker protects which transformer. The file has no idea, because tool-native formats encode coordinates and pixels rather than electrical meaning."
 ---
 
@@ -40,4 +40,4 @@ The fix is capturing the station **data-first** (or in parallel with views for f
 - **Placement carried per instance**, keeping 3D physical layout bound directly to electrical identity.
 - **Executable validation rules (W3C SHACL)** traveling alongside the graph, so any receiver verifies compliance against a published profile without repeating manual checks.
 
-That is the architecture behind [CIMBOLOGY-KG](/research/cimbology-kg/) and the hosted [CIM100 ontologies](/cim/).
+That is the architecture behind [CIMBOLOGY Graph](/research/cimbology-graph/) and the hosted [CIM100 ontologies](/cim/).

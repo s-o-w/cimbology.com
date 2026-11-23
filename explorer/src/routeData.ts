@@ -25,7 +25,7 @@ export const onRequest = defineRouteMiddleware(async (context, next) => {
   if (isBlog) {
     // Keep starlight-blog's own focused sidebar; add mobile-only switchers to other spaces.
     starlightRoute.sidebar.unshift(
-      makeMobileSpaceLink('Research', '/research/cimbology-kg/'),
+      makeMobileSpaceLink('Research', '/research/cimbology-graph/'),
       makeMobileSpaceLink('CIM100 Explorer', '/cim/'),
       makeMobileSpaceLink('About', '/about/'),
     );
@@ -45,7 +45,7 @@ export const onRequest = defineRouteMiddleware(async (context, next) => {
       cimGroup && cimGroup.type === 'group' ? [...cimGroup.entries] : [];
 
     starlightRoute.sidebar = [
-      makeMobileSpaceLink('Research', '/research/cimbology-kg/'),
+      makeMobileSpaceLink('Research', '/research/cimbology-graph/'),
       makeMobileSpaceLink('Blog', '/blog/'),
       makeMobileSpaceLink('About', '/about/'),
       ...cimEntries,

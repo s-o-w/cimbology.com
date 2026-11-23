@@ -52,4 +52,4 @@ That argument from 2022 and 2023 drove everything built on this site since:
 
 - **[`dotTC57`](/research/dottc57/):** Started as a 2023 prototype parsing an XML/RDF CIM substation bay into an SVG single-line diagram, then published open-source (MIT) in July 2025 as a full .NET object model and `.NET 10` OWL 2 ontology generator covering all `1,414` IEC 61970 and IEC 61968 types.
 - **[Hosted CIM100 OWL 2 Ontologies & Explorer](/cim/):** Making the full IEC 61970 and IEC 61968 model browsable and downloadable in Turtle, RDF/XML, and JSON-LD so developers can inspect and consume CIM directly.
-- **[CIMBOLOGY-KG](/research/cimbology-kg/):** Extending canonical `cim:` terms only where IEC CIM genuinely stops, using external RDF lenses so tool-specific vocabularies never pollute the shared graph.
+- **[CIMBOLOGY Graph](/research/cimbology-graph/):** Extending canonical `cim:` terms only where IEC CIM genuinely stops, using external RDF lenses so tool-specific vocabularies never pollute the shared graph.

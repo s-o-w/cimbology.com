@@ -55,4 +55,4 @@ Three takeaways came straight out of those numbers:
 2. **Context structure beats model size.** A smaller model fed layout-aware retrieval and structured graph relationships beat a flagship model running naive RAG by more than 30 percentage points.
 3. **Reconstructing structure from finished PDFs is still treating the symptom.** The real fix is capturing substation and grid design data as a validated IEC CIM knowledge graph from day one, so engineers and AI tools query governed facts directly instead of parsing dead documents.
 
-Full benchmark architecture and results are documented under [CIMBOLOGY GraphRAG Research](/research/cimbology-graphrag/), and the resulting open design substrate lives in [CIMBOLOGY-KG](/research/cimbology-kg/).
+Full benchmark architecture and results are documented under [CIMBOLOGY GraphRAG Research](/research/cimbology-graphrag/), and the resulting open graph architecture lives in [CIMBOLOGY Graph](/research/cimbology-graph/).

@@ -15,7 +15,7 @@ const requiredFiles = [
   'blog/index.html',
   'blog/rss.xml',
   'research/timeline/index.html',
-  'research/cimbology-kg/index.html',
+  'research/cimbology-graph/index.html',
   'research/why-cim-matters/index.html',
   'research/cimbology-graphrag/index.html',
   'research/dottc57/index.html',
@@ -41,8 +41,8 @@ for (const rel of requiredFiles) {
   }
 }
 
-if (fs.existsSync(path.join(distDir, 'cim/cimbology-kg'))) {
-  errors.push('Forbidden extension explorer directory dist/cim/cimbology-kg/ should not exist');
+if (fs.existsSync(path.join(distDir, 'cim/cimbology-kg')) || fs.existsSync(path.join(distDir, 'research/cimbology-kg'))) {
+  errors.push('Forbidden cimbology-kg directory should not exist in dist/');
 }
 
 // 2. Check Pagefind index presence

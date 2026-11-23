@@ -9,7 +9,7 @@ tags:
   - rdf
   - sparql
   - graphdb
-  - cimbology-kg
+  - cimbology-graph
 excerpt: "Relational databases work great for utility billing, and hit a wall on electrical topology and engineering reasoning. Why IEC CIM belongs in native RDF graphs and triplestores."
 ---
 
@@ -41,4 +41,4 @@ Building on native RDF triplestores instead of forcing CIM into SQL tables deliv
 
 Enterprise engineering environments are messy, so a graph alone does not replace everything. Structured equipment, ratings, and topology belong in the RDF knowledge graph; unstructured standards PDFs, specifications, and tables belong in a layout-aware vector index (such as **Qdrant**); and business applications integrate cleanly through typed **.NET** services and **JSON-LD** exchange contracts.
 
-That hybrid pattern is what drove both the [CIMBOLOGY GraphRAG PE exam benchmark](/research/cimbology-graphrag/) (`84.85%` accuracy with full citation traceability) and the open semantic architecture published in [CIMBOLOGY-KG](/research/cimbology-kg/).
+That hybrid pattern is what drove both the [CIMBOLOGY GraphRAG PE exam benchmark](/research/cimbology-graphrag/) (`84.85%` accuracy with full citation traceability) and the open semantic architecture published under [CIMBOLOGY Graph](/research/cimbology-graph/).

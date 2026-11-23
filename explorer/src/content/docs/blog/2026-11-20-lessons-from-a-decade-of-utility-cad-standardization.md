@@ -8,11 +8,11 @@ tags:
   - digital-twins
   - cad
   - sdsic
-  - cimbology-kg
+  - cimbology-graph
 excerpt: "Synthesizing ten years of transmission and substation design standardization, rules-based Vault validation, and early Forge digital twins (2011 to 2021), and why file-centric systems hit a hard ceiling."
 ---
 
-Before IEC CIM ontologies, before GraphRAG, and before JSON-LD, the path to **CIMBOLOGY-KG** started inside a ten-year effort to standardize transmission and substation design across four utility operating companies, more than 3,000 active system users, and 300+ engineers, designers, and drafters.
+Before IEC CIM ontologies, before GraphRAG, and before JSON-LD, the path to the **CIMBOLOGY Graph** approach started inside a ten-year effort to standardize transmission and substation design across four utility operating companies, more than 3,000 active system users, and 300+ engineers, designers, and drafters.
 
 In October 2020, I documented that journey in a five-part LinkedIn article series titled *From There to Here*, following an earlier March 2019 article (*Requirements by User - NOT by Proxy*). In early 2021, while chairing the **SDSIC Technology Group**, I recorded a twelve-video YouTube playlist ([*SDS Technology Group*](https://youtube.com/playlist?list=PLDuw0ZskB4gwFWRTrBoOlq4TN8YYNZLGp)) and presented two **Autodesk University 2021** classes showing what those systems looked like in production.
 
@@ -41,7 +41,7 @@ Two survival rules emerged the hard way:
 
 In February 2021, I published a short demo of a C# Autodesk Vault add-in called [*Notification Of Property Error*](https://youtu.be/kyYHQeZjGi4). Rather than relying on reviewers to catch missing metadata by eye, the add-in called a web service backed by database-editable validation rules and blocked lifecycle transitions until required properties passed, returning clear, actionable error messages.
 
-That 2021 pattern is the direct ancestor of **W3C SHACL validation profiles** in [CIMBOLOGY-KG](/research/cimbology-kg/). The medium upgraded from proprietary Vault properties to open RDF graphs, while the engineering principle stayed identical: enforce data completeness and rules automatically at the model boundary.
+That 2021 pattern is the direct ancestor of **W3C SHACL validation profiles** in the [CIMBOLOGY Graph architecture](/research/cimbology-graph/). The medium upgraded from proprietary Vault properties to open RDF graphs, while the engineering principle stayed identical: enforce data completeness and rules automatically at the model boundary.
 
 ## 5. 3D Scans and Browser Digital Twins Expose the File Ceiling
 

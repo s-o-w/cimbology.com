@@ -1,6 +1,6 @@
 ---
-title: Research Timeline
-description: How twenty-plus years of field layout, utility design systems, early digital twins, IEC CIM advocacy, dotTC57, GraphRAG, and CIMBOLOGY-KG evolved into a data-first graph architecture.
+title: Timeline
+description: How twenty-plus years of field layout, utility design systems, early digital twins, IEC CIM advocacy, dotTC57, GraphRAG, and the CIMBOLOGY Graph approach evolved into a data-first architecture.
 ---
 
 The ideas behind **cimbology.com** did not start with generative AI or a single software framework. They grew out of more than twenty years of field layout, utility design systems architecture, early digital twins, standards committee work, and open-source software development. Every phase pushed toward the same goal: making electrical infrastructure data-first and grounded in IEC CIM.
@@ -62,9 +62,9 @@ Testing four retrieval architectures against 66 questions from a 2025 Profession
 | Advanced RAG (layout-aware chunking + tables + multimodal) | 83.33% | Partial |
 | **CIM GraphRAG (GraphDB + Qdrant + Semantic Kernel)** | **84.85%** | **Full** |
 
-## 2026: CIMBOLOGY-KG Architecture and Open Hosted CIM100 Ontologies
+## 2026: CIMBOLOGY Graph Architecture and Open Hosted CIM100 Ontologies
 
-In 2026, the work expanded into the **[CIMBOLOGY-KG architecture](/research/cimbology-kg/)**: an open, platform-agnostic semantic design framework built directly on W3C standards (OWL 2, Turtle, JSON-LD, SHACL, SPARQL, and named graphs). Moving from RDF/XML to Turtle for ontology authoring and JSON-LD for instance exchange solved the last web-integration friction: once JSON-LD entered the picture, everything clicked into place.
+In 2026, the work expanded into the **[CIMBOLOGY Graph approach](/research/cimbology-graph/)**: an open, platform-agnostic semantic design architecture built directly on W3C standards (OWL 2, Turtle, JSON-LD, SHACL, SPARQL, and named graphs). Moving from RDF/XML to Turtle for ontology authoring and JSON-LD for instance exchange solved the last web-integration friction: once JSON-LD entered the picture, everything clicked into place.
 
 Current open artifacts hosted directly on this site:
 

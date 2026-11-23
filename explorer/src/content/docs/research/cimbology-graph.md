@@ -1,9 +1,9 @@
 ---
-title: CIMBOLOGY-KG Architecture
-description: An open, tool-agnostic semantic architecture for electrical infrastructure grounded in IEC CIM, minimal design-stage extensions, W3C SHACL validation, RDF tool lenses, and JSON-LD.
+title: CIMBOLOGY Graph Architecture
+description: An open, tool-agnostic semantic graph approach for electrical infrastructure grounded in IEC CIM, minimal design-stage extensions, W3C SHACL validation, RDF tool lenses, and JSON-LD.
 ---
 
-**CIMBOLOGY-KG** is a data-first, CIM-grounded semantic architecture for electrical infrastructure. It describes what a substation or distribution network IS (its electrical topology, equipment, physical structures, and relationships) using open W3C semantic web standards. Authoring tools, utilities, and analysis pipelines conform to that contract; the data model does not bend around individual vendor limitations.
+**CIMBOLOGY Graph** is a data-first, CIM-grounded semantic approach and reference architecture for electrical infrastructure. It is an architectural approach, not a software product: it describes what a substation or distribution network IS (its electrical topology, equipment, physical structures, and relationships) using open W3C semantic web standards. Authoring tools, utilities, and analysis pipelines conform to that contract; the data model does not bend around individual vendor limitations.
 
 *Scope note: This site publishes the complete, unmodified [IEC 61970 and IEC 61968 (CIM100) OWL 2 ontologies](/cim/) and documents the architectural pattern needed to bridge CIM into physical design workflows. It intentionally does not publish a prescribed extension ontology.*
 

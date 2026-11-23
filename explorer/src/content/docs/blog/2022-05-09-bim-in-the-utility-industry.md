@@ -11,7 +11,7 @@ tags:
 excerpt: "Originally published on LinkedIn in May 2022. Why construction crews only need drawings on a truck hood, while utilities as 24/7 owners and operators need accurate, queryable asset data."
 ---
 
-*Originally published as a LinkedIn article on May 9, 2022. Archived here lightly edited for web formatting, with a short 2026 note at the bottom showing how this argument led directly to IEC CIM and CIMBOLOGY-KG.*
+*Originally published as a LinkedIn article on May 9, 2022. Archived here lightly edited for web formatting, with a short 2026 note at the bottom showing how this argument led directly to IEC CIM and the CIMBOLOGY Graph approach.*
 
 In my opinion, BIM is a sort of nebulous topic for us in the utility industry. We can see the benefits that our peers in the AEC space are gaining, but we aren't quite sure how to get there from our side. Some of that comes down to how the utility industry operates versus how the AEC industry operates. I also think vendors creating these tools need some education on how utilities actually work. Armed with that information, perhaps we can start seeing tools tailored to the specific needs of our industry.
 
@@ -51,4 +51,4 @@ We also need software vendors who actually understand how utility engineering wo
 
 ### 2026 Note
 
-Re-reading this four years later, the problem statement has not moved an inch. What changed was discovering the exact data layer that fills the gap I was describing here: the **IEC Common Information Model (IEC 61970 / IEC 61968)** expressed as an open RDF/OWL knowledge graph. Instead of hoping one CAD or BIM vendor builds an all-in-one utility tool, the asset data itself becomes an open semantic graph ([CIMBOLOGY-KG](/research/cimbology-kg/)) grounded in [IEC CIM](/cim/), and every CAD, BIM, GIS, and operations tool reads and writes against that shared contract.
+Re-reading this four years later, the problem statement has not moved an inch. What changed was discovering the exact data layer that fills the gap I was describing here: the **IEC Common Information Model (IEC 61970 / IEC 61968)** expressed as an open RDF/OWL knowledge graph. Instead of hoping one CAD or BIM vendor builds an all-in-one utility tool, the asset data itself becomes an open semantic graph ([CIMBOLOGY Graph](/research/cimbology-graph/)) grounded in [IEC CIM](/cim/), and every CAD, BIM, GIS, and operations tool reads and writes against that shared contract.

@@ -65,7 +65,7 @@ jobs:
             "_site/blog/index.html" \
             "_site/blog/rss.xml" \
             "_site/research/timeline/index.html" \
-            "_site/research/cimbology-kg/index.html" \
+            "_site/research/cimbology-graph/index.html" \
             "_site/research/why-cim-matters/index.html" \
             "_site/research/cimbology-graphrag/index.html" \
             "_site/research/dottc57/index.html" \

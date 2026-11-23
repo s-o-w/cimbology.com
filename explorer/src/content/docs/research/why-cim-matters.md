@@ -18,7 +18,7 @@ CIM is a software model, not an electrical design handbook. That distinction exp
 
 ## What CIM Is Not
 
-CIM does not tell you how to draw a single-line diagram, where a steel A-frame sits in a substation yard, or what bolts hold a bus support onto a concrete pad. CIM defines *what an electrical object is* and *how it connects to other objects*. Physical placement, construction hardware, and tool-specific translation belong in clean extensions and lenses layered on top of CIM, as outlined in the [CIMBOLOGY-KG architecture](/research/cimbology-kg/).
+CIM does not tell you how to draw a single-line diagram, where a steel A-frame sits in a substation yard, or what bolts hold a bus support onto a concrete pad. CIM defines *what an electrical object is* and *how it connects to other objects*. Physical placement, construction hardware, and tool-specific translation belong in clean extensions and lenses layered on top of CIM, as outlined in the [CIMBOLOGY Graph architecture](/research/cimbology-graph/).
 
 ## Coverage From Generator to Meter
 
@@ -44,4 +44,4 @@ Operations teams adopted CIM years ago for EMS, SCADA, and market exchange. In E
 
 Design teams stayed in CAD and BIM tools. When utilities needed CIM data downstream, someone bolted a partial, error-prone CIM export onto the end of a project. The full CIM surface area looked intimidating, and traditional profiling workflows forced teams to hand-pick rigid subsets up front.
 
-That is a tooling and productization failure, not a modeling failure. Publishing the complete IEC 61970 and IEC 61968 model as open OWL 2 ontologies alongside [`dotTC57`](/research/dottc57/) and [CIMBOLOGY-KG](/research/cimbology-kg/) brings CIM directly into design-time workflows from day one.
+That is a tooling and productization failure, not a modeling failure. Publishing the complete IEC 61970 and IEC 61968 model as open OWL 2 ontologies alongside [`dotTC57`](/research/dottc57/) and the [CIMBOLOGY Graph architecture](/research/cimbology-graph/) brings CIM directly into design-time workflows from day one.
