@@ -5,6 +5,9 @@ description: Empirical research evaluating whether combining an IEC CIM knowledg
 
 Between 2024 and 2025, I built **Cimbology** as an independent research prototype to test one concrete hypothesis: can combining an IEC CIM-grounded Knowledge Graph with layout-aware Retrieval-Augmented Generation (GraphRAG) outperform both baseline LLMs and vector-only RAG on real electrical engineering questions while providing full citation traceability?
 
+- **Recorded Demos:** [*Cimbology Demo: The AI "Digital Senior Engineer"*](https://youtu.be/UzrtFiLiV44) (Oct 2, 2025) and [*Cimbology Research Demo*](https://youtu.be/c83Repi2ni8) (Nov 20, 2025)
+- **Background Writing:** [*Use RAG to Polish Your Chatbot*](https://energycentral.com/o/power-engineers-environmental/use-rag-polish-your-chatbot) (EnergyCentral, Dec 2023), [*Building a Better Generative AI with Knowledge Graphs*](https://energycentral.com/o/power-engineers/building-better-generative-ai%E2%80%94how-knowledge-graphs-will-improve-our-rag-powered) (EnergyCentral, Dec 2024), and [From Vector RAG to Knowledge Graphs](/blog/2025-11-20-from-vector-rag-to-knowledge-graphs/)
+
 ## The Retiring Expert Problem
 
 Utilities and engineering firms lose decades of institutional knowledge every time senior physical designers and protection-and-control engineers retire. Those teams leave behind thousands of PDFs, specifications, standards, and drawings in SharePoint, ProjectWise, Autodesk Vault, and file shares. Document management systems preserve files, but they do not preserve the semantic relationships needed to navigate and apply them accurately.

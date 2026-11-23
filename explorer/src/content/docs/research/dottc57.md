@@ -13,7 +13,7 @@ description: MIT-licensed .NET library and .NET 10 OWL 2 ontology generator for 
 
 ## Origin and Motivation
 
-The first code for `dotTC57` was written in a hotel room during a 2023 industry consortium meeting: a script that parsed an XML/RDF CIM substation bay sample and rendered an SVG single-line diagram from it.
+The first prototype behind `dotTC57` was written in a hotel room during a 2023 SDSIC consortium meeting: a script that parsed an XML/RDF CIM substation bay sample and rendered an SVG single-line diagram from it. In **July 2025**, that work became **`dotTC57`**, published under the MIT license on [GitHub](https://github.com/s-o-w/dotTC57) and [NuGet](https://www.nuget.org/packages/dotTC57), and expanded in **2026** with the `.NET 10` OWL 2 ontology generator.
 
 Building `dotTC57` solved two recurring problems with existing CIM tooling:
 
