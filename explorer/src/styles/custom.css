@@ -71,10 +71,8 @@ header.header {
 }
 
 .site-title img {
-  height: 2.35rem;
+  height: 2.5rem;
   width: auto;
-  border-radius: 50%;
-  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.35));
 }
 
 /* Sidebar active item & hover accents */

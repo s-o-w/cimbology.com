@@ -26,10 +26,28 @@
     };
   }
 
+  let mermaidLoadPromise = null;
+
+  function ensureMermaidLoaded() {
+    if (typeof window.mermaid !== 'undefined') return Promise.resolve();
+    if (mermaidLoadPromise) return mermaidLoadPromise;
+    mermaidLoadPromise = new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = '/vendor/mermaid.min.js';
+      script.async = true;
+      script.onload = () => resolve();
+      script.onerror = (err) => reject(err);
+      document.head.appendChild(script);
+    });
+    return mermaidLoadPromise;
+  }
+
   async function renderMermaid() {
-    if (typeof window.mermaid === 'undefined') return;
     const nodes = [...document.querySelectorAll('pre.mermaid')];
     if (nodes.length === 0) return;
+
+    await ensureMermaidLoaded();
+    if (typeof window.mermaid === 'undefined') return;
 
     for (const node of nodes) {
       if (!node.dataset.mermaidSrc) {

@@ -77,29 +77,50 @@ if (medianSize > 80 * 1024) {
   errors.push(`Median HTML page size ${(medianSize / 1024).toFixed(1)} KB exceeds 80 KB sidebar-bloat threshold`);
 }
 
-const hrefRe = /href="([^"]+)"/g;
+const attrUrlRe = /\b(?:href|src)="([^"]+)"/g;
 const brokenLinks = new Set();
+const htmlCache = new Map();
+
+function readCachedHtml(fullPath) {
+  if (!htmlCache.has(fullPath)) {
+    htmlCache.set(fullPath, fs.readFileSync(fullPath, 'utf8'));
+  }
+  return htmlCache.get(fullPath);
+}
 
 for (const file of htmlFiles) {
-  const html = fs.readFileSync(file, 'utf8');
+  const html = readCachedHtml(file);
   let m;
-  while ((m = hrefRe.exec(html)) !== null) {
-    const rawHref = m[1].split('#')[0].split('?')[0];
-    if (!rawHref || !rawHref.startsWith('/') || rawHref.startsWith('//')) continue;
+  while ((m = attrUrlRe.exec(html)) !== null) {
+    const fullAttr = m[1];
+    const [pathAndQuery, fragment] = fullAttr.split('#');
+    const rawPath = pathAndQuery.split('?')[0];
+    if (!rawPath || !rawPath.startsWith('/') || rawPath.startsWith('//')) continue;
 
-    if (rawHref.startsWith('/ontology/')) {
-      const rel = rawHref.slice('/ontology/'.length);
+    if (rawPath.startsWith('/ontology/')) {
+      const rel = rawPath.slice('/ontology/'.length);
       if (!fs.existsSync(path.join(ontologyDir, rel))) {
-        brokenLinks.add(`${path.relative(distDir, file)} -> ${rawHref}`);
+        brokenLinks.add(`${path.relative(distDir, file)} -> ${fullAttr}`);
       }
       continue;
     }
 
-    const rel = rawHref.slice(1);
+    const rel = rawPath.slice(1);
     const targetDirIndex = path.join(distDir, rel, 'index.html');
     const targetDirect = path.join(distDir, rel);
-    if (!fs.existsSync(targetDirIndex) && !fs.existsSync(targetDirect)) {
-      brokenLinks.add(`${path.relative(distDir, file)} -> ${rawHref}`);
+    let resolvedTarget = null;
+    if (fs.existsSync(targetDirIndex)) resolvedTarget = targetDirIndex;
+    else if (fs.existsSync(targetDirect)) resolvedTarget = targetDirect;
+    else {
+      brokenLinks.add(`${path.relative(distDir, file)} -> ${fullAttr}`);
+      continue;
+    }
+
+    if (fragment && fragment !== '_top' && resolvedTarget.endsWith('.html')) {
+      const targetHtml = readCachedHtml(resolvedTarget);
+      if (!targetHtml.includes(`id="${fragment}"`)) {
+        brokenLinks.add(`${path.relative(distDir, file)} -> ${fullAttr} (missing #${fragment})`);
+      }
     }
   }
 }
@@ -143,10 +164,11 @@ if (fs.existsSync(cimIndex)) {
 
 const mermaidSelfLoopRe = /\b([A-Za-z0-9_]+)\s+--\|>\s+\1\b/;
 for (const file of htmlFiles) {
-  const html = fs.readFileSync(file, 'utf8');
-  const preMatch = html.match(/<pre class="mermaid">([\s\S]*?)<\/pre>/);
-  if (preMatch && mermaidSelfLoopRe.test(preMatch[1])) {
-    errors.push(`Mermaid self-inheritance loop detected in ${path.relative(distDir, file)}`);
+  const html = readCachedHtml(file);
+  for (const preMatch of html.matchAll(/<pre class="mermaid">([\s\S]*?)<\/pre>/g)) {
+    if (mermaidSelfLoopRe.test(preMatch[1])) {
+      errors.push(`Mermaid self-inheritance loop detected in ${path.relative(distDir, file)}`);
+    }
   }
 }
 

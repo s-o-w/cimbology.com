@@ -66,7 +66,8 @@ export default defineConfig({
       description:
         'Independent research on IEC CIM-grounded knowledge graphs, semantic design substrates, OWL 2 ontologies, and verifiable AI for electrical infrastructure.',
       logo: {
-        src: './src/assets/CIMbologyLogo.png',
+        light: './src/assets/CimbologyLogo_transparent.png',
+        dark: './src/assets/CimbologyLogo_transparent_dark.png',
         alt: 'CIMBOLOGY',
       },
       pagefind: true,
@@ -118,13 +119,6 @@ export default defineConfig({
           tag: 'script',
           content:
             "window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-3F4ESRJQSQ');",
-        },
-        {
-          tag: 'script',
-          attrs: {
-            defer: true,
-            src: '/vendor/mermaid.min.js',
-          },
         },
         {
           tag: 'script',

@@ -34,7 +34,7 @@ Across the `1,414` top-level types exposed in the [CIM100 Explorer](/cim/), CIM 
 CIM packages split into two tiers:
 
 - **Normative packages** (`IEC61970.Base.*`, `IEC61968.Common`, `IEC61968.AssetInfo`) form the stable, mandatory core.
-- **Informative (`Inf`) packages** (`InfWork`, `InfAssetInfo`, `InfSIPS`, `InfOperations`, etc.) are approved, ratified parts of IEC CIM, but optional for compliant implementations and subject to greater version and vendor drift.
+- **Informative (`Inf`) packages** (`InfWork`, `InfAssetInfo`, `InfAssets`, `InfCustomers`, `InfSIPS`, etc.) are approved, ratified parts of IEC CIM, but optional for compliant implementations and subject to greater version and vendor drift.
 
 Every package and class in the [CIM100 Explorer](/cim/) displays its tier explicitly so architects know immediately whether a class sits in the normative core or an informative package.
 

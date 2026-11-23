@@ -82,6 +82,9 @@ jobs:
             "_site/cim/index.html" \
             "_site/cim/iec61970/base/wires/breaker/index.html" \
             "_site/cim/cimbology-kg/classes/foundation/index.html" \
+            "_site/imgs/headshot.jpg" \
+            "_site/imgs/dottc57.png" \
+            "_site/sitemap-index.xml" \
             "_site/pagefind/pagefind.js"; do
             if [ ! -f "$f" ]; then
               echo "MISSING required Pages artifact file: $f" >&2

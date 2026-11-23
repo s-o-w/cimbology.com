@@ -29,7 +29,7 @@ Instance datasets serialize as standard **JSON-LD** with a flat `@graph` array r
 - **Stable identity:** Every node carries `"@id": "urn:uuid:{guid}"` (mirrored into `cim:IdentifiedObject.mRID`), while human-readable labels live in `cim:IdentifiedObject.name`.
 - **Full-IRI typing:** `@type` references canonical `cim:` or `cimbology:` IRIs.
 - **Declaring-class property names:** Properties use CIM declaring-class qualification (`cim:ACDCTerminal.sequenceNumber`, `cim:PowerTransformerEnd.ratedU`, `cim:Switch.ratedCurrent`).
-- **SI base units on the wire:** Physical quantities serialize in SI base units (for example, 138 kV as `138000`).
+- **Explicit engineering units on the wire:** Physical quantities in CIM properties serialize in SI base units (for example, 138 kV as `138000` V and 40 kA as `40000` A). Extension properties that declare an explicit QUDT unit (such as `unit:KiloV` on `cimbology:bil`) serialize in that declared unit.
 - **First-class relations:** Generic physical, containment, mounting, protection, and clearance links serialize as `cimbology:Relation` nodes carrying `cimbology:source`, `cimbology:target`, and an open `cimbology:relationKind` discriminator.
 - **Named graphs for provenance:** Preserving JSON-LD named-graph boundaries keeps design revisions, field as-built updates, validation reports, and overlay metadata cleanly separated across the full asset lifecycle.
 
@@ -41,7 +41,7 @@ Instance datasets serialize as standard **JSON-LD** with a flat `@graph` array r
   "cim:IdentifiedObject.name": "CB-1",
   "cim:Switch.ratedCurrent": 2000,
   "cim:Switch.normalOpen": false,
-  "cim:ProtectedSwitch.breakingCapacity": 40,
+  "cim:ProtectedSwitch.breakingCapacity": 40000,
   "cimbology:bil": 650,
   "cimbology:hasAntiPump": true,
   "cimbology:hasTripSupervision": true,

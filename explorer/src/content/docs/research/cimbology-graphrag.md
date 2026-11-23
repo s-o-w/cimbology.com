@@ -47,11 +47,11 @@ To avoid toy demos, I purchased a 2025 Professional Engineering (PE) practice ex
 | 1 | **Baseline LLM (No RAG)** | GPT-5-Mini (zero context) | **77.27%** | None | Confident black box; unusable for safety-critical engineering |
 | 2 | **Naive RAG** | Page-level embeddings + vector search (Gemini 2.5 Pro) | **53.03%** | None | 24 points worse than no RAG; actively harmful |
 | 3 | **Advanced RAG** | Layout-aware chunking + table extraction + multimodal descriptions (GPT-5-Mini) | **83.33%** | Partial | Proved context quality dominates model size (+30 points over Naive RAG) |
-| 4 | **CIM GraphRAG** | Advanced RAG + GraphDB CIM knowledge graph reasoning | **84.85%** | **Full** | Highest accuracy plus verifiable graph and document citations |
+| 4 | **CIM GraphRAG** | Advanced RAG + GraphDB CIM knowledge graph reasoning (GPT-5-Mini) | **84.85%** | **Full** | Highest accuracy plus verifiable graph and document citations |
 
 ## Core Research Findings
 
 1. **Naive RAG is dangerous in engineering domains.** Dropping page chunks into a vector store degraded accuracy from 77.27% to 53.03%. Bad retrieval actively misleads the model.
 2. **Context quality beats model size.** Layout-aware parsing, table extraction, and multimodal figure descriptions added more than 30 percentage points over naive chunking.
 3. **Structure creates trust.** Layering the CIM knowledge graph delivered the highest score (84.85%) and turned opaque model output into traceable answers backed by explicit entities, relationships, and source citations.
-4. **Graphs belong at design time, not only at retrieval time.** Trying to reconstruct semantic structure from finished PDFs works, but capturing data as a CIM-grounded graph from the start is the real architectural fix. That conclusion directly drove [CIMBOLOGY-KG](/research/cimbology-kg/).
+4. **Graphs belong at design time.** Reconstructing semantic structure from finished PDFs works, but capturing data as a CIM-grounded graph from the start is the real architectural fix. That conclusion directly drove [CIMBOLOGY-KG](/research/cimbology-kg/).

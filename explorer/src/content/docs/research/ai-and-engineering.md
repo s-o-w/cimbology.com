@@ -35,7 +35,7 @@ The PE exam benchmark proved this with numbers:
 - Advanced RAG (layout-aware parsing, table extraction, multimodal figure descriptions): **83.33%**
 - CIM GraphRAG (Advanced RAG + structured CIM knowledge graph): **84.85%** with full citation traceability
 
-Same class of models, radically different context quality. Fixing upstream data structure delivers far more accuracy and reliability than waiting for a bigger model release.
+A smaller model with structured retrieval beat a flagship model running naive RAG by more than 30 percentage points. Fixing upstream data structure delivers far more accuracy and reliability than waiting for a bigger model release.
 
 ### 3. Acceleration, Not Abdication
 

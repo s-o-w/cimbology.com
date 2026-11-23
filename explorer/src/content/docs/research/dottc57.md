@@ -3,6 +3,8 @@ title: dotTC57 Open-Source Library
 description: MIT-licensed .NET library and .NET 10 OWL 2 ontology generator for the IEC 61970 and IEC 61968 Common Information Model (CIM100).
 ---
 
+<img src="/imgs/dottc57.png" alt="dotTC57 IEC 61970 / IEC 61968 library logo" width="220" style="background: #ffffff; border-radius: 10px; padding: 0.75rem; margin-bottom: 1rem;" />
+
 **`dotTC57`** is my MIT-licensed open-source .NET implementation of the IEC Technical Committee 57 (TC57) Common Information Model (IEC 61970 and IEC 61968). It gives developers both a strongly typed C# object model generated from the official CIM UML and a `.NET 10` reflection-based OWL 2 / RDF ontology generator.
 
 - **GitHub Repository:** [github.com/s-o-w/dotTC57](https://github.com/s-o-w/dotTC57)
