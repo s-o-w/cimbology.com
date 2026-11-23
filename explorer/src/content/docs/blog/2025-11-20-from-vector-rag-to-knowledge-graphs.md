@@ -44,10 +44,10 @@ Evaluating four configurations against 66 questions from a 2025 PE practice exam
 
 | Configuration | Accuracy | Citation Traceability |
 |---|---|---|
-| **Naive RAG** (page-level chunks, Gemini 2.5 Pro) | **53.03%** | None |
-| **Baseline LLM** (zero context, GPT-5-Mini) | **77.27%** | None |
-| **Advanced RAG** (layout-aware + tables + multimodal, GPT-5-Mini) | **83.33%** | Partial |
-| **CIM GraphRAG** (Advanced RAG + GraphDB CIM graph, GPT-5-Mini) | **84.85%** | **Full** |
+| **Naive RAG** (page-level vector chunks) | **53.03%** | None |
+| **Baseline LLM** (zero context) | **77.27%** | None |
+| **Advanced RAG** (layout-aware + tables + multimodal) | **83.33%** | Partial |
+| **CIM GraphRAG** (Advanced RAG + GraphDB CIM graph) | **84.85%** | **Full** |
 
 Three takeaways came straight out of those numbers:
 
