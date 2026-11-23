@@ -72,6 +72,9 @@ export default defineConfig({
       },
       pagefind: true,
       customCss: ['./src/styles/custom.css'],
+      components: {
+        Footer: './src/components/Footer.astro',
+      },
       plugins: [
         starlightBlog({
           title: 'Research Blog',

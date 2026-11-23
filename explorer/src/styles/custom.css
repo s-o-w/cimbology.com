@@ -208,3 +208,17 @@ pre.mermaid {
   padding: 0.75rem 1rem;
   border-radius: 0 6px 6px 0;
 }
+
+/* Global Minimal Footer */
+.cimbology-footer {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--sl-color-hairline);
+  font-size: var(--sl-text-xs);
+  color: var(--sl-color-gray-3);
+  text-align: center;
+}
+
+.cimbology-footer p {
+  margin: 0;
+}
