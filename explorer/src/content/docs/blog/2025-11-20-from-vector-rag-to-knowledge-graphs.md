@@ -16,9 +16,9 @@ Between late 2023 and late 2025, my position on applying Large Language Models t
 
 That shift did not come from reading hype threads. It came from building production systems, publishing the progression as it happened, and finally measuring four retrieval architectures head-to-head on a Professional Engineering (PE) practice exam.
 
-## December 2023: Polishing the Chatbot With RAG
+## Late 2023: Operationalizing AI and Polishing the Chatbot With RAG
 
-In December 2023, while launching the Digital Solutions group at POWER Engineers, I published [*Use RAG to Polish Your Chatbot: Retrieval-Augmented Generation Improves the "I" in AI*](https://energycentral.com/o/power-engineers-environmental/use-rag-polish-your-chatbot) on EnergyCentral. At that point, the immediate problem was obvious: out-of-the-box LLMs hallucinate confidently on utility standards and firm-specific procedures. Grounding prompts with retrieved internal documents was the first essential step.
+In November 2023, Nathan Bingham and I sat down with **ACEC National** for [*Real Stories of AI Implementation with POWER Engineers*](https://www.youtube.com/watch?v=8tMtJ-1yRtg) to discuss building firm-wide AI tools for engineering teams. A few weeks later, in December 2023, while launching the Digital Solutions group at POWER Engineers, I published [*Use RAG to Polish Your Chatbot: Retrieval-Augmented Generation Improves the "I" in AI*](https://energycentral.com/o/power-engineers-environmental/use-rag-polish-your-chatbot) on EnergyCentral. At that point, the immediate problem was obvious: out-of-the-box LLMs hallucinate confidently on utility standards and firm-specific procedures. Grounding prompts with retrieved internal documents was the first essential step.
 
 In Issue 2 of ACEC's *Engineering Inc.* in 2024 ([*"The AI Revolution"*](https://read.nxtbook.com/acec/engineering_inc/issue_two_2024/the_ai_revolution.html)), I explained the practical driver plainly: *"It is expensive to have designers and engineers digging through folders full of documentation to find specific equipment that's recommended by the industry for a given set of variables."*
 

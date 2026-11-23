@@ -50,6 +50,7 @@ Active contributor in the **Substation Design Solutions Industry Consortium (SDS
 ### Podcasts
 - **TonicDM *To Build Is Human*:** [*"Ground Truth Before Design"*](https://gablmedia.com/ground-truth-before-design) (utility as-builts vs. physical ground truth, LiDAR, digital twins, and RAG + Knowledge Graphs with IEC/IEEE/ANSI standards).
 - **SDSIC *PowerUp Podcast* (AI in the Electric Utility Space Series, Dec 2024–Jan 2025):** [Episode 1](https://podcasts.apple.com/us/podcast/episode-1-of-our-3-episode-series-on-ai-in-the/id1669582312?i=1000678972870), [Episode 2](https://podcasts.apple.com/us/podcast/episode-2-of-our-3-episode-series-on-ai-in-the/id1669582312?i=1000683802973), [Episode 3](https://podcasts.apple.com/us/podcast/episode-3-of-our-3-part-series-on-ai-in-the/id1669582312?i=1000687532663), and [Bonus Episode](https://podcasts.apple.com/us/podcast/bonus-episode-from-our-series-on-ai-in-the-electric/id1669582312?i=1000687533570).
+- **ACEC National *Engineering Influence* (Nov 9, 2023):** [*Real Stories of AI Implementation with POWER Engineers*](https://www.youtube.com/watch?v=8tMtJ-1yRtg) (with Nathan Bingham).
 - **SDSIC *PowerUp Podcast* (Mar 6, 2023):** [*Shawn Weekly stops by to talk technology with us*](https://podcasts.apple.com/us/podcast/shawn-weekly-stops-by-to-talk-technology-with-us/id1669582312?i=1000603036604).
 
 ### Conference Talks & Technical Demos
