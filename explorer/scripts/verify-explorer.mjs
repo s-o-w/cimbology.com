@@ -14,7 +14,7 @@ const requiredFiles = [
   'about/index.html',
   'blog/index.html',
   'blog/rss.xml',
-  'research/provenance/index.html',
+  'research/timeline/index.html',
   'research/cimbology-kg/index.html',
   'research/why-cim-matters/index.html',
   'research/cimbology-graphrag/index.html',

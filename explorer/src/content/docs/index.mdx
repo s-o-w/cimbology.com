@@ -10,8 +10,8 @@ hero:
     dark: ../../assets/CimbologyLogo_transparent_dark.png
     alt: CIMBOLOGY
   actions:
-    - text: Read the Research
-      link: /research/provenance/
+    - text: Explore the Research
+      link: /research/cimbology-kg/
       icon: right-arrow
     - text: Browse CIM100 Explorer
       link: /cim/
@@ -27,23 +27,23 @@ import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
 
 Design data must be born as semantically typed graph data grounded in IEC CIM, not trapped inside drawings and tool-native binaries. Every CAD and BIM format in the utility design stack encodes position, not meaning. The engineer's head becomes the integration layer, and when that engineer retires, the integration layer leaves with them.
 
-CIMBOLOGY documents the open semantic architecture, prior art, and reference tooling built to fix that gap: full IEC 61970 and IEC 61968 OWL 2 ontologies, minimal domain extensions, declarative RDF lenses, SHACL validation, and JSON-LD knowledge graphs.
+CIMBOLOGY documents the open semantic architecture, ongoing research, and reference tooling built to fix that gap: full IEC 61970 and IEC 61968 OWL 2 ontologies, minimal domain extensions, declarative RDF lenses, SHACL validation, and JSON-LD knowledge graphs.
 
 <CardGrid stagger>
-  <Card title="Provenance & Prior Art" icon="open-book">
-    A dated record of independent research from 2000 through 2026: field data foundations, data-first substation architecture, IEC CIM adoption for design, `dotTC57`, CIMBOLOGY GraphRAG, and CIMBOLOGY-KG.
+  <Card title="CIMBOLOGY-KG Architecture" icon="setting">
+    Four-layer semantic design substrate: canonical IEC CIM (`cim:`), minimal physical/P&C extensions (`cimbology:`), W3C SHACL validation profiles, and tool-agnostic RDF lenses over JSON-LD.
 
-    [Read the provenance timeline →](/research/provenance/)
+    [Explore the architecture →](/research/cimbology-kg/)
   </Card>
   <Card title="CIM100 & Extension Explorer" icon="puzzle">
     Browse all **1,414 IEC CIM100 types** (807 IEC 61970 + 607 IEC 61968) across 77 packages plus **41 CIMBOLOGY-KG extension classes**, complete with Normative/Informative tiers, inheritance diagrams, and downloadable `.ttl`, `.owl`, and `.jsonld` ontologies.
 
     [Open the CIM Explorer →](/cim/)
   </Card>
-  <Card title="CIMBOLOGY-KG Architecture" icon="setting">
-    Four-layer semantic design substrate: canonical IEC CIM (`cim:`), minimal physical/P&C extensions (`cimbology:`), W3C SHACL validation profiles, and tool-agnostic RDF lenses over JSON-LD.
+  <Card title="Research Timeline" icon="open-book">
+    Over twenty years of work moving electrical infrastructure design toward a data-first, CIM-grounded graph foundation: field layout, utility design systems, `dotTC57`, GraphRAG, and CIMBOLOGY-KG.
 
-    [Explore the architecture →](/research/cimbology-kg/)
+    [Read the timeline →](/research/timeline/)
   </Card>
   <Card title="Research Blog" icon="pencil">
     Ongoing technical notes, modeling deep dives, and architecture essays written in Markdown and published directly from the repository with full RSS support.

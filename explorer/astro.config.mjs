@@ -134,15 +134,15 @@ export default defineConfig({
       ],
       sidebar: [
         {
-          label: 'Research & Prior Art',
+          label: 'Research',
           collapsed: false,
           items: [
-            { label: 'Provenance & Prior Art', slug: 'research/provenance' },
             { label: 'CIMBOLOGY-KG Architecture', slug: 'research/cimbology-kg' },
             { label: 'Why IEC CIM Matters', slug: 'research/why-cim-matters' },
             { label: 'CIMBOLOGY GraphRAG Research', slug: 'research/cimbology-graphrag' },
             { label: 'dotTC57 Open-Source Library', slug: 'research/dottc57' },
             { label: 'Graph-Grounded AI', slug: 'research/ai-and-engineering' },
+            { label: 'Research Timeline', slug: 'research/timeline' },
             { label: 'About Shawn Weekly', slug: 'about' },
           ],
         },
