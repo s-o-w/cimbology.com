@@ -403,7 +403,9 @@ sidebar:
 
     parts.push(`## Semantic Web Snippets
 
-> **Open-World Inheritance Note:** Under IEC CIM (RDF/OWL), ${ancestorNote} By default, the builder below expands the **full inherited model** so you can see every available property in one place. Including every property is intentional for documentation and not required on the wire; sparse payloads carrying only the fields needed for your profile are equally valid. Toggle individual ancestor classes or presets below to compose a custom snippet.
+> **Open-World Inheritance & Flat Graph Note:** Under IEC CIM (RDF/OWL), ${ancestorNote} By default, the builder below expands the **full inherited model** so you can inspect everything available on this class. Showing every property is intentional for documentation and not required on the wire; sparse payloads carrying only profile-required fields are equally valid.
+>
+> **Object References vs. Flat Literals:** Not all CIM properties are flat scalar values. Object associations reference separate typed CIM entities (such as \`cim:PSRType\` or \`cim:Terminal\`). In **JSON-LD 1.1**, those referenced objects are lifted out of the main object into a flat \`@graph\` array and linked strictly by \`@id\` pointer so the graph stays flat instead of deeply nested. **Turtle** and **RDF/XML** serialize the exact same graph, making it easy to compare legacy RDF/XML verbosity against Turtle and JSON-LD.
 
 <div class="cim-snippet-builder" data-class="${escHtml(t.name)}" data-iri="${escHtml(t.iri)}" data-base="${escHtml(t.baseType || '')}">
 <script type="application/json" class="cim-snippet-data">${safeJson}</script>

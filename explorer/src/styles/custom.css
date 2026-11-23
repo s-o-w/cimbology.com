@@ -383,6 +383,19 @@ pre.mermaid {
   color: var(--sl-color-gray-3);
 }
 
+.cim-sb-formatbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cim-sb-fmt-btn {
+  font-size: 0.76rem;
+  padding: 0.24rem 0.6rem;
+}
+
 .cim-sb-panel {
   border: 1px solid var(--sl-color-gray-5);
   border-radius: 8px;
@@ -394,11 +407,26 @@ pre.mermaid {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.75rem;
   padding: 0.45rem 0.75rem;
   border-bottom: 1px solid var(--sl-color-gray-5);
   font-size: 0.8rem;
   font-weight: 600;
   color: var(--sl-color-gray-1);
+}
+
+.cim-sb-panel-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cim-sb-meta {
+  font-size: 0.73rem;
+  font-weight: 500;
+  font-family: var(--sl-font-mono);
+  color: var(--sl-color-gray-3);
 }
 
 .cim-sb-copy {

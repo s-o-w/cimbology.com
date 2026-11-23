@@ -1,78 +1,176 @@
 (function () {
   var CIM_NS = 'http://iec.ch/TC57/CIM100#';
+  var XSD_NS = 'http://www.w3.org/2001/XMLSchema#';
   var DEMO_UUID = '00000000-0000-0000-0000-000000000000';
 
-  function turtleVal(field, className) {
-    var kind = field[1];
-    var extra = field[2] || '';
-    switch (kind) {
-      case 'mrid':
-        return { v: '"' + DEMO_UUID + '"', c: '', xsd: false };
-      case 'name':
-        return { v: '"Example ' + className + '"', c: '', xsd: false };
-      case 's':
-        return { v: '"example"', c: extra ? 'cim:' + extra : '', xsd: false };
-      case 'b':
-        return { v: 'false', c: '', xsd: false };
-      case 'i':
-        return { v: '1', c: extra ? 'cim:' + extra : '', xsd: false };
-      case 'f':
-        return { v: '0.0', c: extra, xsd: false };
-      case 'dt':
-        return { v: '"2026-01-01T00:00:00Z"^^xsd:dateTime', c: '', xsd: true };
-      case 'd':
-        return { v: '"2026-01-01"^^xsd:date', c: '', xsd: true };
-      case 't':
-        return { v: '"12:00:00Z"^^xsd:time', c: '', xsd: true };
-      case 'dur':
-        return { v: '"PT1H"^^xsd:duration', c: '', xsd: true };
-      case 'md':
-        return { v: '"--01-01"^^xsd:gMonthDay', c: '', xsd: true };
-      case 'e':
-        return { v: extra ? 'cim:' + extra : '"example"', c: '', xsd: false };
-      case 'o':
-        return {
-          v: '<urn:example:' + (extra || 'Resource') + '-1>',
-          c: extra ? 'cim:' + extra : '',
-          xsd: false,
-        };
-      default:
-        return { v: '"example"', c: '', xsd: false };
-    }
+  function escXml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
   }
 
-  function jsonLdVal(field, className) {
+  function formatSize(text) {
+    var lines = text.split('\n').length;
+    var bytes = new Blob([text]).size;
+    var kb = bytes >= 1024 ? (bytes / 1024).toFixed(1) + ' KB' : bytes + ' B';
+    return lines + ' lines \u00b7 ' + kb;
+  }
+
+  function resolveFieldValue(field, className, refCounters, refNodes) {
     var kind = field[1];
     var extra = field[2] || '';
     switch (kind) {
       case 'mrid':
-        return DEMO_UUID;
+        return {
+          ttl: '"' + DEMO_UUID + '"',
+          ttlComment: '',
+          usesXsd: false,
+          json: DEMO_UUID,
+          xmlText: DEMO_UUID,
+          xmlDatatype: '',
+          xmlResource: '',
+        };
       case 'name':
-        return 'Example ' + className;
+        return {
+          ttl: '"Example ' + className + '"',
+          ttlComment: '',
+          usesXsd: false,
+          json: 'Example ' + className,
+          xmlText: 'Example ' + className,
+          xmlDatatype: '',
+          xmlResource: '',
+        };
       case 's':
-        return 'example';
+        return {
+          ttl: '"example"',
+          ttlComment: extra ? extra : '',
+          usesXsd: false,
+          json: 'example',
+          xmlText: 'example',
+          xmlDatatype: '',
+          xmlResource: '',
+        };
       case 'b':
-        return false;
+        return {
+          ttl: 'false',
+          ttlComment: '',
+          usesXsd: false,
+          json: false,
+          xmlText: 'false',
+          xmlDatatype: XSD_NS + 'boolean',
+          xmlResource: '',
+        };
       case 'i':
-        return 1;
+        return {
+          ttl: '1',
+          ttlComment: extra ? extra : '',
+          usesXsd: false,
+          json: 1,
+          xmlText: '1',
+          xmlDatatype: XSD_NS + 'integer',
+          xmlResource: '',
+        };
       case 'f':
-        return 0.0;
+        return {
+          ttl: '0.0',
+          ttlComment: extra,
+          usesXsd: false,
+          json: 0.0,
+          xmlText: '0.0',
+          xmlDatatype: XSD_NS + 'float',
+          xmlResource: '',
+        };
       case 'dt':
-        return '2026-01-01T00:00:00Z';
+        return {
+          ttl: '"2026-01-01T00:00:00Z"^^xsd:dateTime',
+          ttlComment: '',
+          usesXsd: true,
+          json: '2026-01-01T00:00:00Z',
+          xmlText: '2026-01-01T00:00:00Z',
+          xmlDatatype: XSD_NS + 'dateTime',
+          xmlResource: '',
+        };
       case 'd':
-        return '2026-01-01';
+        return {
+          ttl: '"2026-01-01"^^xsd:date',
+          ttlComment: '',
+          usesXsd: true,
+          json: '2026-01-01',
+          xmlText: '2026-01-01',
+          xmlDatatype: XSD_NS + 'date',
+          xmlResource: '',
+        };
       case 't':
-        return '12:00:00Z';
+        return {
+          ttl: '"12:00:00Z"^^xsd:time',
+          ttlComment: '',
+          usesXsd: true,
+          json: '12:00:00Z',
+          xmlText: '12:00:00Z',
+          xmlDatatype: XSD_NS + 'time',
+          xmlResource: '',
+        };
       case 'dur':
-        return 'PT1H';
+        return {
+          ttl: '"PT1H"^^xsd:duration',
+          ttlComment: '',
+          usesXsd: true,
+          json: 'PT1H',
+          xmlText: 'PT1H',
+          xmlDatatype: XSD_NS + 'duration',
+          xmlResource: '',
+        };
       case 'md':
-        return '--01-01';
-      case 'e':
-        return extra ? { '@id': 'cim:' + extra } : 'example';
-      case 'o':
-        return { '@id': 'urn:example:' + (extra || 'Resource') + '-1' };
+        return {
+          ttl: '"--01-01"^^xsd:gMonthDay',
+          ttlComment: '',
+          usesXsd: true,
+          json: '--01-01',
+          xmlText: '--01-01',
+          xmlDatatype: XSD_NS + 'gMonthDay',
+          xmlResource: '',
+        };
+      case 'e': {
+        var enumCurie = extra ? 'cim:' + extra : 'cim:EnumValue';
+        var enumIri = CIM_NS + (extra || 'EnumValue');
+        return {
+          ttl: enumCurie,
+          ttlComment: '',
+          usesXsd: false,
+          json: { '@id': enumCurie },
+          xmlText: '',
+          xmlDatatype: '',
+          xmlResource: enumIri,
+        };
+      }
+      case 'o': {
+        var targetType = extra || 'Resource';
+        var count = (refCounters[targetType] || 0) + 1;
+        refCounters[targetType] = count;
+        var refUrn = 'urn:example:' + targetType + '-' + count;
+        refNodes.push({ id: refUrn, type: targetType });
+        return {
+          ttl: '<' + refUrn + '>',
+          ttlComment: 'object ref -> cim:' + targetType,
+          usesXsd: false,
+          json: { '@id': refUrn },
+          xmlText: '',
+          xmlDatatype: '',
+          xmlResource: refUrn,
+        };
+      }
       default:
-        return 'example';
+        return {
+          ttl: '"example"',
+          ttlComment: '',
+          usesXsd: false,
+          json: 'example',
+          xmlText: 'example',
+          xmlDatatype: '',
+          xmlResource: '',
+        };
     }
   }
 
@@ -107,34 +205,87 @@
       }
     }
 
-    // Build Turtle instance
+    var refCounters = {};
+    var refNodes = [];
     var usesXsd = false;
     var stmtEntries = [];
+
+    var mainJsonNode = {
+      '@id': 'urn:uuid:' + DEMO_UUID,
+      '@type': iri,
+    };
+
+    var xmlPropLines = [];
+
     for (var g = 0; g < groups.length; g++) {
       var grp = groups[g];
       var isSelf = grp.c === className;
-      stmtEntries.push({
-        isComment: true,
-        text: isSelf
-          ? '    # Direct properties on cim:' + grp.c
-          : '    # Inherited from cim:' + grp.c,
-      });
+      var headerText = isSelf
+        ? 'Direct properties on cim:' + grp.c
+        : 'Inherited from cim:' + grp.c;
+
+      stmtEntries.push({ isComment: true, text: '    # ' + headerText });
+      xmlPropLines.push('    <!-- ' + escXml(headerText) + ' -->');
+
       for (var j = 0; j < grp.f.length; j++) {
         var field = grp.f[j];
-        var tv = turtleVal(field, className);
-        if (tv.xsd) usesXsd = true;
+        var propLocal = grp.c + '.' + field[0];
+        var propCurie = 'cim:' + propLocal;
+        var val = resolveFieldValue(field, className, refCounters, refNodes);
+        if (val.usesXsd) usesXsd = true;
+
         stmtEntries.push({
           isComment: false,
-          pred: 'cim:' + grp.c + '.' + field[0],
-          val: tv.v,
-          comment: tv.c,
+          pred: propCurie,
+          val: val.ttl,
+          comment: val.ttlComment,
         });
+
+        mainJsonNode[propCurie] = val.json;
+
+        if (val.xmlResource) {
+          xmlPropLines.push(
+            '    <' + propCurie + ' rdf:resource="' + escXml(val.xmlResource) + '"/>'
+          );
+        } else if (val.xmlDatatype) {
+          xmlPropLines.push(
+            '    <' +
+              propCurie +
+              ' rdf:datatype="' +
+              escXml(val.xmlDatatype) +
+              '">' +
+              escXml(val.xmlText) +
+              '</' +
+              propCurie +
+              '>'
+          );
+        } else {
+          xmlPropLines.push(
+            '    <' + propCurie + '>' + escXml(val.xmlText) + '</' + propCurie + '>'
+          );
+        }
       }
     }
 
+    // 1. JSON-LD 1.1 (Flat @graph with pointer references and external typed nodes)
+    var graphArray = [mainJsonNode];
+    for (var r1 = 0; r1 < refNodes.length; r1++) {
+      graphArray.push({
+        '@id': refNodes[r1].id,
+        '@type': CIM_NS + refNodes[r1].type,
+      });
+    }
+    var jsonLdDoc = {
+      '@context': {
+        cim: CIM_NS,
+      },
+      '@graph': graphArray,
+    };
+
+    // 2. Turtle (RDF Instance + referenced object type triples)
     var ttlLines = ['@prefix cim: <' + CIM_NS + '> .'];
     if (usesXsd) {
-      ttlLines.push('@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .');
+      ttlLines.push('@prefix xsd: <' + XSD_NS + '> .');
     }
     ttlLines.push('');
 
@@ -162,27 +313,48 @@
       }
     }
 
-    // Build JSON-LD 1.1 instance
-    var jsonObj = {
-      '@context': {
-        cim: CIM_NS,
-      },
-      '@id': 'urn:uuid:' + DEMO_UUID,
-      '@type': iri,
-    };
-    for (var g2 = 0; g2 < groups.length; g2++) {
-      var grp2 = groups[g2];
-      for (var j2 = 0; j2 < grp2.f.length; j2++) {
-        var f2 = grp2.f[j2];
-        jsonObj['cim:' + grp2.c + '.' + f2[0]] = jsonLdVal(f2, className);
+    if (refNodes.length > 0) {
+      ttlLines.push('');
+      ttlLines.push('# Referenced CIM objects (kept flat as separate typed nodes)');
+      for (var r2 = 0; r2 < refNodes.length; r2++) {
+        ttlLines.push('<' + refNodes[r2].id + '> a cim:' + refNodes[r2].type + ' .');
       }
     }
 
+    // 3. RDF/XML (IEC 61970-552 / CIMXML style)
+    var xmlLines = [
+      '<?xml version="1.0" encoding="utf-8"?>',
+      '<rdf:RDF',
+      '    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"',
+      '    xmlns:cim="' + CIM_NS + '">',
+    ];
+    if (xmlPropLines.length === 0) {
+      xmlLines.push('  <cim:' + className + ' rdf:about="urn:uuid:' + DEMO_UUID + '"/>');
+    } else {
+      xmlLines.push('  <cim:' + className + ' rdf:about="urn:uuid:' + DEMO_UUID + '">');
+      for (var x = 0; x < xmlPropLines.length; x++) {
+        xmlLines.push(xmlPropLines[x]);
+      }
+      xmlLines.push('  </cim:' + className + '>');
+    }
+    if (refNodes.length > 0) {
+      xmlLines.push('');
+      xmlLines.push('  <!-- Referenced CIM objects (separate typed descriptions) -->');
+      for (var r3 = 0; r3 < refNodes.length; r3++) {
+        xmlLines.push(
+          '  <cim:' + refNodes[r3].type + ' rdf:about="' + escXml(refNodes[r3].id) + '"/>'
+        );
+      }
+    }
+    xmlLines.push('</rdf:RDF>');
+
     return {
+      jsonld: JSON.stringify(jsonLdDoc, null, 2),
       turtle: ttlLines.join('\n'),
-      jsonld: JSON.stringify(jsonObj, null, 2),
+      rdfxml: xmlLines.join('\n'),
       totalProps: totalProps,
       activeClasses: groups.length,
+      refCount: refNodes.length,
     };
   }
 
@@ -227,11 +399,12 @@
     );
     var includeObjects = true;
     var sparseMode = false;
+    var activeFormat = 'all';
 
     var ui = document.createElement('div');
     ui.className = 'cim-sb-root';
 
-    // Controls header: presets + object association toggle
+    // Row 1: Presets + Object association toggle
     var toolbar = document.createElement('div');
     toolbar.className = 'cim-sb-toolbar';
 
@@ -263,13 +436,13 @@
     objCheckbox.type = 'checkbox';
     objCheckbox.checked = true;
     objLabel.appendChild(objCheckbox);
-    objLabel.appendChild(document.createTextNode(' Include object associations'));
+    objLabel.appendChild(document.createTextNode(' Include object references (lifted to flat @graph)'));
 
     toolbar.appendChild(presetGroup);
     toolbar.appendChild(objLabel);
     ui.appendChild(toolbar);
 
-    // Per-class inheritance toggles
+    // Row 2: Per-class inheritance toggles
     var pillsWrap = document.createElement('div');
     pillsWrap.className = 'cim-sb-pills';
     var checkboxesByClass = new Map();
@@ -305,23 +478,60 @@
       ui.appendChild(pillsWrap);
     }
 
-    // Status line
+    // Row 3: Format filter + status
+    var formatBar = document.createElement('div');
+    formatBar.className = 'cim-sb-formatbar';
+
+    var fmtGroup = document.createElement('div');
+    fmtGroup.className = 'cim-sb-presets';
+    var formatDefs = [
+      { id: 'all', label: 'All 3 Formats' },
+      { id: 'jsonld', label: 'JSON-LD 1.1' },
+      { id: 'turtle', label: 'Turtle' },
+      { id: 'rdfxml', label: 'RDF/XML' },
+    ];
+    var fmtButtons = {};
+    for (var fi = 0; fi < formatDefs.length; fi++) {
+      (function (def) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'cim-sb-btn cim-sb-fmt-btn';
+        b.textContent = def.label;
+        b.addEventListener('click', function () {
+          activeFormat = def.id;
+          syncVisibility();
+        });
+        fmtButtons[def.id] = b;
+        fmtGroup.appendChild(b);
+      })(formatDefs[fi]);
+    }
+
     var status = document.createElement('div');
     status.className = 'cim-sb-status';
-    ui.appendChild(status);
 
-    // Code blocks: Turtle + JSON-LD
-    var currentTurtle = '';
+    formatBar.appendChild(fmtGroup);
+    formatBar.appendChild(status);
+    ui.appendChild(formatBar);
+
+    // Code panels: JSON-LD 1.1 (Flat @graph), Turtle, RDF/XML
     var currentJsonLd = '';
+    var currentTurtle = '';
+    var currentRdfXml = '';
 
     function makeCodePanel(title, langClass, getText) {
       var panel = document.createElement('div');
       panel.className = 'cim-sb-panel';
       var head = document.createElement('div');
       head.className = 'cim-sb-panel-head';
+      var left = document.createElement('div');
+      left.className = 'cim-sb-panel-title';
       var titleEl = document.createElement('span');
       titleEl.textContent = title;
-      head.appendChild(titleEl);
+      var metaEl = document.createElement('span');
+      metaEl.className = 'cim-sb-meta';
+      left.appendChild(titleEl);
+      left.appendChild(metaEl);
+      head.appendChild(left);
       head.appendChild(makeCopyButton(getText));
       var pre = document.createElement('pre');
       pre.className = 'cim-sb-pre';
@@ -330,18 +540,22 @@
       pre.appendChild(code);
       panel.appendChild(head);
       panel.appendChild(pre);
-      return { panel: panel, code: code };
+      return { panel: panel, code: code, meta: metaEl };
     }
 
-    var ttlPanel = makeCodePanel('Turtle (RDF Instance)', 'language-turtle', function () {
-      return currentTurtle;
-    });
-    var jsonPanel = makeCodePanel('JSON-LD 1.1 (Instance)', 'language-json', function () {
+    var jsonPanel = makeCodePanel('JSON-LD 1.1 (Flat @graph)', 'language-json', function () {
       return currentJsonLd;
     });
+    var ttlPanel = makeCodePanel('Turtle (RDF 1.1)', 'language-turtle', function () {
+      return currentTurtle;
+    });
+    var xmlPanel = makeCodePanel('RDF/XML (CIMXML / IEC 61970-552)', 'language-xml', function () {
+      return currentRdfXml;
+    });
 
-    ui.appendChild(ttlPanel.panel);
     ui.appendChild(jsonPanel.panel);
+    ui.appendChild(ttlPanel.panel);
+    ui.appendChild(xmlPanel.panel);
 
     // Collapsible OWL Class Declaration (schema level)
     var details = document.createElement('details');
@@ -365,6 +579,15 @@
     details.appendChild(owlPre);
     ui.appendChild(details);
 
+    function syncVisibility() {
+      for (var key in fmtButtons) {
+        fmtButtons[key].classList.toggle('is-active', activeFormat === key);
+      }
+      jsonPanel.panel.style.display = activeFormat === 'all' || activeFormat === 'jsonld' ? '' : 'none';
+      ttlPanel.panel.style.display = activeFormat === 'all' || activeFormat === 'turtle' ? '' : 'none';
+      xmlPanel.panel.style.display = activeFormat === 'all' || activeFormat === 'rdfxml' ? '' : 'none';
+    }
+
     function syncCheckboxes() {
       checkboxesByClass.forEach(function (cb, cname) {
         cb.checked = !sparseMode && selectedSet.has(cname);
@@ -383,25 +606,39 @@
 
     function render() {
       syncCheckboxes();
+      syncVisibility();
       var res = buildSnippets(className, iri, layers, selectedSet, includeObjects, sparseMode);
-      currentTurtle = res.turtle;
       currentJsonLd = res.jsonld;
-      ttlPanel.code.textContent = currentTurtle;
+      currentTurtle = res.turtle;
+      currentRdfXml = res.rdfxml;
+
       jsonPanel.code.textContent = currentJsonLd;
+      ttlPanel.code.textContent = currentTurtle;
+      xmlPanel.code.textContent = currentRdfXml;
+
+      jsonPanel.meta.textContent = formatSize(currentJsonLd);
+      ttlPanel.meta.textContent = formatSize(currentTurtle);
+      xmlPanel.meta.textContent = formatSize(currentRdfXml);
+
       if (sparseMode) {
         status.textContent =
-          'Sparse mode: showing minimal identity fields (' +
+          'Sparse mode: minimal identity fields (' +
           res.totalProps +
           ' properties). Valid under open-world CIM.';
       } else {
+        var refText =
+          res.refCount > 0
+            ? ' (' + res.refCount + ' referenced object(s) lifted to flat @graph)'
+            : '';
         status.textContent =
-          'Showing ' +
           res.totalProps +
           ' properties from ' +
           res.activeClasses +
           ' of ' +
           layers.length +
-          ' class(es) in the inheritance chain.';
+          ' class(es)' +
+          refText +
+          '.';
       }
     }
 
