@@ -280,3 +280,164 @@ pre.mermaid {
 .cimbology-footer p {
   margin: 0;
 }
+
+/* Interactive CIM Semantic Web Snippet Builder */
+.cim-sb-root {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.cim-sb-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cim-sb-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.cim-sb-btn {
+  cursor: pointer;
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid var(--sl-color-gray-5);
+  background: var(--sl-color-gray-6);
+  color: var(--sl-color-gray-1);
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.cim-sb-btn:hover {
+  border-color: var(--cimbology-orange);
+}
+
+.cim-sb-btn.is-active {
+  background: var(--cimbology-green);
+  border-color: var(--cimbology-orange);
+  color: #ffffff;
+}
+
+.cim-sb-obj-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  color: var(--sl-color-gray-2);
+  cursor: pointer;
+  user-select: none;
+}
+
+.cim-sb-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0.65rem;
+  border-radius: 8px;
+  background: var(--sl-color-gray-6);
+  border: 1px solid var(--sl-color-gray-5);
+}
+
+.cim-sb-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.22rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-family: var(--sl-font-mono);
+  background: var(--sl-color-bg);
+  border: 1px solid var(--sl-color-gray-5);
+  color: var(--sl-color-gray-1);
+  cursor: pointer;
+  user-select: none;
+}
+
+.cim-sb-pill-self {
+  border-color: var(--cimbology-orange);
+  font-weight: 600;
+}
+
+.cim-sb-pill input {
+  margin: 0;
+  accent-color: var(--cimbology-green);
+}
+
+.cim-sb-count {
+  font-size: 0.7rem;
+  padding: 0.05rem 0.35rem;
+  border-radius: 999px;
+  background: var(--sl-color-gray-6);
+  color: var(--sl-color-gray-3);
+}
+
+.cim-sb-status {
+  font-size: 0.8rem;
+  color: var(--sl-color-gray-3);
+}
+
+.cim-sb-panel {
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--sl-color-gray-6);
+}
+
+.cim-sb-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.45rem 0.75rem;
+  border-bottom: 1px solid var(--sl-color-gray-5);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--sl-color-gray-1);
+}
+
+.cim-sb-copy {
+  cursor: pointer;
+  padding: 0.2rem 0.55rem;
+  border-radius: 5px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid var(--sl-color-gray-5);
+  background: var(--sl-color-bg);
+  color: var(--sl-color-gray-1);
+}
+
+.cim-sb-copy:hover {
+  border-color: var(--cimbology-orange);
+  color: var(--cimbology-orange-soft);
+}
+
+.cim-sb-pre {
+  margin: 0 !important;
+  padding: 0.85rem 1rem !important;
+  max-height: 26rem;
+  overflow: auto;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  background: transparent !important;
+  border: 0 !important;
+}
+
+.cim-sb-owl-details {
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  background: var(--sl-color-gray-6);
+}
+
+.cim-sb-owl-details summary {
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--sl-color-gray-2);
+}

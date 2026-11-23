@@ -123,6 +123,13 @@ export default defineConfig({
             src: '/vendor/mermaid-init.js',
           },
         },
+        {
+          tag: 'script',
+          attrs: {
+            defer: true,
+            src: '/vendor/cim-snippet-builder.js',
+          },
+        },
       ],
       social: [
         { icon: 'linkedin', label: 'LinkedIn', href: 'https://www.linkedin.com/in/shawn-o-weekly' },

@@ -27,6 +27,7 @@ const requiredFiles = [
   'favicon.svg',
   'vendor/mermaid.min.js',
   'vendor/mermaid-init.js',
+  'vendor/cim-snippet-builder.js',
   'cim/index.html',
   'cim/iec61970/index.html',
   'cim/iec61968/index.html',

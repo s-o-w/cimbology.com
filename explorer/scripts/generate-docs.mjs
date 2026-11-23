@@ -125,6 +125,56 @@ function buildCimMermaid(type) {
   return { diagram: lines.join('\n'), note: notes.join(' ') };
 }
 
+function encodeSnippetField(f) {
+  if (!f.isDatatypeProperty) {
+    const rng = f.rangeCimType ? typesByName.get(f.rangeCimType) : null;
+    if (rng && rng.kind === 'enum') {
+      const firstVal = rng.enumValues?.[0]?.name;
+      return ['e', firstVal ? `${rng.name}.${firstVal}` : rng.name];
+    }
+    return ['o', f.rangeCimType || f.rangeLabel.replace(/^cim:/, '')];
+  }
+  if (f.declaringClass === 'IdentifiedObject' && f.name === 'mRID') return ['mrid'];
+  if (f.declaringClass === 'IdentifiedObject' && f.name === 'name') return ['name'];
+
+  const rng = f.rangeCimType ? typesByName.get(f.rangeCimType) : null;
+  const xsd = rng?.equivalentXsd || f.rangeLabel;
+  let note = '';
+  if (rng && rng.kind === 'quantityDatatype') {
+    const unit = rng.unitSymbol ? `${rng.unitMultiplier && rng.unitMultiplier !== 'none' ? rng.unitMultiplier : ''}${rng.unitSymbol}` : '';
+    note = unit ? `cim:${rng.name} (${unit})` : `cim:${rng.name}`;
+  } else if (rng && rng.kind === 'primitiveDatatype') {
+    note = `cim:${rng.name}`;
+  }
+
+  switch (xsd) {
+    case 'xsd:boolean': return ['b'];
+    case 'xsd:integer': return note ? ['i', note] : ['i'];
+    case 'xsd:float':
+    case 'xsd:decimal': return note ? ['f', note] : ['f'];
+    case 'xsd:dateTime': return ['dt'];
+    case 'xsd:date': return ['d'];
+    case 'xsd:time': return ['t'];
+    case 'xsd:duration': return ['dur'];
+    case 'xsd:gMonthDay': return ['md'];
+    default: return note ? ['s', note] : ['s'];
+  }
+}
+
+function buildSnippetLayers(type) {
+  const chainNames = [...type.ancestors, type.name];
+  const layers = [];
+  for (const cname of chainNames) {
+    const c = typesByName.get(cname);
+    if (!c || c.fields.length === 0) continue;
+    layers.push({
+      c: c.name,
+      f: c.fields.map((f) => [f.name, ...encodeSnippetField(f)]),
+    });
+  }
+  return layers;
+}
+
 // 2. Clean & generate src/content/docs/cim
 fs.rmSync(docsDir, { recursive: true, force: true });
 fs.mkdirSync(docsDir, { recursive: true });
@@ -339,25 +389,33 @@ sidebar:
       parts.push(`## Inherited Properties\n\n${inheritedGroups.join('\n\n')}`);
     }
 
-    // Semantic snippets
+    // Interactive Semantic Web Snippet Builder (Full Inherited Model + Ancestor Toggles)
+    const snippetLayers = buildSnippetLayers(t);
+    const safeJson = JSON.stringify(snippetLayers).replace(/</g, '\\u003c');
     const baseSub = t.baseType ? ` ;\n    rdfs:subClassOf cim:${t.baseType}` : '';
     const isIdentified = t.name === 'IdentifiedObject' || t.ancestors.includes('IdentifiedObject');
-    const jsonLdLines = isIdentified
-      ? `{\n  "@id": "urn:uuid:00000000-0000-0000-0000-000000000000",\n  "@type": "${t.iri}",\n  "cim:IdentifiedObject.name": "Example ${t.name}"\n}`
-      : `{\n  "@id": "urn:uuid:00000000-0000-0000-0000-000000000000",\n  "@type": "${t.iri}"\n}`;
+    const fallbackJsonLd = isIdentified
+      ? `{\n  "@context": { "cim": "http://iec.ch/TC57/CIM100#" },\n  "@id": "urn:uuid:00000000-0000-0000-0000-000000000000",\n  "@type": "${t.iri}",\n  "cim:IdentifiedObject.mRID": "00000000-0000-0000-0000-000000000000",\n  "cim:IdentifiedObject.name": "Example ${t.name}"\n}`
+      : `{\n  "@context": { "cim": "http://iec.ch/TC57/CIM100#" },\n  "@id": "urn:uuid:00000000-0000-0000-0000-000000000000",\n  "@type": "${t.iri}"\n}`;
+    const ancestorNote = t.ancestors.length > 0
+      ? `an instance of \`cim:${t.name}\` can carry properties declared on \`${t.name}\` plus any ancestor in its inheritance chain (${t.ancestors.map((a) => `\`${a}\``).join(', ')}).`
+      : `an instance of \`cim:${t.name}\` carries the properties declared on \`${t.name}\`.`;
+
     parts.push(`## Semantic Web Snippets
 
-\`\`\`turtle
-@prefix cim: <http://iec.ch/TC57/CIM100#> .
-@prefix owl: <http://www.w3.org/2002/07/owl#> .
-@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+> **Open-World Inheritance Note:** Under IEC CIM (RDF/OWL), ${ancestorNote} By default, the builder below expands the **full inherited model** so you can see every available property in one place. Including every property is intentional for documentation and not required on the wire; sparse payloads carrying only the fields needed for your profile are equally valid. Toggle individual ancestor classes or presets below to compose a custom snippet.
 
-cim:${t.name} a owl:Class${baseSub} .
-\`\`\`
+<div class="cim-snippet-builder" data-class="${escHtml(t.name)}" data-iri="${escHtml(t.iri)}" data-base="${escHtml(t.baseType || '')}">
+<script type="application/json" class="cim-snippet-data">${safeJson}</script>
+<noscript>
+<pre><code>@prefix cim: &lt;http://iec.ch/TC57/CIM100#&gt; .
+@prefix owl: &lt;http://www.w3.org/2002/07/owl#&gt; .
+@prefix rdfs: &lt;http://www.w3.org/2000/01/rdf-schema#&gt; .
 
-\`\`\`json
-${jsonLdLines}
-\`\`\``);
+cim:${escHtml(t.name)} a owl:Class${escHtml(baseSub)} .</code></pre>
+<pre><code>${escHtml(fallbackJsonLd)}</code></pre>
+</noscript>
+</div>`);
   } else if (t.kind === 'enum') {
     const vals = t.enumValues ?? [];
     if (vals.length > 0) {
