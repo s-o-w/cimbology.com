@@ -40,7 +40,7 @@ Every package and class in the [CIM100 Explorer](/cim/) displays its tier explic
 
 ## Why the Design World Ignored CIM
 
-Operations teams adopted CIM years ago for EMS, SCADA, and market exchange. In Europe, ENTSO-E mandates CIM-based exchange across 41 transmission system operators in 34 countries.
+Operations teams adopted CIM years ago for EMS, SCADA, and market exchange. In Europe, ENTSO-E mandates CIM-based exchange across 40 transmission system operators in 36 countries.
 
 Design teams stayed in CAD and BIM tools. When utilities needed CIM data downstream, someone bolted a partial, error-prone CIM export onto the end of a project. The full CIM surface area looked intimidating, and traditional profiling workflows forced teams to hand-pick rigid subsets up front.
 
