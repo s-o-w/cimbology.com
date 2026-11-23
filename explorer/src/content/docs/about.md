@@ -57,10 +57,11 @@ Active contributor in the **Substation Design Solutions Industry Consortium (SDS
 ### Conference Talks & Technical Demos
 - **Oct–Nov 2025 (YouTube):** [*Cimbology Demo: The AI "Digital Senior Engineer"*](https://youtu.be/UzrtFiLiV44) and [*Cimbology Research Demo*](https://youtu.be/c83Repi2ni8).
 - **Fall 2025 (ACEC National / San Diego Fall Conference):** [*Data-Driven Power Plays: How AEC Leaders Are Building AI-Ready Firms*](https://www.youtube.com/watch?v=_olDvmxZDqU) (with David Harwood).
+- **Apr 2024 (SDSIC):** *Beyond the Hype: Practical AI/ML for Power Delivery*.
 - **Feb 2024 (ACEC Indiana):** Virtual presentation on AI, ML, and RAG search at POWER Engineers (with Nathan Bingham).
 - **Apr 2023 (SDSIC Nashville):** *IEC CIM for Electrical Utility Software Integration*.
 - **2021 (Autodesk University):** [*Dig Deeper into Data with Forge and Digital Twins*](https://www.autodesk.com/autodesk-university/class/Dig-Deeper-Data-Forge-and-Digital-Twins-2021) and [*Connecting the Dots with Point Clouds, the AEC Collection, BIM 360, and Construction Cloud*](https://www.autodesk.com/autodesk-university/class/Connecting-Dots-Point-Clouds-AEC-Collection-BIM-360-and-Construction-Cloud-2021).
-- **2021 (YouTube, *SDS Technology Group* Playlist, 12 Videos):** [Full playlist](https://youtube.com/playlist?list=PLDuw0ZskB4gwFWRTrBoOlq4TN8YYNZLGp), including [*Transmission Digital Twins (SDSIC May 2021)*](https://youtu.be/Ng4EsGP_rcU), [*Substation Digital Twin IoT Dashboard*](https://youtu.be/_ZYxKIqL6aw), [*Notification Of Property Error (C# Rules-Based Validation)*](https://youtu.be/kyYHQeZjGi4), and [*Digital Transformation in Power Delivery*](https://youtu.be/CrMKJRy1p3Y).
+- **2021 (GenTech Conference & YouTube, *SDS Technology Group* Playlist, 12 Videos):** [Full playlist](https://youtube.com/playlist?list=PLDuw0ZskB4gwFWRTrBoOlq4TN8YYNZLGp), including [*Digital Transformation in Power Delivery* (GenTech 2021)](https://youtu.be/CrMKJRy1p3Y), [*Transmission Digital Twins (SDSIC May 2021)*](https://youtu.be/Ng4EsGP_rcU), [*Substation Digital Twin IoT Dashboard*](https://youtu.be/_ZYxKIqL6aw), and [*Notification Of Property Error (C# Rules-Based Validation)*](https://youtu.be/kyYHQeZjGi4).
 
 ## Selected Certifications
 
