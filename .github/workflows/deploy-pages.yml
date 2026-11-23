@@ -1,4 +1,4 @@
-name: Deploy cimbology.com & CIM Explorer to GitHub Pages
+name: Deploy cimbology.com to GitHub Pages
 
 on:
   push:
@@ -29,7 +29,7 @@ jobs:
           cache: npm
           cache-dependency-path: explorer/package-lock.json
 
-      - name: Install explorer dependencies
+      - name: Install site dependencies
         working-directory: explorer
         run: npm ci
 
@@ -37,7 +37,7 @@ jobs:
         working-directory: explorer
         run: npm run verify:ontologies
 
-      - name: Generate and build CIM Explorer
+      - name: Generate CIM Explorer docs and build full Starlight site
         working-directory: explorer
         run: |
           npm run generate
@@ -48,15 +48,10 @@ jobs:
         run: |
           rm -rf _site
           mkdir -p _site
-          rsync -a \
-            --exclude='.git' \
-            --exclude='.github' \
-            --exclude='explorer' \
-            --exclude='_site' \
-            --exclude='node_modules' \
-            ./ _site/
-          mkdir -p _site/cim
-          rsync -a explorer/dist/ _site/cim/
+          rsync -a explorer/dist/ _site/
+          cp CNAME _site/CNAME
+          mkdir -p _site/ontology
+          rsync -a ontology/ _site/ontology/
           touch _site/.nojekyll
 
       - name: Smoke-check assembled _site
@@ -66,12 +61,19 @@ jobs:
             "_site/CNAME" \
             "_site/.nojekyll" \
             "_site/index.html" \
+            "_site/about/index.html" \
+            "_site/blog/index.html" \
+            "_site/blog/rss.xml" \
+            "_site/research/provenance/index.html" \
+            "_site/research/cimbology-kg/index.html" \
+            "_site/research/why-cim-matters/index.html" \
+            "_site/research/cimbology-graphrag/index.html" \
+            "_site/research/dottc57/index.html" \
+            "_site/research/ai-and-engineering/index.html" \
+            "_site/why-cim-matters.html" \
             "_site/dotTC57.html" \
-            "_site/resume.pdf" \
-            "_site/AnalysisPrep - pe_exam_answers.csv" \
-            "_site/css/styles.css" \
-            "_site/js/nav-loader.js" \
-            "_site/imgs/dottc57.png" \
+            "_site/cimbology-case-study.html" \
+            "_site/ai-philosophy.html" \
             "_site/ontology/iec61970.ttl" \
             "_site/ontology/iec61968.ttl" \
             "_site/ontology/cim100.ttl" \
@@ -80,7 +82,7 @@ jobs:
             "_site/cim/index.html" \
             "_site/cim/iec61970/base/wires/breaker/index.html" \
             "_site/cim/cimbology-kg/classes/foundation/index.html" \
-            "_site/cim/pagefind/pagefind.js"; do
+            "_site/pagefind/pagefind.js"; do
             if [ ! -f "$f" ]; then
               echo "MISSING required Pages artifact file: $f" >&2
               exit 1

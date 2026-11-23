@@ -6,7 +6,9 @@ import { Parser } from 'n3';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const explorerDir = path.resolve(__dirname, '..');
 const ontologyDir = path.resolve(explorerDir, '../ontology');
-const docsDir = path.join(explorerDir, 'src/content/docs');
+// IMPORTANT: Only clean/write inside src/content/docs/cim/ so hand-authored
+// root, blog/, research/, and about pages are never touched.
+const docsDir = path.join(explorerDir, 'src/content/docs/cim');
 
 const RDF_TYPE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
 const RDF_PROPERTY = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#Property';
