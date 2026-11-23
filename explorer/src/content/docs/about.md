@@ -45,6 +45,7 @@ Active contributor in the **Substation Design Solutions Industry Consortium (SDS
 - **Dec 11, 2024 (EnergyCentral):** [*Building a Better Generative AI: How Knowledge Graphs Will Improve Our RAG-Powered Chatbot*](https://energycentral.com/o/power-engineers/building-better-generative-ai%E2%80%94how-knowledge-graphs-will-improve-our-rag-powered)
 - **2024, Issue 2 (ACEC *Engineering Inc.*):** Quoted in [*"The AI Revolution"*](https://read.nxtbook.com/acec/engineering_inc/issue_two_2024/the_ai_revolution.html) on Generative AI for querying engineering documentation and industry equipment standards.
 - **Dec 3, 2023 (EnergyCentral):** [*Use RAG to Polish Your Chatbot: Retrieval-Augmented Generation Improves the "I" in AI*](https://energycentral.com/o/power-engineers-environmental/use-rag-polish-your-chatbot)
+- **Aug 2022 (POWER Engineers):** *Connecting the Dots: Creating Your Digital Twin*
 - **2019–2022 (LinkedIn Articles):** *BIM in the Utility Industry* (May 2022, [republished on this blog](/blog/2022-05-09-bim-in-the-utility-industry/)), *From There to Here* 5-part series (Oct 2020), and *Requirements by User - NOT by Proxy* (Mar 2019).
 
 ### Podcasts
@@ -56,6 +57,7 @@ Active contributor in the **Substation Design Solutions Industry Consortium (SDS
 ### Conference Talks & Technical Demos
 - **Oct–Nov 2025 (YouTube):** [*Cimbology Demo: The AI "Digital Senior Engineer"*](https://youtu.be/UzrtFiLiV44) and [*Cimbology Research Demo*](https://youtu.be/c83Repi2ni8).
 - **Fall 2025 (ACEC National / San Diego Fall Conference):** [*Data-Driven Power Plays: How AEC Leaders Are Building AI-Ready Firms*](https://www.youtube.com/watch?v=_olDvmxZDqU) (with David Harwood).
+- **Feb 2024 (ACEC Indiana):** Virtual presentation on AI, ML, and RAG search at POWER Engineers (with Nathan Bingham).
 - **Apr 2023 (SDSIC Nashville):** *IEC CIM for Electrical Utility Software Integration*.
 - **2021 (Autodesk University):** [*Dig Deeper into Data with Forge and Digital Twins*](https://www.autodesk.com/autodesk-university/class/Dig-Deeper-Data-Forge-and-Digital-Twins-2021) and [*Connecting the Dots with Point Clouds, the AEC Collection, BIM 360, and Construction Cloud*](https://www.autodesk.com/autodesk-university/class/Connecting-Dots-Point-Clouds-AEC-Collection-BIM-360-and-Construction-Cloud-2021).
 - **2021 (YouTube, *SDS Technology Group* Playlist, 12 Videos):** [Full playlist](https://youtube.com/playlist?list=PLDuw0ZskB4gwFWRTrBoOlq4TN8YYNZLGp), including [*Transmission Digital Twins (SDSIC May 2021)*](https://youtu.be/Ng4EsGP_rcU), [*Substation Digital Twin IoT Dashboard*](https://youtu.be/_ZYxKIqL6aw), [*Notification Of Property Error (C# Rules-Based Validation)*](https://youtu.be/kyYHQeZjGi4), and [*Digital Transformation in Power Delivery*](https://youtu.be/CrMKJRy1p3Y).
