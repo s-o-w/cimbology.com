@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import starlightBlog from 'starlight-blog';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -9,7 +10,7 @@ const modelPath = path.resolve(__dirname, '../ontology/cim-model.json');
 const model = JSON.parse(fs.readFileSync(modelPath, 'utf8'));
 
 function pkgSlug(pkgId) {
-  return pkgId.toLowerCase().replace(/\./g, '/');
+  return `cim/${pkgId.toLowerCase().replace(/\./g, '/')}`;
 }
 
 function buildStandardSidebar(standard) {
@@ -17,7 +18,6 @@ function buildStandardSidebar(standard) {
     .filter((p) => p.standard === standard && p.id !== standard)
     .sort((a, b) => a.id.localeCompare(b.id));
 
-  // Group packages by second segment (e.g. Base, Dynamics, InfIEC61970, AssetInfo, Common...)
   const groups = new Map();
   for (const pkg of pkgs) {
     const parts = pkg.id.split('.');
@@ -29,7 +29,7 @@ function buildStandardSidebar(standard) {
   const items = [
     {
       label: `${standard} Overview`,
-      slug: standard.toLowerCase(),
+      slug: `cim/${standard.toLowerCase()}`,
     },
   ];
 
@@ -59,18 +59,41 @@ function buildStandardSidebar(standard) {
 
 export default defineConfig({
   site: 'https://cimbology.com',
-  base: '/cim',
   trailingSlash: 'always',
   integrations: [
     starlight({
-      title: 'CIMBOLOGY CIM Explorer',
-      description: 'Browsable IEC 61970, IEC 61968 (CIM100), and CIMBOLOGY-KG OWL 2 ontology reference hosted on cimbology.com.',
+      title: 'CIMBOLOGY',
+      description:
+        'Independent research on IEC CIM-grounded knowledge graphs, semantic design substrates, OWL 2 ontologies, and verifiable AI for electrical infrastructure.',
       logo: {
-        src: './src/assets/CIMbologyLogo.png',
+        light: './src/assets/CimbologyLogo_transparent.png',
+        dark: './src/assets/CimbologyLogo_transparent_dark.png',
         alt: 'CIMBOLOGY',
       },
       pagefind: true,
       customCss: ['./src/styles/custom.css'],
+      routeMiddleware: './src/routeData.ts',
+      components: {
+        Header: './src/components/Header.astro',
+        Footer: './src/components/Footer.astro',
+      },
+      plugins: [
+        starlightBlog({
+          title: 'Research Blog',
+          prefix: 'blog',
+          navigation: 'none',
+          postCount: 10,
+          recentPostCount: 5,
+          authors: {
+            shawn: {
+              name: 'Shawn Weekly',
+              title: 'Principal Solution Architect & CIM Researcher',
+              picture: '/imgs/headshot.jpg',
+              url: 'https://cimbology.com/about/',
+            },
+          },
+        }),
+      ],
       head: [
         {
           tag: 'link',
@@ -82,61 +105,66 @@ export default defineConfig({
           },
         },
         {
-          tag: 'link',
+          tag: 'script',
           attrs: {
-            rel: 'alternate',
-            type: 'text/turtle',
-            href: '/ontology/cimbology-kg.ttl',
-            title: 'CIMBOLOGY-KG Extension Ontology (Turtle)',
+            async: true,
+            src: 'https://www.googletagmanager.com/gtag/js?id=G-3F4ESRJQSQ',
+          },
+        },
+        {
+          tag: 'script',
+          content:
+            "window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-3F4ESRJQSQ');",
+        },
+        {
+          tag: 'script',
+          attrs: {
+            defer: true,
+            src: '/vendor/mermaid-init.js',
           },
         },
         {
           tag: 'script',
           attrs: {
             defer: true,
-            src: '/cim/vendor/mermaid.min.js',
-          },
-        },
-        {
-          tag: 'script',
-          attrs: {
-            defer: true,
-            src: '/cim/vendor/mermaid-init.js',
+            src: '/vendor/cim-snippet-builder.js',
           },
         },
       ],
-      social: {
-        github: 'https://github.com/s-o-w/dotTC57',
-      },
+      social: [
+        { icon: 'linkedin', label: 'LinkedIn', href: 'https://www.linkedin.com/in/shawn-o-weekly' },
+        { icon: 'github', label: 'GitHub', href: 'https://github.com/s-o-w' },
+        { icon: 'rss', label: 'Blog RSS', href: 'https://cimbology.com/blog/rss.xml' },
+      ],
       sidebar: [
         {
-          label: 'Start Here',
+          label: 'Research',
+          collapsed: false,
           items: [
-            { label: 'Ontology Overview & Downloads', slug: '' },
-            { label: '← Back to cimbology.com', link: 'https://cimbology.com/' },
+            { label: 'CIMBOLOGY Graph Architecture', slug: 'research/cimbology-graph' },
+            { label: 'Why IEC CIM Matters', slug: 'research/why-cim-matters' },
+            { label: 'CIMBOLOGY GraphRAG Research', slug: 'research/cimbology-graphrag' },
+            { label: 'dotTC57 Open-Source Library', slug: 'research/dottc57' },
+            { label: 'Graph-Grounded AI', slug: 'research/ai-and-engineering' },
+            { label: 'Timeline', slug: 'research/timeline', attrs: { class: 'cimbology-sidebar-sep' } },
+            { label: 'About Shawn Weekly', slug: 'about' },
           ],
         },
         {
-          label: 'IEC 61970 (Transmission / EMS)',
-          collapsed: false,
-          items: buildStandardSidebar('IEC61970'),
-        },
-        {
-          label: 'IEC 61968 (Distribution / Assets)',
-          collapsed: true,
-          items: buildStandardSidebar('IEC61968'),
-        },
-        {
-          label: 'CIMBOLOGY-KG Extensions',
+          label: 'CIM100 Explorer',
           collapsed: false,
           items: [
-            { label: 'Extension Overview', slug: 'cimbology-kg' },
-            { label: 'Classes (41)', slug: 'cimbology-kg/classes' },
-            { label: 'Relation & Clearance Kinds', slug: 'cimbology-kg/kinds' },
-            { label: 'Object Properties', slug: 'cimbology-kg/properties/object' },
-            { label: 'Annotation & Lens Predicates', slug: 'cimbology-kg/properties/annotations' },
-            { label: 'Domain-Scoped Datatype Properties', slug: 'cimbology-kg/properties/domain-datatype' },
-            { label: 'General Datatype Properties', slug: 'cimbology-kg/properties/general-datatype' },
+            { label: 'Explorer Overview & Downloads', slug: 'cim' },
+            {
+              label: 'IEC 61970 (Transmission / EMS)',
+              collapsed: true,
+              items: buildStandardSidebar('IEC61970'),
+            },
+            {
+              label: 'IEC 61968 (Distribution / Assets)',
+              collapsed: true,
+              items: buildStandardSidebar('IEC61968'),
+            },
           ],
         },
       ],

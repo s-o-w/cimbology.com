@@ -1,6 +1,6 @@
 {
-  "name": "cimbology-cim-explorer",
-  "version": "1.0.0",
+  "name": "cimbology-site",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -12,10 +12,11 @@
     "verify:explorer": "node scripts/verify-explorer.mjs"
   },
   "dependencies": {
-    "@astrojs/starlight": "^0.32.5",
+    "@astrojs/starlight": "^0.37.7",
     "astro": "^5.5.5",
     "mermaid": "^11.5.0",
     "n3": "^1.23.3",
-    "sharp": "^0.33.5"
+    "sharp": "^0.33.5",
+    "starlight-blog": "^0.24.3"
   }
 }

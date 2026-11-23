@@ -14,9 +14,16 @@ const SELF_LOOP_PREDS = new Set([
   'http://www.w3.org/2002/07/owl#equivalentProperty',
   'http://www.w3.org/2002/07/owl#equivalentClass',
 ]);
-const LEGACY_PREFIX_RE = /(?<![A-Za-z0-9_-])(?:xinfra|sif):/i;
+const LEGACY_PREFIX_RE = /(?<![A-Za-z0-9_-])(?:xinfra|sif|cimbology):/i;
+const FORBIDDEN_FILES = new Set(['cimbology-kg.ttl', 'cimbology-kg.owl', 'cimbology-kg.jsonld']);
 
 const errors = [];
+for (const entry of fs.readdirSync(ontologyDir)) {
+  if (FORBIDDEN_FILES.has(entry.toLowerCase())) {
+    errors.push(`Forbidden extension ontology artifact found in ontology/: ${entry}`);
+  }
+}
+
 const ttlFiles = fs
   .readdirSync(ontologyDir)
   .filter((f) => f.endsWith('.ttl'))
@@ -36,6 +43,9 @@ for (const fileName of ttlFiles) {
 
   if (content.toLowerCase().includes('cimbology.org')) {
     errors.push(`Forbidden legacy token 'cimbology.org' found in ${fileName}`);
+  }
+  if (content.toLowerCase().includes('cimbology.com/ontology/kg')) {
+    errors.push(`Forbidden extension namespace 'cimbology.com/ontology/kg' found in ${fileName}`);
   }
   const m = content.match(LEGACY_PREFIX_RE);
   if (m) {

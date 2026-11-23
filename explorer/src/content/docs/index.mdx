@@ -1,0 +1,78 @@
+---
+title: CIMBOLOGY
+description: Independent research on IEC CIM-grounded knowledge graphs, semantic design substrates, OWL 2 ontologies, and verifiable AI for electrical infrastructure.
+template: splash
+hero:
+  title: Design Data Born as a Graph
+  tagline: Independent research, open IEC CIM100 OWL 2 ontologies, and graph-based architecture for electrical utility design and asset lifecycles.
+  image:
+    light: ../../assets/CimbologyLogo_transparent.png
+    dark: ../../assets/CimbologyLogo_transparent_dark.png
+    alt: CIMBOLOGY
+  actions:
+    - text: Explore the Research
+      link: /research/cimbology-graph/
+      icon: right-arrow
+    - text: Browse CIM100 Explorer
+      link: /cim/
+      variant: secondary
+    - text: Research Blog
+      link: /blog/
+      variant: minimal
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+## Core Position
+
+Design data must be born as semantically typed graph data grounded in IEC CIM, not trapped inside drawings and tool-native binaries. Every CAD and BIM format in the utility design stack encodes position, not meaning. The engineer's head becomes the integration layer, and when that engineer retires, the integration layer leaves with them.
+
+CIMBOLOGY documents the open semantic architecture, ongoing research, and reference tooling built to fix that gap: full IEC 61970 and IEC 61968 OWL 2 ontologies, minimal domain extensions, declarative RDF lenses, SHACL validation, and JSON-LD knowledge graphs.
+
+<CardGrid stagger>
+  <Card title="CIMBOLOGY Graph Architecture" icon="setting">
+    Four-layer semantic graph approach: canonical IEC CIM (`cim:`), a minimal design-stage extension layer, W3C SHACL validation profiles, and tool-agnostic RDF lenses over JSON-LD.
+
+    [Explore the architecture →](/research/cimbology-graph/)
+  </Card>
+  <Card title="CIM100 Explorer" icon="puzzle">
+    Browse all **1,414 IEC CIM100 types** (807 IEC 61970 + 607 IEC 61968) across 77 packages, complete with Normative/Informative tiers, inheritance diagrams, and downloadable `.ttl`, `.owl`, and `.jsonld` ontologies.
+
+    [Open the CIM Explorer →](/cim/)
+  </Card>
+  <Card title="Timeline" icon="open-book">
+    Over twenty years of work moving electrical infrastructure design toward a data-first, CIM-grounded graph foundation: field layout, utility design systems, `dotTC57`, GraphRAG, and the CIMBOLOGY Graph approach.
+
+    [Read the timeline →](/research/timeline/)
+  </Card>
+  <Card title="Research Blog" icon="pencil">
+    Ongoing technical notes, modeling deep dives, and architecture essays written in Markdown and published directly from the repository with full RSS support.
+
+    [Browse blog posts →](/blog/)
+  </Card>
+</CardGrid>
+
+## Published Artifacts
+
+<CardGrid>
+  <LinkCard
+    title="dotTC57 Open-Source Library"
+    description="MIT-licensed .NET implementation of IEC 61970/61968 CIM with a .NET 10 OWL 2 ontology and JSON metadata generator."
+    href="/research/dottc57/"
+  />
+  <LinkCard
+    title="CIMBOLOGY GraphRAG Research (2024–2025)"
+    description="Empirical 66-question PE exam benchmark comparing Baseline LLM (77.27%), Naive RAG (53.03%), Advanced RAG (83.33%), and CIM GraphRAG (84.85% with full traceability)."
+    href="/research/cimbology-graphrag/"
+  />
+  <LinkCard
+    title="Hosted OWL 2 Ontologies (/ontology/)"
+    description="Direct Turtle (.ttl), RDF/XML (.owl), and JSON-LD 1.1 (.jsonld) downloads for IEC 61970, IEC 61968, and the CIM100 umbrella ontology."
+    href="/cim/"
+  />
+  <LinkCard
+    title="Why IEC CIM Matters for Design"
+    description="Why CIM is a software model rather than a legacy operations export, and why every utility data platform eventually maps back to it."
+    href="/research/why-cim-matters/"
+  />
+</CardGrid>

@@ -1,5 +1,5 @@
 node_modules/
 dist/
 .astro/
-src/content/docs/
+src/content/docs/cim/
 public/vendor/mermaid.min.js
