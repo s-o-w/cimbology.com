@@ -23,6 +23,18 @@ IEC 61970 and IEC 61968 excel at electrical topology, conducting equipment, oper
 4. **Secondary protection and control (P&C) design detail:** Panel wiring, relay-to-device control logic, and commissioning attributes needed during detailed engineering.
 5. **Distribution construction assemblies:** Design-time pole framing, structural attachments, and work-unit assemblies connecting physical layouts to utility Compatible Units.
 
+### Extending CIM Cleanly With Open Web Standards
+
+Traditional CIM profiles were built to tailor IEC CIM for specific exchange use cases, typically by carving out rigid static subsets of the UML model. That solves narrow operational messages, while leaving physical engineering teams stuck whenever a design concept falls outside the standard UML.
+
+RDF and OWL 2 solve that extension problem cleanly because graphs are open-world and composable by IRI. An extension module imports canonical `cim100.ttl` and extends it in three clean ways without ever forking or modifying IEC CIM itself:
+
+- **Add predicates to existing `cim:` classes:** Attach design-time attributes or QUDT-typed quantities directly to canonical classes like `cim:Breaker` or `cim:PowerTransformer` while keeping their standard IRI untouched.
+- **Subclass existing `cim:` classes:** Define specialized utility design concepts via `rdfs:subClassOf` so any CIM-aware downstream tool still recognizes the parent electrical type through standard inheritance.
+- **Introduce brand-new classes in an extension namespace:** Model purely physical or civil concepts IEC CIM intentionally omits (concrete foundations, structural steel, 3D transforms, typed non-electrical relations) as first-class graph nodes linked cleanly to canonical CIM equipment.
+
+That composability moves utility architecture cleanly from **"pure CIM"** (operations and enterprise exchange) to **"pure CIM plus the design-stage extensions the utility industry needs"**, without sacrificing downstream interoperability.
+
 ## The Four-Layer Semantic Stack
 
 <pre class="mermaid">
@@ -82,7 +94,7 @@ A maintainable CIM-grounded design architecture enforces a strict three-tier bou
 
 ## Why RDF Lenses Solve Tool Agnosticism
 
-A lens is a small external Turtle file that annotates existing CIM classes for one specific authoring or consuming tool without modifying or subclassing the shared ontology:
+A lens is a small external Turtle file that annotates existing CIM classes and properties for one specific authoring tool or utility standard without modifying or subclassing the shared ontology:
 
 ```turtle
 @prefix cim:  <http://iec.ch/TC57/CIM100#> .
@@ -91,6 +103,13 @@ A lens is a small external Turtle file that annotates existing CIM classes for o
 cim:PowerTransformer
     lens:targetCategory "BIM.Equipment" ;
     lens:symbolKey "TRANSFORMER_138_13" .
+
+cim:Switch.ratedCurrent
+    lens:displayLabel "Continuous Current Rating (A)" ;
+    lens:toolAttribute "CONT_AMPS" .
 ```
 
-A lens resolver walks the CIM `rdfs:subClassOf` hierarchy (nearest ancestor wins). One mapping on `cim:Switch` covers breakers, disconnectors, load-break switches, and fuses until a more specific rule overrides it. Every CAD, BIM, or asset tool gets its own projection over the same canonical CIM identity with zero changes to the shared core.
+This separation solves two stubborn industry problems at once:
+
+1. **Preferences stay out of the canonical graph.** A utility or engineering team can configure a lens to display whatever labels, attribute names, or categories they want inside whatever CAD, BIM, or asset tool they prefer, while the lens maps those displays cleanly back to canonical `cim:` output on serialization. Teams can effectively "rename" properties to match their internal standards without polluting shareable graph data with local preferences disguised as facts.
+2. **Inheritance eliminates repetitive mapping.** A lens resolver walks the CIM `rdfs:subClassOf` hierarchy (nearest ancestor wins). One mapping on `cim:Switch` covers breakers, disconnectors, load-break switches, and fuses until a more specific rule overrides it. Every CAD, BIM, or asset tool gets its own projection over the same canonical CIM identity with zero changes to the shared core.
