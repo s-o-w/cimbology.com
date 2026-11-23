@@ -71,6 +71,7 @@ Active contributor in the **Substation Design Solutions Industry Consortium (SDS
 
 ## Links
 
+- **LinkedIn:** [linkedin.com/in/shawn-o-weekly](https://www.linkedin.com/in/shawn-o-weekly)
 - **GitHub:** [github.com/s-o-w](https://github.com/s-o-w)
 - **dotTC57 Repository:** [github.com/s-o-w/dotTC57](https://github.com/s-o-w/dotTC57)
 - **Research Blog RSS:** [/blog/rss.xml](/blog/rss.xml)

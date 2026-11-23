@@ -125,6 +125,7 @@ export default defineConfig({
         },
       ],
       social: [
+        { icon: 'linkedin', label: 'LinkedIn', href: 'https://www.linkedin.com/in/shawn-o-weekly' },
         { icon: 'github', label: 'GitHub', href: 'https://github.com/s-o-w' },
         { icon: 'rss', label: 'Blog RSS', href: 'https://cimbology.com/blog/rss.xml' },
       ],
