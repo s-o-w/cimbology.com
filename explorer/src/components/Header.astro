@@ -1,0 +1,86 @@
+---
+import config from 'virtual:starlight/user-config';
+
+import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
+import Search from 'virtual:starlight/components/Search';
+import SiteTitle from 'virtual:starlight/components/SiteTitle';
+import SocialIcons from 'virtual:starlight/components/SocialIcons';
+import ThemeSelect from 'virtual:starlight/components/ThemeSelect';
+
+const shouldRenderSearch =
+  config.pagefind || config.components.Search !== '@astrojs/starlight/components/Search.astro';
+
+const pathname = Astro.url.pathname;
+const isResearch = pathname.startsWith('/research/');
+const isBlog = pathname.startsWith('/blog/');
+const isAbout = pathname.startsWith('/about/');
+const isCim = pathname.startsWith('/cim/');
+---
+
+<div class="header cimbology-header">
+  <div class="title-wrapper sl-flex">
+    <SiteTitle />
+  </div>
+  <nav class="sl-hidden md:sl-flex print:hidden cimbology-topnav" aria-label="Site sections">
+    <a href="/research/cimbology-kg/" aria-current={isResearch ? 'page' : undefined}>Research</a>
+    <a href="/blog/" aria-current={isBlog ? 'page' : undefined}>Blog</a>
+    <a href="/about/" aria-current={isAbout ? 'page' : undefined}>About</a>
+    <span class="cimbology-nav-divider" aria-hidden="true"></span>
+    <a
+      href="/cim/"
+      class="cimbology-nav-explorer"
+      aria-current={isCim ? 'page' : undefined}
+    >
+      CIM100 Explorer
+    </a>
+  </nav>
+  <div class="sl-flex print:hidden cimbology-search-wrap">
+    {shouldRenderSearch && <Search />}
+  </div>
+  <div class="sl-hidden md:sl-flex print:hidden right-group">
+    <div class="sl-flex social-icons">
+      <SocialIcons />
+    </div>
+    <ThemeSelect />
+    <LanguageSelect />
+  </div>
+</div>
+
+<style>
+  @layer starlight.core {
+    .header {
+      display: flex;
+      gap: var(--sl-nav-gap);
+      justify-content: space-between;
+      align-items: center;
+      height: 100%;
+    }
+
+    .title-wrapper {
+      overflow: clip;
+      padding: 0.25rem;
+      margin: -0.25rem;
+      min-width: 0;
+      flex-shrink: 0;
+    }
+
+    .right-group,
+    .social-icons {
+      gap: 1rem;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .social-icons::after {
+      content: '';
+      height: 2rem;
+      border-inline-end: 1px solid var(--sl-color-gray-5);
+    }
+
+    .cimbology-search-wrap {
+      flex: 1 1 auto;
+      justify-content: flex-end;
+      min-width: 0;
+    }
+  }
+</style>

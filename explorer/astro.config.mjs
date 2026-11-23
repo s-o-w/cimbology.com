@@ -72,14 +72,16 @@ export default defineConfig({
       },
       pagefind: true,
       customCss: ['./src/styles/custom.css'],
+      routeMiddleware: './src/routeData.ts',
       components: {
+        Header: './src/components/Header.astro',
         Footer: './src/components/Footer.astro',
       },
       plugins: [
         starlightBlog({
           title: 'Research Blog',
           prefix: 'blog',
-          navigation: 'header-end',
+          navigation: 'none',
           postCount: 10,
           recentPostCount: 5,
           authors: {
