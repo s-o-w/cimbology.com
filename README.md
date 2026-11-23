@@ -1,6 +1,6 @@
 # cimbology.com
 
-Research site, Markdown blog, hosted IEC CIM100 + CIMBOLOGY-KG OWL 2 ontologies, and browsable CIM Explorer powered by Astro Starlight.
+Research site, Markdown blog, hosted IEC CIM100 OWL 2 ontologies, and browsable CIM100 Explorer powered by Astro Starlight.
 
 ## Publishing a New Blog Post
 

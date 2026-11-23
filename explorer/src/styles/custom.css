@@ -212,18 +212,6 @@ nav.sidebar a:hover {
   border-color: rgba(226, 92, 4, 0.45);
 }
 
-.cim-badge-ext {
-  background: rgba(138, 86, 172, 0.22);
-  color: #d8b8f0;
-  border-color: rgba(138, 86, 172, 0.5);
-}
-
-:root[data-theme='light'] .cim-badge-ext {
-  background: rgba(138, 86, 172, 0.12);
-  color: #5d337a;
-  border-color: rgba(138, 86, 172, 0.4);
-}
-
 .cim-badge-kind {
   background: var(--sl-color-gray-6);
   color: var(--sl-color-gray-2);

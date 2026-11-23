@@ -55,8 +55,8 @@ dotnet run --project dotTC57.OwlGenerator -c Release -- generate --out ./out
 # Verify all generated or hosted ontology files offline
 dotnet run --project dotTC57.OwlGenerator -c Release -- verify --dir ./out
 
-# Convert an external Turtle extension ontology to .owl and .jsonld
-dotnet run --project dotTC57.OwlGenerator -c Release -- convert --in ./cimbology-kg.ttl --out-prefix ./out/cimbology-kg
+# Convert an external Turtle ontology to .owl and .jsonld
+dotnet run --project dotTC57.OwlGenerator -c Release -- convert --in ./my-extension.ttl --out-prefix ./out/my-extension
 
 # Run the automated xUnit OWL verification suite
 dotnet test dotTC57.sln -c Release

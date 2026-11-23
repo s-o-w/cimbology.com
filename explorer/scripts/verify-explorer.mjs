@@ -33,21 +33,16 @@ const requiredFiles = [
   'cim/iec61970/base/wires/index.html',
   'cim/iec61970/base/wires/breaker/index.html',
   'cim/iec61968/infiec61968/infwork/compatibleunit/index.html',
-  'cim/cimbology-kg/index.html',
-  'cim/cimbology-kg/classes/index.html',
-  'cim/cimbology-kg/classes/foundation/index.html',
-  'cim/cimbology-kg/classes/clearancecheck/index.html',
-  'cim/cimbology-kg/kinds/index.html',
-  'cim/cimbology-kg/properties/object/index.html',
-  'cim/cimbology-kg/properties/annotations/index.html',
-  'cim/cimbology-kg/properties/domain-datatype/index.html',
-  'cim/cimbology-kg/properties/general-datatype/index.html',
 ];
 
 for (const rel of requiredFiles) {
   if (!fs.existsSync(path.join(distDir, rel))) {
     errors.push(`Missing required built file: dist/${rel}`);
   }
+}
+
+if (fs.existsSync(path.join(distDir, 'cim/cimbology-kg'))) {
+  errors.push('Forbidden extension explorer directory dist/cim/cimbology-kg/ should not exist');
 }
 
 // 2. Check Pagefind index presence
@@ -67,8 +62,8 @@ function walk(dir) {
 }
 walk(distDir);
 
-if (htmlFiles.length < 1550) {
-  errors.push(`Expected >= 1550 built HTML pages, found ${htmlFiles.length}`);
+if (htmlFiles.length < 1500) {
+  errors.push(`Expected >= 1500 built HTML pages, found ${htmlFiles.length}`);
 }
 
 const sizes = htmlFiles.map((f) => fs.statSync(f).size).sort((a, b) => a - b);
@@ -90,6 +85,9 @@ function readCachedHtml(fullPath) {
 
 for (const file of htmlFiles) {
   const html = readCachedHtml(file);
+  if (html.includes('/ontology/cimbology-kg') || html.includes('/cim/cimbology-kg')) {
+    errors.push(`Forbidden extension ontology link found in ${path.relative(distDir, file)}`);
+  }
   let m;
   while ((m = attrUrlRe.exec(html)) !== null) {
     const fullAttr = m[1];

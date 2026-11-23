@@ -15,8 +15,8 @@ excerpt: "Moving cimbology.com from a personal portfolio to an open research sit
 
 ## What Is Live Now
 
-- **[CIM100 & CIMBOLOGY-KG Explorer](/cim/):** All 1,414 top-level IEC 61970 and IEC 61968 types generated programmatically from [`dotTC57`](/research/dottc57/), plus the 41 CIMBOLOGY-KG extension classes, complete with Normative/Informative package badges, Mermaid class diagrams, and instant full-text search.
-- **[Hosted OWL 2 Ontologies](/cim/#hosted-ontology-downloads):** Direct `.ttl`, `.owl`, and `.jsonld` downloads for `iec61970`, `iec61968`, `cim100`, and `cimbology-kg` under `https://cimbology.com/ontology/`.
+- **[CIM100 Explorer](/cim/):** All 1,414 top-level IEC 61970 and IEC 61968 types generated programmatically from [`dotTC57`](/research/dottc57/), complete with Normative/Informative package badges, Mermaid class diagrams, and instant full-text search.
+- **[Hosted OWL 2 Ontologies](/cim/#hosted-ontology-downloads):** Direct `.ttl`, `.owl`, and `.jsonld` downloads for `iec61970`, `iec61968`, and `cim100` under `https://cimbology.com/ontology/`.
 - **[Research & Timeline](/research/timeline/):** How this work evolved over time, alongside the [CIMBOLOGY-KG architecture](/research/cimbology-kg/) and [GraphRAG benchmark](/research/cimbology-graphrag/).
 - **This Blog:** Powered by Astro Starlight and Markdown. New essays and modeling notes publish straight from git with RSS support at [/blog/rss.xml](/blog/rss.xml).
 

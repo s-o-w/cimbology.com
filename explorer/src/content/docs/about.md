@@ -12,7 +12,7 @@ description: Solution Architect, software engineer, and independent researcher f
 ## Focus Areas
 
 - **IEC CIM in Design Workflows:** Bringing IEC 61970 and IEC 61968 out of operations-only exports into open, design-time semantic graphs.
-- **CIMBOLOGY-KG:** Open semantic data architecture combining canonical IEC CIM, minimal physical/P&C extensions (`cimbology:`), W3C SHACL validation profiles, declarative RDF lenses, and JSON-LD.
+- **CIMBOLOGY-KG:** Open semantic data architecture combining canonical IEC CIM, minimal design-stage physical and P&C extensions, W3C SHACL validation profiles, declarative RDF lenses, and JSON-LD.
 - **Open-Source Tooling:** Creator and maintainer of [`dotTC57`](https://github.com/s-o-w/dotTC57), an MIT-licensed .NET implementation of IEC TC57 CIM with a `.NET 10` OWL 2 ontology generator.
 - **Graph-Grounded AI:** Hybrid Knowledge Graph + RAG (GraphRAG) systems where deterministic graph queries, SHACL validation, and explicit citations anchor every model response.
 

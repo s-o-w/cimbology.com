@@ -62,12 +62,11 @@ Testing four retrieval architectures against 66 questions from a 2025 Profession
 | Advanced RAG (layout-aware chunking + tables + multimodal) | 83.33% | Partial |
 | **CIM GraphRAG (GraphDB + Qdrant + Semantic Kernel)** | **84.85%** | **Full** |
 
-## 2026: CIMBOLOGY-KG and Open Hosted CIM100 Ontologies
+## 2026: CIMBOLOGY-KG Architecture and Open Hosted CIM100 Ontologies
 
-In 2026, the work expanded into **[CIMBOLOGY-KG](/research/cimbology-kg/)**: an open, platform-agnostic semantic data foundation built directly on W3C standards (OWL 2, Turtle, JSON-LD, SHACL, SPARQL, and named graphs). Moving from RDF/XML to Turtle for ontology authoring and JSON-LD for instance exchange solved the last web-integration friction: once JSON-LD entered the picture, everything clicked into place.
+In 2026, the work expanded into the **[CIMBOLOGY-KG architecture](/research/cimbology-kg/)**: an open, platform-agnostic semantic design framework built directly on W3C standards (OWL 2, Turtle, JSON-LD, SHACL, SPARQL, and named graphs). Moving from RDF/XML to Turtle for ontology authoring and JSON-LD for instance exchange solved the last web-integration friction: once JSON-LD entered the picture, everything clicked into place.
 
 Current open artifacts hosted directly on this site:
 
 - **Full IEC 61970 & IEC 61968 OWL 2 ontologies** generated programmatically from `dotTC57` (`1,414` top-level CIM types across `77` packages, preserving canonical `http://iec.ch/TC57/CIM100#` IRIs and explicit Normative vs. Informative tier annotations).
-- **CIMBOLOGY-KG Core Extension Ontology** hosted under `https://cimbology.com/ontology/kg#`, importing `cim100.ttl` and adding only what IEC CIM omits by design (physical structures, 3D placement geometry, generic typed relations, secondary P&C circuits, and distribution design entities).
-- **[CIM100 & Extension Explorer](/cim/)**: a searchable, browsable web reference exposing every class, package, datatype, enumeration, inheritance chain, and class diagram directly on `cimbology.com`.
+- **[CIM100 Explorer](/cim/)**: a searchable, browsable web reference exposing every IEC 61970 and IEC 61968 class, package, datatype, enumeration, inheritance chain, and class diagram directly on `cimbology.com`.

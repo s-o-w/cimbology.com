@@ -18,7 +18,7 @@ CIM is a software model, not an electrical design handbook. That distinction exp
 
 ## What CIM Is Not
 
-CIM does not tell you how to draw a single-line diagram, where a steel A-frame sits in a substation yard, or what bolts hold a bus support onto a concrete pad. CIM defines *what an electrical object is* and *how it connects to other objects*. Physical placement, construction hardware, and tool-specific translation belong in clean extensions and lenses layered on top of CIM, as implemented in [CIMBOLOGY-KG](/research/cimbology-kg/).
+CIM does not tell you how to draw a single-line diagram, where a steel A-frame sits in a substation yard, or what bolts hold a bus support onto a concrete pad. CIM defines *what an electrical object is* and *how it connects to other objects*. Physical placement, construction hardware, and tool-specific translation belong in clean extensions and lenses layered on top of CIM, as outlined in the [CIMBOLOGY-KG architecture](/research/cimbology-kg/).
 
 ## Coverage From Generator to Meter
 

@@ -36,11 +36,11 @@ export const onRequest = defineRouteMiddleware(async (context, next) => {
     (entry) => entry.type === 'group' && entry.label === 'Research',
   );
   const cimGroup = starlightRoute.sidebar.find(
-    (entry) => entry.type === 'group' && entry.label === 'CIM100 & Ontology Explorer',
+    (entry) => entry.type === 'group' && entry.label === 'CIM100 Explorer',
   );
 
   if (isCim) {
-    // Standalone CIM100 & Ontology Explorer space: show only the CIM reference tree.
+    // Standalone CIM100 Explorer space: show only the CIM reference tree.
     const cimEntries: SidebarEntry[] =
       cimGroup && cimGroup.type === 'group' ? [...cimGroup.entries] : [];
 

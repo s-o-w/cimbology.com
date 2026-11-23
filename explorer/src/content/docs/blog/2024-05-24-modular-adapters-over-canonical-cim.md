@@ -52,7 +52,7 @@ Under this pattern, work splits into two clean, decoupled halves:
 
 In May 2024, I first sketched this architecture as modular web services translating between disparate inputs, canonical CIM profiles, and downstream deliverables. Over the following two years, moving the intermediate contract into **OWL 2**, **JSON-LD**, and **W3C SHACL** refined that pattern further:
 
-- The canonical substrate became the full hosted **IEC 61970 / IEC 61968 CIM100 ontology** plus minimal domain extensions ([CIMBOLOGY-KG](/research/cimbology-kg/)).
+- The canonical substrate became the full hosted **IEC 61970 / IEC 61968 CIM100 ontology** paired with a minimal design-stage extension architecture ([CIMBOLOGY-KG](/research/cimbology-kg/)).
 - Procedural per-tool translation code shrank into declarative **RDF tool lenses** that walk the CIM class hierarchy (nearest ancestor wins) without modifying the core schema.
 - Quality gates moved out of ad-hoc scripts into reusable **SHACL validation profiles** checked directly against the canonical graph.
 

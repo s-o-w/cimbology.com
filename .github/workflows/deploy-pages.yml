@@ -77,11 +77,9 @@ jobs:
             "_site/ontology/iec61970.ttl" \
             "_site/ontology/iec61968.ttl" \
             "_site/ontology/cim100.ttl" \
-            "_site/ontology/cimbology-kg.ttl" \
             "_site/ontology/cim-model.json" \
             "_site/cim/index.html" \
             "_site/cim/iec61970/base/wires/breaker/index.html" \
-            "_site/cim/cimbology-kg/classes/foundation/index.html" \
             "_site/imgs/headshot.jpg" \
             "_site/imgs/dottc57.png" \
             "_site/sitemap-index.xml" \
@@ -91,6 +89,10 @@ jobs:
               exit 1
             fi
           done
+          if [ -e "_site/ontology/cimbology-kg.ttl" ] || [ -e "_site/cim/cimbology-kg" ]; then
+            echo "FORBIDDEN extension ontology artifact found in _site" >&2
+            exit 1
+          fi
           echo "Pages artifact smoke-check PASSED."
 
       - name: Configure GitHub Pages

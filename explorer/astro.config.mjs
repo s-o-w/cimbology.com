@@ -105,15 +105,6 @@ export default defineConfig({
           },
         },
         {
-          tag: 'link',
-          attrs: {
-            rel: 'alternate',
-            type: 'text/turtle',
-            href: '/ontology/cimbology-kg.ttl',
-            title: 'CIMBOLOGY-KG Extension Ontology (Turtle)',
-          },
-        },
-        {
           tag: 'script',
           attrs: {
             async: true,
@@ -152,7 +143,7 @@ export default defineConfig({
           ],
         },
         {
-          label: 'CIM100 & Ontology Explorer',
+          label: 'CIM100 Explorer',
           collapsed: false,
           items: [
             { label: 'Explorer Overview & Downloads', slug: 'cim' },
@@ -165,19 +156,6 @@ export default defineConfig({
               label: 'IEC 61968 (Distribution / Assets)',
               collapsed: true,
               items: buildStandardSidebar('IEC61968'),
-            },
-            {
-              label: 'CIMBOLOGY-KG Extensions',
-              collapsed: true,
-              items: [
-                { label: 'Extension Overview', slug: 'cim/cimbology-kg' },
-                { label: 'Classes (41)', slug: 'cim/cimbology-kg/classes' },
-                { label: 'Relation & Clearance Kinds', slug: 'cim/cimbology-kg/kinds' },
-                { label: 'Object Properties', slug: 'cim/cimbology-kg/properties/object' },
-                { label: 'Annotation & Lens Predicates', slug: 'cim/cimbology-kg/properties/annotations' },
-                { label: 'Domain-Scoped Datatype Properties', slug: 'cim/cimbology-kg/properties/domain-datatype' },
-                { label: 'General Datatype Properties', slug: 'cim/cimbology-kg/properties/general-datatype' },
-              ],
             },
           ],
         },
